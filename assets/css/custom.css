@@ -1,0 +1,102 @@
+/* ==================== NAVIGATION HORIZONTALE AVEC DÉFILEMENT ==================== */
+
+.nav-scroll-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    margin: 0 10px;
+}
+
+/* Conteneur défilant */
+.header-nav-middle {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+/* Cache la scrollbar sur certains navigateurs tout en gardant la fonctionnalité */
+.header-nav-middle::-webkit-scrollbar {
+    height: 3px;
+}
+
+.header-nav-middle::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.header-nav-middle::-webkit-scrollbar-thumb {
+    background: #ff9900;
+    border-radius: 3px;
+}
+
+/* Menu en ligne */
+.main-nav .navbar-nav {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav .navbar-nav .nav-item {
+    display: inline-block;
+    float: none;
+    white-space: normal;
+}
+
+/* Boutons de navigation */
+.nav-scroll-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.nav-scroll-btn:hover {
+    background: #ff9900;
+    color: white;
+    border-color: #ff9900;
+    opacity: 1;
+}
+
+.nav-scroll-left {
+    margin-right: 5px;
+}
+
+.nav-scroll-right {
+    margin-left: 5px;
+}
+
+/* Responsive */
+@media (max-width: 1399px) {
+    .nav-scroll-btn {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 1199px) {
+    .nav-scroll-btn {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .nav-scroll-btn i {
+        font-size: 14px;
+    }
+}
