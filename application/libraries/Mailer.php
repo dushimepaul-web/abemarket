@@ -28,7 +28,7 @@ class Mailer {
             'smtp_host' => 'smtp.gmail.com',
             'smtp_port' => 587,
             'smtp_user' => $this->from_email,
-            'smtp_pass' => 'biahgnvbkuikemik', // À remplacer par votre mot de passe d'application
+            'smtp_pass' => getenv('SMTP_PASS') ?: '', // Définir la variable d'environnement SMTP_PASS
             'smtp_crypto' => 'tls',
             'mailtype' => 'html',
             'charset' => 'utf-8',

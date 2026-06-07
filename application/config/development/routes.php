@@ -718,9 +718,9 @@ $route['auth/forgot_password'] = 'Auth/forgot_password';
 
 
 $route['order-tracking'] = 'Home/Ordertracking/index';
-$route['order-tracking/(:any)'] = 'Home/Orrdertracking/index/$1';
-$route['update-order-status'] = 'Home/Orrdertracking/updateOrderStatus';
-$route['confirm-delivery'] = 'Home/Orrdertracking/confirmDeliveryByQR';
+$route['order-tracking/(:any)'] = 'Home/Ordertracking/index/$1';
+$route['update-order-status'] = 'Home/Ordertracking/updateOrderStatus';
+$route['confirm-delivery'] = 'Home/Ordertracking/confirmDeliveryByQR';
 
 
 

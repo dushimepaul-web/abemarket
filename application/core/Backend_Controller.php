@@ -35,8 +35,10 @@ class BackendController extends MY_Controller
         // To inherit directly the attributes of the parent class.
         parent::__construct();
 
-        // CI profiler
-        $this->output->enable_profiler(true);
+        // CI profiler (uniquement en développement)
+        if (ENVIRONMENT === 'development') {
+            $this->output->enable_profiler(true);
+        }
 
         // This function returns the main CodeIgniter object.
         // Normally, to call any of the available CodeIgniter object or pre defined library classes then you need to declare.
