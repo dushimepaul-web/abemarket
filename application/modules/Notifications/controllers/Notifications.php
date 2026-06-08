@@ -33,7 +33,7 @@ class Notifications extends MY_Controller {
      */
     public function index() {
         if (!$this->is_admin()) {
-            show_error('Accès réservé aux administrateurs', 403);
+            redirect('Notifications/mes_notifications');
         }
         
         $data['title'] = 'Gestion des notifications';
@@ -84,6 +84,11 @@ class Notifications extends MY_Controller {
      */
     public function mes_notifications() {
         $user_id = $this->session->userdata('id_utilisateur');
+
+        $session_avatar = $this->session->userdata('avatar_url');
+        if ($session_avatar && !file_exists(FCPATH . $session_avatar)) {
+            $this->session->set_userdata('avatar_url', null);
+        }
         
         $data['title'] = 'Mes notifications';
         $data['notifications'] = $this->Notifications_model->get_by_utilisateur($user_id);

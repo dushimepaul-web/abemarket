@@ -23,6 +23,7 @@
 
             <li class="menu-title">General</li>
 
+            <?php if (has_permission('viewDashboard') || has_role(['client'])): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?= base_url() ?>Dashboard">
                     <span class="nav-icon">
@@ -31,7 +32,9 @@
                     <span class="nav-text"> Dashboard </span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageProduits')): ?>
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarProducts" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarProducts">
                     <span class="nav-icon">
@@ -50,7 +53,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageCategories')): ?>
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarCategory" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCategory">
                     <span class="nav-icon">
@@ -66,7 +71,73 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageMesProduits')): ?>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>Produits">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:t-shirt-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Mes Produits </span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (has_permission('viewMesCommandes') || has_permission('manageMesCommandes')): ?>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>Commande">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:bag-smile-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Mes Commandes </span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (has_permission('viewMesSoldes')): ?>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>soldes-vendeurs/mon-solde">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:dollar-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Mes Soldes </span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (has_permission('manageMesAvis')): ?>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>avis-produits">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:star-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Mes Avis </span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if (has_permission('manageMaBoutique')): ?>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>ma-boutique">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:shop-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Ma Boutique </span>
+                </a>
+            </li>
+            <?php endif; ?>
+
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url() ?>Profile">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:user-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Mon Profil </span>
+                </a>
+            </li>
+
+            <?php if (has_permission('manageMesApprovisionnements')): ?>
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarInventory" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarInventory">
                     <span class="nav-icon">
@@ -82,7 +153,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageCommandes')): ?>
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarOrders" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarOrders">
                     <span class="nav-icon">
@@ -107,29 +180,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
-            <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#sidebarPurchases" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarPurchases">
-                    <span class="nav-icon">
-                        <iconify-icon icon="solar:card-send-bold-duotone"></iconify-icon>
-                    </span>
-                    <span class="nav-text"> Purchases </span>
-                </a>
-                <div class="collapse" id="sidebarPurchases">
-                    <ul class="nav sub-navbar-nav">
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="purchase-list.html">List</a>
-                        </li>
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="purchase-order.html">Order</a>
-                        </li>
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="purchase-returns.html">Return</a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
+            <?php if (has_permission('manageUtilisateurs')): ?>
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarAttributes" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAttributes">
                     <span class="nav-icon">
@@ -163,29 +216,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
-            <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#sidebarInvoice" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarInvoice">
-                    <span class="nav-icon">
-                        <iconify-icon icon="solar:bill-list-bold-duotone"></iconify-icon>
-                    </span>
-                    <span class="nav-text"> Invoices </span>
-                </a>
-                <div class="collapse" id="sidebarInvoice">
-                    <ul class="nav sub-navbar-nav">
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="invoice-list.html">List</a>
-                        </li>
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="invoice-details.html">Details</a>
-                        </li>
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="invoice-add.html">Create</a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
+            <?php if (has_role(['super_admin', 'admin'])): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?= base_url() ?>Settings">
                     <span class="nav-icon">
@@ -194,9 +227,11 @@
                     <span class="nav-text"> Settings </span>
                 </a>
             </li>
+            <?php endif; ?>
 
             <li class="menu-title mt-2">Users</li>
 
+            <?php if (has_permission('manageProfils')): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?= base_url() ?>Profils">
                     <span class="nav-icon">
@@ -205,7 +240,9 @@
                     <span class="nav-text"> Profile </span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_role('super_admin')): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?= base_url() ?>Roles">
                     <span class="nav-icon">
@@ -214,7 +251,9 @@
                     <span class="nav-text"> Roles </span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageUtilisateurs')): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?= base_url() ?>Utilisateurs">
                     <span class="nav-icon">
@@ -223,7 +262,9 @@
                     <span class="nav-text"> Utilisateurs </span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_role(['super_admin', 'admin'])): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?= base_url() ?>tentatives-connexion">
                     <span class="nav-icon">
@@ -232,7 +273,9 @@
                     <span class="nav-text"> Tentatives Connexion </span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageUtilisateurs')): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?= base_url() ?>Customers">
                     <span class="nav-icon">
@@ -241,7 +284,9 @@
                     <span class="nav-text"> Customers</span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageVendeurs')): ?>
             <li class="nav-item">
                 <a class="nav-link" href="<?= base_url() ?>Sellers">
                     <span class="nav-icon">
@@ -250,9 +295,13 @@
                     <span class="nav-text"> Sellers</span>
                 </a>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_role(['super_admin', 'admin'])): ?>
             <li class="menu-title mt-2">NTURO Modules</li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageCoupons')): ?>
             <!-- Coupons -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarCoupons" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarCoupons">
@@ -272,8 +321,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
-
+            <?php if (has_permission('managePaiements')): ?>
             <!-- Paiements vendeurs -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarPaiements" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarPaiements">
@@ -291,7 +341,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageVendeurs')): ?>
             <!-- Documents vendeur -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarDocuments" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarDocuments">
@@ -308,7 +360,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('managePaiements')): ?>
             <!-- Mode paiement -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarModePaiement" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarModePaiement">
@@ -328,7 +382,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageCommandes')): ?>
             <!-- Historique commandes -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarHistorique" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarHistorique">
@@ -348,7 +404,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageRetours')): ?>
             <!-- Retours Remboursements -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarRetour" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarRetour">
@@ -368,24 +426,28 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
-            <!-- Retours Remboursements -->
+            <?php if (has_role(['super_admin', 'admin'])): ?>
+            <!-- Banners -->
             <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#sidebarRetour" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarRetour">
+                <a class="nav-link menu-arrow" href="#sidebarBanners" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarBanners">
                     <span class="nav-icon">
                         <iconify-icon icon="solar:refresh-bold-duotone"></iconify-icon>
                     </span>
                     <span class="nav-text"> Banners </span>
                 </a>
-                <div class="collapse" id="sidebarRetour">
+                <div class="collapse" id="sidebarBanners">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
                             <a class="sub-nav-link" href="<?= base_url('banners') ?>">Liste</a>
                         </li>
                     </ul>
                 </div>
-            </li>  
+            </li>
+            <?php endif; ?>
 
+            <?php if (has_role(['super_admin', 'admin'])): ?>
             <!-- Codes OTP -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarOTP" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarOTP">
@@ -402,7 +464,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('managePaiements')): ?>
             <!-- Config Paiement Vendeur -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarConfigPaiement" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarConfigPaiement">
@@ -422,7 +486,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('managePaiements')): ?>
             <!-- Transactions paiement -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarTransactions" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarTransactions">
@@ -439,14 +505,16 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
 
 
 
+            <?php if (has_role(['super_admin', 'admin'])): ?>
             <li class="nav-item">
     <a class="nav-link menu-arrow" href="#sidebarAbout" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAbout">
         <span class="nav-icon">
-            <ico            nify-icon icon="solar:info-square-bold-duotone"></iconify-icon>
+            <iconify-icon icon="solar:info-square-bold-duotone"></iconify-icon>
         </span>
         <span class="nav-text"> À propos </span>
     </a>
@@ -458,8 +526,10 @@
         </ul>
     </div>
 </li>
+            <?php endif; ?>
 
-<li class="nav-item">
+            <?php if (has_role(['super_admin', 'admin'])): ?>
+            <li class="nav-item">
     <a class="nav-link menu-arrow" href="#sidebarBlog" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarBlog">
         <span class="nav-icon">
             <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
@@ -480,9 +550,10 @@
         </ul>
     </div>
 </li>
+            <?php endif; ?>
 
-
-<li class="nav-item">
+            <?php if (has_role(['super_admin', 'admin'])): ?>
+            <li class="nav-item">
     <a class="nav-link menu-arrow" href="#sidebarFaq" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarFaq">
         <span class="nav-icon">
             <iconify-icon icon="solar:question-circle-bold-duotone"></iconify-icon>
@@ -497,9 +568,10 @@
         </ul>
     </div>
 </li>
+            <?php endif; ?>
 
-
-<li class="nav-item">
+            <?php if (has_role(['super_admin', 'admin'])): ?>
+            <li class="nav-item">
     <a class="nav-link menu-arrow" href="#sidebarTeam" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarTeam">
         <span class="nav-icon">
             <iconify-icon icon="solar:users-group-rounded-bold-duotone"></iconify-icon>
@@ -514,9 +586,10 @@
         </ul>
     </div>
 </li>
+            <?php endif; ?>
 
-
-<li class="nav-item">
+            <?php if (has_role(['super_admin', 'admin'])): ?>
+            <li class="nav-item">
     <a class="nav-link menu-arrow" href="#sidebarTestimonials" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarTestimonials">
         <span class="nav-icon">
             <iconify-icon icon="solar:chat-round-like-bold-duotone"></iconify-icon>
@@ -531,9 +604,12 @@
         </ul>
     </div>
 </li>
+            <?php endif; ?>
 
 
+            <?php if (has_permission('manageMonPanier')): ?>
             <!-- Panier -->
+            <?php if (has_role(['super_admin', 'admin'])): ?>
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarPanier" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarPanier">
                     <span class="nav-icon">
@@ -544,12 +620,24 @@
                 <div class="collapse" id="sidebarPanier">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="<?= base_url('List') ?>">Liste</a>
+                            <a class="sub-nav-link" href="<?= base_url('paniers') ?>">Liste</a>
                         </li>
                     </ul>
                 </div>
             </li>
+            <?php else: ?>
+            <li class="nav-item">
+                <a class="nav-link" href="<?= base_url('paniers/mon_panier') ?>">
+                    <span class="nav-icon">
+                        <iconify-icon icon="solar:cart-3-bold-duotone"></iconify-icon>
+                    </span>
+                    <span class="nav-text"> Mon Panier </span>
+                </a>
+            </li>
+            <?php endif; ?>
+            <?php endif; ?>
 
+            <?php if (has_permission('viewMesNotifications')): ?>
             <!-- Notifications -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarNotifications" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarNotifications">
@@ -566,7 +654,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageTransporteurs')): ?>
             <!-- Transporteurs -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarTransporteurs" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarTransporteurs">
@@ -583,7 +673,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageLivraisons')): ?>
             <!-- Points relais -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarPointsRelais" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarPointsRelais">
@@ -600,7 +692,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('viewCarteGps')): ?>
             <!-- Suivi GPS -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarSuivisGPS" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarSuivisGPS">
@@ -617,7 +711,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_role(['super_admin', 'admin'])): ?>
             <!-- Liste de souhaits -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarWishlist" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarWishlist">
@@ -634,7 +730,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageAvis')): ?>
             <!-- Evaluations vendeurs -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarEvaluations" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarEvaluations">
@@ -651,7 +749,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_role(['super_admin', 'admin'])): ?>
             <!-- Logs Audit -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarLogsAudit" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarLogsAudit">
@@ -668,7 +768,9 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
+            <?php if (has_permission('manageSoldesVendeurs')): ?>
             <!-- Soldes vendeurs -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarSoldes" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarSoldes">
@@ -685,11 +787,8 @@
                     </ul>
                 </div>
             </li>
+            <?php endif; ?>
 
-
-
-
-           
 
 
         </ul>

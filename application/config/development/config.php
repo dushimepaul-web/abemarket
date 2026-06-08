@@ -324,7 +324,7 @@ $config['cache_query_string'] = FALSE;
 | https://codeigniter.com/user_guide/libraries/encryption.html
 |
 */
-$config['encryption_key'] = '';
+$config['encryption_key'] = 'aB3mArKeT2026S3cur3K3yF0rS3ss10n5!';
 
 /*
 |--------------------------------------------------------------------------
@@ -403,7 +403,7 @@ $config['sess_regenerate_destroy'] = TRUE;
 $config['cookie_prefix']	= '';
 $config['cookie_domain']	= '';
 $config['cookie_path']		= '/';
-$config['cookie_secure']	= TRUE;
+$config['cookie_secure']	= FALSE;
 $config['cookie_httponly'] 	= TRUE;
 
 /*

@@ -1221,7 +1221,7 @@ public function getCartItems($userId) {
      */
     public function subscribeNewsletter($email) {
         $this->db->where('email', $email);
-        $query = $this->db->get('newsletter');
+        $query = $this->db->get('newsletter_abonnes');
         
         if ($query->num_rows() > 0) {
             return ['success' => false, 'message' => 'Cet email est déjà abonné'];
@@ -1233,7 +1233,7 @@ public function getCartItems($userId) {
             'est_actif' => 1
         ];
         
-        if ($this->db->insert('newsletter', $data)) {
+        if ($this->db->insert('newsletter_abonnes', $data)) {
             return ['success' => true, 'message' => 'Inscription réussie !'];
         }
         

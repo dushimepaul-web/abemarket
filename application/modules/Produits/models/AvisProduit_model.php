@@ -27,6 +27,9 @@ class AvisProduit_model extends CI_Model {
         if (!empty($filters['id_vendeur'])) {
             $this->db->where('p.id_vendeur', $filters['id_vendeur']);
         }
+        if (!empty($filters['id_utilisateur'])) {
+            $this->db->where('a.id_utilisateur', $filters['id_utilisateur']);
+        }
         if (!empty($filters['search'])) {
             $this->db->group_start();
             $this->db->like('p.nom_produit', $filters['search']);

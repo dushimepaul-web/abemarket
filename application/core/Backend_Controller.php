@@ -35,10 +35,7 @@ class BackendController extends MY_Controller
         // To inherit directly the attributes of the parent class.
         parent::__construct();
 
-        // CI profiler (uniquement en développement)
-        if (ENVIRONMENT === 'development') {
-            $this->output->enable_profiler(true);
-        }
+        // Profiler désactivé
 
         // This function returns the main CodeIgniter object.
         // Normally, to call any of the available CodeIgniter object or pre defined library classes then you need to declare.
@@ -63,13 +60,11 @@ class BackendController extends MY_Controller
      *
      * @return [type]            [description]
      */
-    protected function render_page($view, $data)
-    {
-        $this->load->view('templates/header', $this->data);
-        $this->load->view('templates/main_header', $this->data);
-        $this->load->view('templates/main_sidebar', $this->data);
-        $this->load->view($view, $this->data);
-        $this->load->view('templates/footer', $this->data);
-        $this->load->view('templates/control_sidebar', $this->data);
+    protected function render_page($view, $data) {
+        $this->load->view('includes/backend/Header', $data);
+        $this->load->view('includes/backend/Topheader', $data);
+        $this->load->view('includes/backend/Sidebar', $data);
+        $this->load->view($view, $data);
+        $this->load->view('includes/backend/Footer', $data);
     }
 }

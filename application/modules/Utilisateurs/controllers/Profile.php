@@ -16,12 +16,18 @@ class Profile extends MY_Controller
         $user_id = $this->session->userdata('id_utilisateur');
         $user = $this->Model->readOne('utilisateurs', ['id_utilisateur' => $user_id]);
         
+        $avatar_url = $user['avatar_url'];
+        if ($avatar_url && !file_exists(FCPATH . $avatar_url)) {
+            $avatar_url = null;
+        }
+        $this->session->set_userdata('avatar_url', $avatar_url);
+        
         $data = [
             'prenom' => $user['prenom'],
             'nom' => $user['nom'],
             'email' => $user['email'],
             'telephone' => $user['telephone'],
-            'avatar_url' => $user['avatar_url'],
+            'avatar_url' => $avatar_url,
             'role' => $this->session->userdata('role'),
             'est_actif' => $user['est_actif'],
             'email_verifie' => $user['email_verifie'],
@@ -40,8 +46,26 @@ class Profile extends MY_Controller
             'prenom' => $this->input->post('prenom'),
             'nom' => $this->input->post('nom'),
             'email' => $this->input->post('email'),
-            'telephone' => $this->input->post('telephone')
+            'telephone' => $this->input->post('telephone') ?: null
         ];
+
+        if (!empty($_FILES['avatar']['name'])) {
+            $config['upload_path'] = './attachments/Users/';
+            $config['allowed_types'] = 'jpg|jpeg|png|gif|webp';
+            $config['max_size'] = 2048;
+            $config['encrypt_name'] = true;
+            if (!is_dir($config['upload_path'])) {
+                mkdir($config['upload_path'], 0777, true);
+            }
+            $this->load->library('upload');
+            $this->upload->initialize($config);
+            if ($this->upload->do_upload('avatar')) {
+                $data['avatar_url'] = 'attachments/Users/' . $this->upload->data('file_name');
+            } else {
+                $this->session->set_flashdata('error', 'Erreur upload: ' . $this->upload->display_errors('', ''));
+                redirect('Profile');
+            }
+        }
         
         $this->Model->update('utilisateurs', ['id_utilisateur' => $user_id], $data);
         
@@ -49,6 +73,9 @@ class Profile extends MY_Controller
         $this->session->set_userdata('prenom', $data['prenom']);
         $this->session->set_userdata('nom', $data['nom']);
         $this->session->set_userdata('email', $data['email']);
+        if (isset($data['avatar_url'])) {
+            $this->session->set_userdata('avatar_url', $data['avatar_url']);
+        }
         
         $this->session->set_flashdata('success', 'Profil mis à jour avec succès.');
         redirect('Profile');

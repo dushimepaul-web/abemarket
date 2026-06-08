@@ -131,7 +131,7 @@ class Profils extends MY_Controller
         }
         
         $data['profil'] = $profil;
-        $data['permissions_list'] = json_decode($profil['permissions'], true) ?? [];
+        $data['permissions_list'] = isset($profil['permissions']) ? (json_decode($profil['permissions'], true) ?? []) : [];
         $this->load->view('Profils_View', $data);
     }
 
@@ -182,7 +182,7 @@ class Profils extends MY_Controller
             ->get()
             ->result_array();
         
-        $data['permissions'] = json_decode($data['profil']['permissions'], true) ?? [];
+        $data['permissions'] = isset($data['profil']['permissions']) ? (json_decode($data['profil']['permissions'], true) ?? []) : [];
         $data['total_users'] = count($data['users']);
         
         $this->load->view('Profils_View', $data);

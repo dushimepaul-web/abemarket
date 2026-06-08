@@ -1,6 +1,9 @@
-<?php include VIEWPATH . 'includes/frontend/Header.php'; ?>
+<?php include VIEWPATH . 'includes/backend/Header.php'; ?>
+<?php include VIEWPATH . 'includes/backend/Sidebar.php'; ?>
+<?php include VIEWPATH . 'includes/backend/Topheader.php'; ?>
 
-<div class="container mt-4">
+<div class="page-content">
+    <div class="container-xxl">
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -129,4 +132,7 @@ $('#supprimerToutes').on('click', function() {
 });
 </script>
 
-<?php include VIEWPATH . 'includes/frontend/Footer.php'; ?>
+    </div>
+</div>
+
+<?php include VIEWPATH . 'includes/backend/Footer.php'; ?>

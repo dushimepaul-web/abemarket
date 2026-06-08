@@ -13,11 +13,6 @@ class Paniers extends MY_Controller {
         if (!$this->session->userdata('logged_in')) {
             redirect('auth/login');
         }
-        
-        // Vérifier que l'utilisateur est admin
-        if (!$this->is_admin()) {
-            show_error('Accès réservé aux administrateurs', 403);
-        }
     }
 
     private function is_admin() {
@@ -33,6 +28,9 @@ class Paniers extends MY_Controller {
      * Liste des paniers (admin)
      */
     public function index() {
+        if (!$this->is_admin()) {
+            show_error('Accès réservé aux administrateurs', 403);
+        }
         $data['title'] = 'Gestion des paniers';
         
         $filters = [
@@ -75,9 +73,23 @@ class Paniers extends MY_Controller {
     }
 
     /**
+     * Mon panier (utilisateur connecté)
+     */
+    public function mon_panier() {
+        $user_id = $this->session->userdata('id_utilisateur');
+        $data['articles'] = $this->Paniers_model->get_by_utilisateur($user_id);
+        $data['total'] = $this->Paniers_model->get_total_by_utilisateur($user_id);
+        $data['title'] = 'Mon Panier';
+        $this->load->view('mon_panier_view', $data);
+    }
+
+    /**
      * Détail d'un panier par utilisateur
      */
     public function detail($id_utilisateur) {
+        if (!$this->is_admin()) {
+            show_error('Accès réservé aux administrateurs', 403);
+        }
         $data['utilisateur'] = $this->db->where('id_utilisateur', $id_utilisateur)->get('utilisateurs')->row();
         
         if (!$data['utilisateur']) {
@@ -150,6 +162,9 @@ class Paniers extends MY_Controller {
      * Exporter les paniers
      */
     public function exporter() {
+        if (!$this->is_admin()) {
+            show_error('Accès réservé aux administrateurs', 403);
+        }
         $filters = [
             'date_debut' => $this->input->get('date_debut'),
             'date_fin' => $this->input->get('date_fin')

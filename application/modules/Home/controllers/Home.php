@@ -645,7 +645,7 @@ public function get_quartiers() {
             } else {
                 $this->session->set_flashdata('error', 'Une erreur est survenue lors de l\'envoi. Veuillez réessayer ou nous contacter directement par téléphone.');
             }
-            redirect('home/contact');
+            redirect('contact');
         } else {
             // Conserver les données saisies
             $data['old_input'] = $this->input->post();
@@ -948,7 +948,7 @@ public function seller_details($slug) {
     $per_page = 12;
     $offset = ($page - 1) * $per_page;
     
-    $data['products'] = $this->Home_model->getSellerProducts($data['seller']['id_vendeur'], $per_page, $offset);
+    $data['products'] = $this->Home_model->getSellerProductsPaginated($data['seller']['id_vendeur'], $per_page, $offset);
     $data['total_products'] = $data['seller']['product_count'];
     $data['current_page'] = $page;
     $data['per_page'] = $per_page;
@@ -1318,8 +1318,8 @@ public function seller($slug) {
             'canal_commande' => 'web'
         ];
         
-        // Insérer la commande (à implémenter dans le modèle)
-        // $orderId = $this->Home_model->createOrder($orderData, $cartItems);
+        // Insérer la commande
+        $orderId = $this->Home_model->createOrder($orderData, $cartItems);
         
         // Vider le panier
         $this->Home_model->clearCart($this->session->userdata('user_id'));
@@ -1369,7 +1369,7 @@ public function newsletter_subscribe() {
     
     // Vérifier si l'email existe déjà
     $this->db->where('email', $email);
-    $exists = $this->db->get('newsletter_subscribers')->num_rows();
+    $exists = $this->db->get('newsletter_abonnes')->num_rows();
     
     if ($exists > 0) {
         $this->output->set_content_type('application/json')
@@ -1381,11 +1381,10 @@ public function newsletter_subscribe() {
     $data = [
         'email' => $email,
         'date_inscription' => date('Y-m-d H:i:s'),
-        'est_actif' => 1,
-        'ip_address' => $this->input->ip_address()
+        'est_actif' => 1
     ];
     
-    $result = $this->db->insert('newsletter_subscribers', $data);
+    $result = $this->db->insert('newsletter_abonnes', $data);
     
     $this->output->set_content_type('application/json')
                  ->set_output(json_encode([

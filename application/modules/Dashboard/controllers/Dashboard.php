@@ -19,7 +19,19 @@ class Dashboard extends My_Controller
     }
 
     public function index()
-{   
+{
+    $role = $this->session->userdata('role');
+    $role_dashboards = [
+        'vendeur' => 'Vendeur/Dashboard',
+        'client' => 'Client/Dashboard',
+        'livreur' => 'Livreur/Dashboard',
+        'finance' => 'Finance/Dashboard',
+        'support' => 'Support/Dashboard',
+    ];
+    if (isset($role_dashboards[$role])) {
+        redirect($role_dashboards[$role]);
+    }
+    
     // Statistiques des commandes
     $data['total_orders'] = $this->Model->count('commandes');
     $data['pending_orders'] = $this->Model->count('commandes', ['statut_commande' => 'en_attente']);

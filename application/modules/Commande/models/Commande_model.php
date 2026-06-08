@@ -11,14 +11,18 @@ class Commande_model extends CI_Model {
      * Compter toutes les commandes
      */
     public function count_all($filters = [], $id_vendeur = null, $is_admin = true) {
-        $this->db->from('commandes c');
-        $this->db->join('utilisateurs u', 'u.id_utilisateur = c.id_utilisateur');
-        
         if (!$is_admin && $id_vendeur) {
-            $this->db->join('articles_commande a', 'a.id_commande = c.id_commande');
-            $this->db->where('a.id_vendeur', $id_vendeur);
-            $this->db->distinct();
+            // Compter les commandes distinctes du vendeur via articles_commande
+            $this->db->select('c.id_commande')
+                     ->from('commandes c')
+                     ->join('articles_commande a', 'a.id_commande = c.id_commande')
+                     ->where('a.id_vendeur', $id_vendeur)
+                     ->group_by('c.id_commande');
+        } else {
+            $this->db->from('commandes c');
         }
+        
+        $this->db->join('utilisateurs u', 'u.id_utilisateur = c.id_utilisateur');
         
         if (!empty($filters['statut_commande'])) {
             $this->db->where('c.statut_commande', $filters['statut_commande']);
@@ -36,6 +40,11 @@ class Commande_model extends CI_Model {
             $this->db->or_like('u.prenom', $filters['search']);
             $this->db->or_like('u.nom', $filters['search']);
             $this->db->group_end();
+        }
+        
+        if (!$is_admin && $id_vendeur) {
+            $query = $this->db->get();
+            return $query->num_rows();
         }
         
         return $this->db->count_all_results();

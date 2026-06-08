@@ -33,13 +33,6 @@ class Approvisionnements extends MY_Controller {
 
     private function get_vendeur_id() {
         $user_id = $this->session->userdata('id_utilisateur');
-        
-        if ($this->is_admin()) {
-            // Pour l'admin, récupérer le premier vendeur actif
-            $vendeur = $this->db->where('statut', 'actif')->get('vendeurs')->row();
-            return $vendeur ? $vendeur->id_vendeur : 1;
-        }
-        
         $vendeur = $this->db->where('id_utilisateur', $user_id)->get('vendeurs')->row();
         return $vendeur ? $vendeur->id_vendeur : null;
     }
@@ -47,10 +40,13 @@ class Approvisionnements extends MY_Controller {
     public function index() {
         $data['title'] = 'Gestion des stocks & approvisionnements';
         $id_vendeur = $this->get_vendeur_id();
+        $is_admin = $this->is_admin();
         
         // Configuration de la pagination
         $config['base_url'] = base_url('approvisionnements/index');
-        $config['total_rows'] = $this->Produit_model->count_all_produits();
+        $config['total_rows'] = $id_vendeur && !$is_admin
+            ? $this->Produit_model->count_produits_by_vendeur($id_vendeur)
+            : $this->Produit_model->count_all_produits();
         $config['per_page'] = 20;
         $config['uri_segment'] = 3;
         $config['full_tag_open'] = '<ul class="pagination justify-content-end mb-0">';
@@ -70,40 +66,38 @@ class Approvisionnements extends MY_Controller {
         
         $page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 0;
         
-        // Appliquer les filtres
         $filters = [
             'id_categorie' => $this->input->get('id_categorie'),
             'statut_stock' => $this->input->get('statut_stock'),
             'search' => $this->input->get('search')
         ];
         
-        // Récupérer tous les produits avec filtres
-        $data['produits'] = $this->Produit_model->get_all_produits_paginated(
-            $config['per_page'], 
-            $page, 
-            $filters
-        );
+        if ($id_vendeur && !$is_admin) {
+            $data['produits'] = $this->Produit_model->get_produits_by_vendeur_paginated(
+                $id_vendeur, $config['per_page'], $page, $filters
+            );
+            $stats = $this->Produit_model->get_produits_stats_by_vendeur($id_vendeur);
+        } else {
+            $data['produits'] = $this->Produit_model->get_all_produits_paginated(
+                $config['per_page'], $page, $filters
+            );
+            $stats = $this->Produit_model->get_produits_stats();
+        }
+        $data['total_produits'] = $stats['total'] ?? 0;
+        $data['produits_actifs'] = $stats['actifs'] ?? 0;
+        $data['produits_inactifs'] = $stats['inactifs'] ?? 0;
+        $data['produits_stock_bas'] = $stats['stock_bas'] ?? 0;
+        $data['rupture_stock'] = $stats['rupture'] ?? 0;
         
-        // Statistiques des produits
-        $stats = $this->Produit_model->get_produits_stats();
-        $data['total_produits'] = $stats['total'];
-        $data['produits_actifs'] = $stats['actifs'];
-        $data['produits_inactifs'] = $stats['inactifs'];
-        $data['produits_stock_bas'] = $stats['stock_bas'];
-        $data['rupture_stock'] = $stats['rupture'];
-        
-        // Récupérer les catégories pour le filtre
         $data['categories'] = $this->db->where('est_actif', 1)
                                       ->order_by('nom_categorie', 'ASC')
                                       ->get('categories')
                                       ->result();
         
-        // Récupérer les images pour chaque produit
         foreach($data['produits'] as &$prod){
             $prod['image_url'] = $this->Produit_model->get_main_image($prod['id_produit']);
         }
         
-        // Statistiques des approvisionnements
         $data['stats_appro'] = $this->Approvisionnement_model->get_stats($id_vendeur);
         
         $this->load->view('approvisionnements_list', $data);

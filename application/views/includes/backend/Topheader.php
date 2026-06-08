@@ -52,7 +52,7 @@
                                              <a href="javascript:void(0);" class="dropdown-item py-3 border-bottom text-wrap">
                                                   <div class="d-flex">
                                                        <div class="flex-shrink-0">
-                                                            <img src="assets/images/users/avatar-1.jpg" class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-1" />
+                                                            <img src="<?= base_url() ?>assets/images/users/avatar-1.jpg" class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-1" />
                                                        </div>
                                                        <div class="flex-grow-1">
                                                             <p class="mb-0"><span class="fw-medium">Josephine Thompson </span>commented on admin panel <span>" Wow 😍! this admin looks good and awesome design"</span></p>
@@ -81,7 +81,7 @@
                                              <a href="javascript:void(0);" class="dropdown-item py-3 border-bottom">
                                                   <div class="d-flex">
                                                        <div class="flex-shrink-0">
-                                                            <img src="assets/images/users/avatar-3.jpg" class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-3" />
+                                                            <img src="<?= base_url() ?>assets/images/users/avatar-3.jpg" class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-3" />
                                                        </div>
                                                        <div class="flex-grow-1">
                                                             <p class="mb-0 fw-semibold">Jacob Gines</p>
@@ -109,7 +109,7 @@
                                              <a href="javascript:void(0);" class="dropdown-item py-3 border-bottom">
                                                   <div class="d-flex">
                                                        <div class="flex-shrink-0">
-                                                            <img src="assets/images/users/avatar-5.jpg" class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-5" />
+                                                            <img src="<?= base_url() ?>assets/images/users/avatar-5.jpg" class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-5" />
                                                        </div>
                                                        <div class="flex-grow-1">
                                                             <p class="mb-0 fw-semibold">Shawn Bunch</p>
@@ -144,9 +144,9 @@
                               <div class="dropdown topbar-item">
                                    <a type="button" class="topbar-button" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
-                            <img class="rounded-circle" width="32" 
-                                 src="<?= base_url(htmlspecialchars($_SESSION['avatar_url'] ?? 'assets/images/users/avatar-default.jpg')) ?>" 
-                                 alt="avatar">
+                             <img class="rounded-circle" width="32" 
+                                  src="<?= base_url(!empty($_SESSION['avatar_url']) && file_exists(FCPATH . $_SESSION['avatar_url']) ? htmlspecialchars($_SESSION['avatar_url']) : 'assets/images/users/avatar-default.jpg') ?>" 
+                                  alt="avatar">
                         </span>
                     </a>
                                    <div class="dropdown-menu dropdown-menu-end">
@@ -283,24 +283,24 @@
                                    </div>
                                    <div class="position-relative ps-4">
                                         <div class="mb-4">
-                                             <span class="position-absolute start-0 translate-middle-x bg-success bg-gradient d-inline-flex align-items-center justify-content-center rounded-circle text-light fs-20"><img src="assets/images/users/avatar-7.jpg" alt="avatar-5" class="avatar-sm rounded-circle"></span>
+                                             <span class="position-absolute start-0 translate-middle-x bg-success bg-gradient d-inline-flex align-items-center justify-content-center rounded-circle text-light fs-20"><img src="<?= base_url() ?>assets/images/users/avatar-7.jpg" alt="avatar-5" class="avatar-sm rounded-circle"></span>
                                              <div class="ms-2">
                                                   <h5 class="mb-0 text-dark fw-semibold fs-15 lh-base">Alex Smith Attached Photos
                                                   </h5>
                                                   <div class="row g-2 mt-2">
                                                        <div class="col-lg-4">
                                                             <a href="#!">
-                                                                 <img src="assets/images/small/img-6.jpg" alt="" class="img-fluid rounded">
+                                                                 <img src="<?= base_url() ?>assets/images/small/img-6.jpg" alt="" class="img-fluid rounded">
                                                             </a>
                                                        </div>
                                                        <div class="col-lg-4">
                                                             <a href="#!">
-                                                                 <img src="assets/images/small/img-3.jpg" alt="" class="img-fluid rounded">
+                                                                 <img src="<?= base_url() ?>assets/images/small/img-3.jpg" alt="" class="img-fluid rounded">
                                                             </a>
                                                        </div>
                                                        <div class="col-lg-4">
                                                             <a href="#!">
-                                                                 <img src="assets/images/small/img-4.jpg" alt="" class="img-fluid rounded">
+                                                                 <img src="<?= base_url() ?>assets/images/small/img-4.jpg" alt="" class="img-fluid rounded">
                                                             </a>
                                                        </div>
                                                   </div>
@@ -310,7 +310,7 @@
                                    </div>
                                    <div class="position-relative ps-4">
                                         <div class="mb-4">
-                                             <span class="position-absolute start-0 translate-middle-x bg-success bg-gradient d-inline-flex align-items-center justify-content-center rounded-circle text-light fs-20"><img src="assets/images/users/avatar-6.jpg" alt="avatar-5" class="avatar-sm rounded-circle"></span>
+                                             <span class="position-absolute start-0 translate-middle-x bg-success bg-gradient d-inline-flex align-items-center justify-content-center rounded-circle text-light fs-20"><img src="<?= base_url() ?>assets/images/users/avatar-6.jpg" alt="avatar-5" class="avatar-sm rounded-circle"></span>
                                              <div class="ms-2">
                                                   <h5 class="mb-0 text-dark fw-semibold fs-15 lh-base">Rebecca J. added a new team member
                                                   </h5>

@@ -53,19 +53,18 @@ $route['default_controller'] = 'Home';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
-
+// =============================================
+// ROUTES POUR UTILISATEURS
+// =============================================
 $route['Profils'] = 'Utilisateurs/Profils/index';
 $route['Profils/add'] = 'Utilisateurs/Profils/add';
 $route['Profils/edit/(:num)'] = 'Utilisateurs/Profils/edit/$1';
 $route['Profils/delete/(:num)'] = 'Utilisateurs/Profils/delete/$1';
 $route['Profils/view/(:num)'] = 'Utilisateurs/Profils/view/$1';
 
-
-
 $route['Profile'] = 'Utilisateurs/Profile/index';
 $route['Profile/update'] = 'Utilisateurs/Profile/update';
 $route['Profile/changepassword'] = 'Utilisateurs/Profile/changepassword';
-
 
 $route['Roles'] = 'Utilisateurs/Roles/index';
 $route['Roles/assigner'] = 'Utilisateurs/Roles/assigner';
@@ -75,9 +74,7 @@ $route['Roles/modifier_profil/(:num)'] = 'Utilisateurs/Roles/modifier_profil/$1'
 $route['Roles/supprimer_profil/(:num)'] = 'Utilisateurs/Roles/supprimer_profil/$1';
 $route['Roles/get_user_details/(:num)'] = 'Utilisateurs/Roles/get_user_details/$1';
 $route['Roles/modifier_utilisateur'] = 'Utilisateurs/Roles/modifier_utilisateur';
-$route['Roles/supprimer_utilisateur/(:num)'] = 'Utilisateurs/Roles/supprimer_utilisateur/$1
-';
-
+$route['Roles/supprimer_utilisateur/(:num)'] = 'Utilisateurs/Roles/supprimer_utilisateur/$1';
 
 $route['Customers'] = 'Utilisateurs/Customers/index';
 $route['Customers/view/(:num)'] = 'Utilisateurs/Customers/view/$1';
@@ -85,21 +82,26 @@ $route['Customers/edit/(:num)'] = 'Utilisateurs/Customers/edit/$1';
 $route['Customers/delete/(:num)'] = 'Utilisateurs/Customers/delete/$1';
 $route['Customers/toggle_status/(:num)'] = 'Utilisateurs/Customers/toggle_status/$1';
 
-
+// =============================================
+// ROUTES POUR VENDEURS
+// =============================================
 $route['Sellers'] = 'Utilisateurs/Sellers/index';
+$route['Sellers/index'] = 'Utilisateurs/Sellers/index';
 $route['Sellers/add'] = 'Utilisateurs/Sellers/add';
 $route['Sellers/view/(:num)'] = 'Utilisateurs/Sellers/view/$1';
 $route['Sellers/edit/(:num)'] = 'Utilisateurs/Sellers/edit/$1';
 $route['Sellers/delete/(:num)'] = 'Utilisateurs/Sellers/delete/$1';
 $route['Sellers/approve/(:num)'] = 'Utilisateurs/Sellers/approve/$1';
 $route['Sellers/suspend/(:num)'] = 'Utilisateurs/Sellers/suspend/$1';
-
-
+$route['Sellers/ban/(:num)'] = 'Utilisateurs/Sellers/ban/$1';
+$route['Sellers/search_users'] = 'Utilisateurs/Sellers/search_users';
+$route['Sellers/get_user_details'] = 'Utilisateurs/Sellers/get_user_details';
+$route['Sellers/get_communes'] = 'Utilisateurs/Sellers/get_communes';
+$route['Sellers/get_quartiers'] = 'Utilisateurs/Sellers/get_quartiers';
 
 // =============================================
-// ROUTES POUR CATEGORIES (DANS LE MODULE PRODUITS)
+// ROUTES POUR CATEGORIES
 // =============================================
-// Routes pour Categories (avec slug)
 $route['Categories'] = 'Produits/Categories/index';
 $route['categories'] = 'Produits/Categories/index';
 $route['categories/index'] = 'Produits/Categories/index';
@@ -108,21 +110,6 @@ $route['categories/add'] = 'Produits/Categories/add';
 $route['categories/edit/(:any)'] = 'Produits/Categories/edit/$1';
 $route['categories/delete/(:any)'] = 'Produits/Categories/delete/$1';
 $route['categories/toggle_status/(:any)'] = 'Produits/Categories/toggle_status/$1';
-
-
-
-
-
-
-
-// Routes pour Categories
-$route['categories'] = 'Produits/Categories/index';
-$route['categories/index'] = 'Produits/Categories/index';
-$route['categories/index/(:num)'] = 'Produits/Categories/index/$1';
-$route['categories/add'] = 'Produits/Categories/add';
-$route['categories/edit/(:num)'] = 'Produits/Categories/edit/$1';
-$route['categories/delete/(:num)'] = 'Produits/Categories/delete/$1';
-$route['categories/toggle_status/(:num)'] = 'Produits/Categories/toggle_status/$1';
 
 
 
@@ -245,7 +232,7 @@ $route['article-commande/demander-retour']         = 'Commande/ArticleCommande/d
 $route['article-commande/exporter']                = 'Commande/ArticleCommande/exporter';
 
 // Litiges
-$route['litiges']                                  = 'Commandes/LitigeCommande/index';
+$route['litiges']                                  = 'Commande/LitigeCommande/index';
 $route['litige/detail/(:num)']                     = 'Commande/LitigeCommande/detail/$1';
 $route['litige/edit/(:num)']                       = 'Commande/LitigeCommande/edit/$1';
 $route['litige/update/(:num)']                     = 'Commande/LitigeCommande/update/$1';
@@ -363,10 +350,6 @@ $route['VarianteProduit/check_sku'] = 'Produits/VarianteProduit/check_sku';
 
 // Route pour la liste (sans paramètre)
 $route['VarianteProduit'] = 'Produits/VarianteProduit/index';
-
-
-$route['VarianteProduit/update_stock'] = 'Produits/VarianteProduit/update_stock';
-
 
 // QR Confirmations
 $route['qr']                                    = 'Commande/QrConfirmation/index';
@@ -491,11 +474,11 @@ $route['mode-payement/detail/(:num)']                       = 'ModePayement/deta
 
 
 // Routes pour Historique Statut Commande
-$route['historique-statut-commande/(:num)']                    = 'Commandes/HistoriqueStatutCommande/index/$1';
-$route['historique-statut-commande/index/(:num)']              = 'Commandes/HistoriqueStatutCommande/index/$1';
-$route['historique-statut-commande/add']                       = 'Commandes/HistoriqueStatutCommande/add';
-$route['historique-statut-commande/delete/(:num)']             = 'Commandes/HistoriqueStatutCommande/delete/$1';
-$route['historique-statut-commande/exporter/(:num)']           = 'Commandes/HistoriqueStatutCommande/exporter/$1';
+$route['historique-statut-commande/(:num)']                    = 'Commande/HistoriqueStatutCommande/index/$1';
+$route['historique-statut-commande/index/(:num)']              = 'Commande/HistoriqueStatutCommande/index/$1';
+$route['historique-statut-commande/add']                       = 'Commande/HistoriqueStatutCommande/add';
+$route['historique-statut-commande/delete/(:num)']             = 'Commande/HistoriqueStatutCommande/delete/$1';
+$route['historique-statut-commande/exporter/(:num)']           = 'Commande/HistoriqueStatutCommande/exporter/$1';
 
 
 
@@ -526,6 +509,7 @@ $route['transactions-paiement/statistiques'] = 'TransactionsPaiement/statistique
 $route['paniers'] = 'Paniers/index';
 $route['paniers/index'] = 'Paniers/index';
 $route['paniers/index/(:num)'] = 'Paniers/index/$1';
+$route['paniers/mon_panier'] = 'Paniers/mon_panier';
 $route['paniers/detail/(:num)'] = 'Paniers/detail/$1';
 $route['paniers/delete_article/(:num)'] = 'Paniers/delete_article/$1';
 $route['paniers/vider/(:num)'] = 'Paniers/vider/$1';
@@ -654,7 +638,6 @@ $route['shop'] = 'home/shop';
 $route['cart'] = 'home/cart';
 $route['checkout'] = 'home/checkout';
 $route['wishlist'] = 'home/wishlist';
-$route['order-tracking'] = 'home/Ordertracking';
 $route['privacy-policy'] = 'home/privacy_policy';
 $route['sellers'] = 'home/sellers';
 $route['search'] = 'home/search';
@@ -706,49 +689,28 @@ $route['auth/verify_code_page'] = 'Auth/verify_code_page';
 $route['auth/verify_code'] = 'Auth/verify_code';
 $route['auth/resend_reset_code'] = 'Auth/resend_reset_code';
 $route['auth/forgot_password'] = 'Auth/forgot_password';
+$route['auth/otp_verification_page'] = 'Auth/otp_verification_page';
 
-
-
-
-
-
-
-
-
-
-
+// Order tracking
 $route['order-tracking'] = 'Home/Ordertracking/index';
 $route['order-tracking/(:any)'] = 'Home/Ordertracking/index/$1';
 $route['update-order-status'] = 'Home/Ordertracking/updateOrderStatus';
 $route['confirm-delivery'] = 'Home/Ordertracking/confirmDeliveryByQR';
 
-
-
-
-
-// =============================================
-// ROUTES POUR LE MODULE SELLERS (dans Utilisateurs)
-// =============================================
-
-// Routes principales
-$route['Sellers'] = 'Utilisateurs/Sellers/index';
-$route['Sellers/index'] = 'Utilisateurs/Sellers/index';
-$route['Sellers/add'] = 'Utilisateurs/Sellers/add';
-$route['Sellers/edit/(:num)'] = 'Utilisateurs/Sellers/edit/$1';
-$route['Sellers/view/(:num)'] = 'Utilisateurs/Sellers/view/$1';
-$route['Sellers/delete/(:num)'] = 'Utilisateurs/Sellers/delete/$1';
-$route['Sellers/approve/(:num)'] = 'Utilisateurs/Sellers/approve/$1';
-$route['Sellers/suspend/(:num)'] = 'Utilisateurs/Sellers/suspend/$1';
-$route['Sellers/ban/(:num)'] = 'Utilisateurs/Sellers/ban/$1';
-
-// Routes AJAX pour Sellers
-$route['Sellers/search_users'] = 'Utilisateurs/Sellers/search_users';
-$route['Sellers/get_user_details'] = 'Utilisateurs/Sellers/get_user_details';
-$route['Sellers/get_communes'] = 'Utilisateurs/Sellers/get_communes';
-$route['Sellers/get_quartiers'] = 'Utilisateurs/Sellers/get_quartiers';
-
-
-
-$route['auth/otp_verification_page'] = 'Auth/otp_verification_page';
-
+// Tableau de bord utilisateur frontend
 $route['user/dashboard'] = 'home/User_dashboard';
+
+// =============================================
+// ROUTES POUR DASHBOARDS MULTI-RÔLES
+// =============================================
+$route['Vendeur/Dashboard'] = 'Vendeur/Dashboard/index';
+$route['Client/Dashboard'] = 'Client/Dashboard/index';
+$route['Livreur/Dashboard'] = 'Livreur/Dashboard/index';
+$route['Finance/Dashboard'] = 'Finance/Dashboard/index';
+$route['Support/Dashboard'] = 'Support/Dashboard/index';
+
+// Ma Boutique
+$route['ma-boutique'] = 'MaBoutique/MaBoutique/index';
+$route['ma-boutique/update'] = 'MaBoutique/MaBoutique/update';
+$route['ma-boutique/update_paiement'] = 'MaBoutique/MaBoutique/update_paiement';
+$route['ma-boutique/get_communes'] = 'MaBoutique/MaBoutique/get_communes';

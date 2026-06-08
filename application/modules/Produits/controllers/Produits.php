@@ -20,24 +20,40 @@ class Produits extends MY_Controller
         }
     }
 
+    private function is_admin() {
+        $user_id = $this->session->userdata('id_utilisateur');
+        $this->db->select('up.id_profil')
+                 ->from('utilisateur_profils up')
+                 ->where('up.id_utilisateur', $user_id)
+                 ->where_in('up.id_profil', [1, 2, 3]);
+        return $this->db->get()->num_rows() > 0;
+    }
+
+    private function get_vendeur_id() {
+        $user_id = $this->session->userdata('id_utilisateur');
+        $vendeur = $this->db->where('id_utilisateur', $user_id)->get('vendeurs')->row();
+        return $vendeur ? $vendeur->id_vendeur : null;
+    }
+
     // Liste des produits
     public function index()
     {
-        // Récupérer tous les produits via le modèle
-        $data['produits'] = $this->Produit_model->get_all_produits();
+        if ($this->is_admin()) {
+            $data['produits'] = $this->Produit_model->get_all_produits();
+            $stats = $this->Produit_model->get_produits_stats();
+        } else {
+            $id_vendeur = $this->get_vendeur_id();
+            $data['produits'] = $id_vendeur ? $this->Produit_model->get_produits_by_vendeur($id_vendeur) : [];
+            $stats = $id_vendeur ? $this->Produit_model->get_produits_stats_by_vendeur($id_vendeur) : [];
+        }
+        $data['total_produits'] = $stats['total'] ?? 0;
+        $data['produits_actifs'] = $stats['actifs'] ?? 0;
+        $data['produits_inactifs'] = $stats['inactifs'] ?? 0;
+        $data['produits_stock_bas'] = $stats['stock_bas'] ?? 0;
+        $data['rupture_stock'] = $stats['rupture'] ?? 0;
         
-        // Statistiques
-        $stats = $this->Produit_model->get_produits_stats();
-        $data['total_produits'] = $stats['total'];
-        $data['produits_actifs'] = $stats['actifs'];
-        $data['produits_inactifs'] = $stats['inactifs'];
-        $data['produits_stock_bas'] = $stats['stock_bas'];
-        $data['rupture_stock'] = $stats['rupture'];
-        
-        // Récupérer les catégories pour le filtre
         $data['categories'] = $this->Model->read('categories', ['est_actif' => 1], 'nom_categorie', 'ASC');
 
-        // Récupérer les images pour chaque produit
         foreach($data['produits'] as &$prod){
             $prod['image_url'] = $this->Produit_model->get_main_image($prod['id_produit']);
         }
@@ -51,7 +67,7 @@ class Produits extends MY_Controller
         if ($this->input->server('REQUEST_METHOD') === 'POST') {
             $nom_produit = trim($this->input->post('nom_produit'));
             $id_categorie = $this->input->post('id_categorie');
-            $id_vendeur = $this->input->post('id_vendeur');
+            $id_vendeur = $this->input->post('id_vendeur') ?: $this->get_vendeur_id();
             $prix_base = $this->input->post('prix_base');
             $quantite_actuelle = $this->input->post('quantite_actuelle');
             

@@ -150,8 +150,16 @@
                          <h5 class="modal-title">Modifier mon profil</h5>
                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <form action="<?= base_url('Profile/update') ?>" method="POST">
+                    <form action="<?= base_url('Profile/update') ?>" method="POST" enctype="multipart/form-data">
                          <div class="modal-body">
+                              <div class="mb-3 text-center">
+                                   <img src="<?= base_url($avatar_url ?? 'assets/images/users/avatar-default.jpg') ?>" alt="" class="avatar-xl rounded-circle border mb-2" id="avatarPreview" style="width:100px;height:100px;object-fit:cover">
+                                   <br>
+                                   <label class="btn btn-outline-primary btn-sm">
+                                        <i class="bx bx-camera"></i> Changer photo
+                                        <input type="file" name="avatar" accept="image/*" hidden class="avatar-input">
+                                   </label>
+                              </div>
                               <div class="mb-3">
                                    <label class="form-label">Prénom</label>
                                    <input type="text" class="form-control" name="prenom" value="<?= $prenom ?>" required>
@@ -212,15 +220,28 @@
 
   
 
-     <?php if($this->session->flashdata('success')): ?>
-     <script>
-          Swal.fire({ title: 'Succès!', text: '<?= $this->session->flashdata('success') ?>', icon: 'success', confirmButtonText: 'OK' });
-     </script>
-     <?php endif; ?>
+      <script>
+      $(document).on('change', '.avatar-input', function() {
+          var file = this.files[0];
+          if (file) {
+              var reader = new FileReader();
+              reader.onload = function(e) {
+                  $('#avatarPreview').attr('src', e.target.result);
+              };
+              reader.readAsDataURL(file);
+          }
+      });
+      </script>
 
-     <?php if($this->session->flashdata('error')): ?>
-     <script>
-          Swal.fire({ title: 'Erreur!', text: '<?= $this->session->flashdata('error') ?>', icon: 'error', confirmButtonText: 'OK' });
-     </script>
-     <?php endif; ?>
+      <?php if ($msg = $this->session->flashdata('success')): ?>
+      <script>
+           Swal.fire({ title: 'Succès!', text: '<?= $msg ?>', icon: 'success', confirmButtonText: 'OK' });
+      </script>
+      <?php endif; ?>
+
+      <?php if ($msg = $this->session->flashdata('error')): ?>
+      <script>
+           Swal.fire({ title: 'Erreur!', text: '<?= $msg ?>', icon: 'error', confirmButtonText: 'OK' });
+      </script>
+      <?php endif; ?>
 
