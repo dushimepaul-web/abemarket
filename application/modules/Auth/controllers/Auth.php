@@ -8,7 +8,7 @@ class Auth extends MY_Controller {
         $this->load->model('Auth_model');
         $this->load->library('form_validation');
         $this->load->helper('email');
-        $this->load->library('Mailer'); // Votre librairie Mailer
+        $this->load->library('Cpanel_email_lib');
     }
     
     // ============================================
@@ -233,15 +233,18 @@ class Auth extends MY_Controller {
         
         $this->db->insert('codes_otp', $otp_data);
         
-        // Envoyer l'email avec le code OTP via Mailer
-        // ob_start empêche les warnings PHP SMTP de corrompre la réponse JSON
-        ob_start();
-        $email_sent = $this->mailer->sendVerificationCode($email, $prenom, $nom, $otp_code);
-        $email_output = ob_get_clean();
-        
-        if (!$email_sent) {
-            log_message('error', "Échec envoi email vérification à: $email" . ($email_output ? ' | Output: ' . trim($email_output) : ''));
-        }
+        // Envoyer l'email avec le code OTP via Cpanel_email_lib
+        $this->load->library('Cpanel_email_lib');
+        $subject = "Code de vérification - ABEMARKET";
+        $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
+            <h2>Bonjour $prenom $nom,</h2>
+            <p>Voici votre code de vérification pour votre compte ABEMARKET :</p>
+            <h1 style='color:#ff6600;background:#f8f9fa;padding:10px;text-align:center;letter-spacing:5px;'>$otp_code</h1>
+            <p>Ce code expirera dans 15 minutes.</p>
+            <p>Cordialement,<br>L'équipe ABEMARKET</p>
+        </div>";
+        $result = $this->cpanel_email_lib->send_email($email, $subject, $message);
+        $email_sent = isset($result['success']) && $result['success'];
         
         echo json_encode([
             'success' => true,
@@ -499,9 +502,15 @@ public function verify_otp() {
     
     // Récupérer l'utilisateur pour envoyer l'email de bienvenue
     $user = $this->db->get_where('utilisateurs', ['id_utilisateur' => $user_id])->row();
-    ob_start();
-    $this->mailer->sendWelcomeEmail($user->email, $user->prenom, $user->nom);
-    ob_end_clean();
+    $this->load->library('Cpanel_email_lib');
+    $subject = "Bienvenue sur ABEMARKET";
+    $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
+        <h2>Bienvenue {$user->prenom} {$user->nom} !</h2>
+        <p>Votre compte a été vérifié et activé avec succès sur ABEMARKET.</p>
+        <p>Vous pouvez dès à présent profiter de notre plateforme.</p>
+        <p>Cordialement,<br>L'équipe ABEMARKET</p>
+    </div>";
+    $this->cpanel_email_lib->send_email($user->email, $subject, $message);
     
     echo json_encode([
         'success' => true, 
@@ -565,10 +574,18 @@ public function verify_otp() {
         
         $this->db->insert('codes_otp', $otp_data);
         
-        // Envoyer l'email via Mailer
-        ob_start();
-        $email_sent = $this->mailer->sendVerificationCode($user->email, $user->prenom, $user->nom, $otp_code);
-        ob_end_clean();
+        // Envoyer l'email via Cpanel_email_lib
+        $this->load->library('Cpanel_email_lib');
+        $subject = "Nouveau code de vérification - ABEMARKET";
+        $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
+            <h2>Bonjour {$user->prenom} {$user->nom},</h2>
+            <p>Voici votre nouveau code de vérification :</p>
+            <h1 style='color:#ff6600;background:#f8f9fa;padding:10px;text-align:center;letter-spacing:5px;'>$otp_code</h1>
+            <p>Ce code expirera dans 15 minutes.</p>
+            <p>Cordialement,<br>L'équipe ABEMARKET</p>
+        </div>";
+        $result = $this->cpanel_email_lib->send_email($user->email, $subject, $message);
+        $email_sent = isset($result['success']) && $result['success'];
         
         if ($email_sent) {
             echo json_encode(['success' => true, 'message' => 'Un nouveau code a été envoyé à votre email']);
@@ -620,10 +637,18 @@ public function forgot_password() {
     
     $this->db->insert('codes_otp', $otp_data);
     
-    // Envoyer le code via Mailer
-    ob_start();
-    $email_sent = $this->mailer->sendResetCode($email, $user['prenom'] . ' ' . $user['nom'], $otp_code);
-    ob_end_clean();
+    // Envoyer le code via Cpanel_email_lib
+    $this->load->library('Cpanel_email_lib');
+    $subject = "Réinitialisation de mot de passe - ABEMARKET";
+    $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
+        <h2>Bonjour {$user['prenom']} {$user['nom']},</h2>
+        <p>Vous avez demandé la réinitialisation de votre mot de passe sur ABEMARKET.</p>
+        <p>Voici votre code de réinitialisation :</p>
+        <h1 style='color:#ff6600;background:#f8f9fa;padding:10px;text-align:center;letter-spacing:5px;'>$otp_code</h1>
+        <p>Ce code expirera dans 15 minutes.</p>
+        <p>Cordialement,<br>L'équipe ABEMARKET</p>
+    </div>";
+    $this->cpanel_email_lib->send_email($email, $subject, $message);
     
     // Stocker l'email en session (toujours, même si l'email échoue, pour permettre la vérification)
     $this->session->set_userdata('reset_email', $email);
@@ -821,9 +846,17 @@ public function forgot_password() {
         
         $this->db->insert('codes_otp', $otp_data);
         
-        ob_start();
-        $email_sent = $this->mailer->sendResetCode($email, $user['prenom'] . ' ' . $user['nom'], $otp_code);
-        ob_end_clean();
+        // Envoyer un nouveau code de réinitialisation
+        $this->load->library('Cpanel_email_lib');
+        $subject = "Nouveau code de réinitialisation - ABEMARKET";
+        $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
+            <h2>Bonjour {$user['prenom']} {$user['nom']},</h2>
+            <p>Voici votre nouveau code de réinitialisation de mot de passe :</p>
+            <h1 style='color:#ff6600;background:#f8f9fa;padding:10px;text-align:center;letter-spacing:5px;'>$otp_code</h1>
+            <p>Ce code expirera dans 15 minutes.</p>
+            <p>Cordialement,<br>L'équipe ABEMARKET</p>
+        </div>";
+        $this->cpanel_email_lib->send_email($email, $subject, $message);
         
         echo json_encode(['success' => true, 'message' => 'Un nouveau code a été envoyé à votre adresse email.']);
     }
