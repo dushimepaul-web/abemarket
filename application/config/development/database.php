@@ -77,8 +77,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
-// Détection automatique de l'environnement
-if (true) {
+// Détection automatique de l'environnement ou du serveur
+if (ENVIRONMENT === 'production' || (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'market.abe.bi') !== false)) {
+    // Configuration pour le serveur distant (production)
+    $db['default'] = array(
+        'dsn'       => '',
+        'hostname'  => 'localhost',
+        'username'  => 'abemarket_market',
+        'password'  => 'Abe@@2028',
+        'database'  => 'abemarket_market',
+        'dbdriver'  => 'mysqli',
+        'dbprefix'  => '',
+        'pconnect'  => FALSE,
+        'db_debug'  => (ENVIRONMENT !== 'production'),
+        'cache_on'  => FALSE,
+        'cachedir'  => '',
+        'char_set'  => 'utf8mb4',
+        'dbcollat'  => 'utf8mb4_general_ci',
+        'swap_pre'  => '',
+        'encrypt'   => FALSE,
+        'compress'  => FALSE,
+        'stricton'  => FALSE,
+        'failover'  => array(),
+        'save_queries' => TRUE
+    );
+} else {
     // Configuration pour le serveur local
     $db['default'] = array(
         'dsn'       => '',
@@ -100,29 +123,6 @@ if (true) {
         'stricton'  => FALSE,
         'failover'  => array(),
         'save_queries' => TRUE
-    );
-} else {
-    // Configuration pour le serveur distant (identifiants via variables d'environnement)
-    $db['default'] = array(
-        'dsn'       => '',
-'hostname'  => 'localhost',
-'username'  => getenv('DB_USERNAME') ?: 'abemarket_market',
-'password'  => getenv('DB_PASSWORD') ?: 'Abe@@2028',
-'database'  => getenv('DB_DATABASE') ?: 'abemarket_market',
-'dbdriver'  => 'mysqli',
-'dbprefix'  => '',
-'pconnect'  => FALSE,
-'db_debug'  => (ENVIRONMENT !== 'production'),
-'cache_on'  => FALSE,
-'cachedir'  => '',
-'char_set'  => 'utf8mb4',
-'dbcollat'  => 'utf8mb4_general_ci',
-'swap_pre'  => '',
-'encrypt'   => FALSE,
-'compress'  => FALSE,
-'stricton'  => FALSE,
-'failover'  => array(),
-'save_queries' => TRUE,
     );
 }
 
