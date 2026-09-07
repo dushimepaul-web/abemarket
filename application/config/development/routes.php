@@ -627,8 +627,23 @@ $route['soldes-vendeurs/exporter'] = 'SoldesVendeurs/exporter';
 
 
 
-// Routes pour l'accueil
-$route['Home'] = 'Home/index';
+// Routes AJAX / Actions pour Home / Catalogue / Panier / Wishlist
+$route['home/ajax_filter_products'] = 'Home/ajax_filter_products';
+$route['home/addToCart'] = 'Home/addToCart';
+$route['home/updateCart'] = 'Home/updateCart';
+$route['home/removeFromCart'] = 'Home/removeFromCart';
+$route['home/addToWishlist'] = 'Home/addToWishlist';
+$route['home/removeFromWishlist'] = 'Home/removeFromWishlist';
+$route['home/removeFromWishlistAjax'] = 'Home/removeFromWishlistAjax';
+$route['home/moveToCartFromWishlist'] = 'Home/moveToCartFromWishlist';
+$route['home/getWishlistOffcanvas'] = 'Home/getWishlistOffcanvas';
+$route['home/getUserWishlistIds'] = 'Home/getUserWishlistIds';
+$route['home/applyCoupon'] = 'Home/applyCoupon';
+$route['home/newsletter_subscribe'] = 'Home/newsletter_subscribe';
+$route['home/get_communes'] = 'Home/get_communes';
+$route['home/get_quartiers'] = 'Home/get_quartiers';
+$route['home/get_zones'] = 'Home/get_zones';
+$route['home/get_collines'] = 'Home/get_collines';
 $route['about'] = 'Home/about';
 $route['blog'] = 'Home/blog';
 $route['offres'] = 'Home/offres';
@@ -679,7 +694,7 @@ $route['user_dashboard/ajax_get_seller_stats'] = 'Home/User_dashboard/ajax_get_s
 $route['user_dashboard/logout'] = 'Home/User_dashboard/logout';
 $route['user_dashboard'] = 'Home/User_dashboard/index';
 $route['User_dashboard'] = 'Home/User_dashboard/index';
-$route['Home/User_dashboard/ajax_get_address/(:num)'] = 'Home/User_dashboard/ajax_get_address/$1';
+$route['home/User_dashboard/ajax_get_address/(:num)'] = 'Home/User_dashboard/ajax_get_address/$1';
 
 
 $route['User_dashboard/complete_profile'] = 'Home/User_dashboard/complete_profile';
