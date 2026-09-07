@@ -128,8 +128,12 @@ class Produits extends MY_Controller
                     $this->upload_images($produit_id, $_FILES['images']);
                 }
                 
-                $this->session->set_flashdata('success', 'Produit créé avec succès.');
-                redirect(base_url('Produits'));
+                // Stocker l'ID du produit créé en session pour la page de confirmation
+                $this->session->set_userdata('product_created_id', $produit_id);
+                $this->session->set_userdata('product_created_name', $nom_produit);
+                
+                // Rediriger vers la page de confirmation
+                redirect(base_url('Produits/confirmation'));
             } else {
                 $this->session->set_flashdata('error', 'Erreur lors de la création du produit.');
                 redirect(base_url('Produits/add'));
@@ -201,6 +205,15 @@ public function variantes($slug)
         
         if (!$data['produit']) {
             $this->session->set_flashdata('error', 'Produit non trouvé.');
+            redirect(base_url('Produits'));
+        }
+        
+        // Vérification d'autorisation: le vendeur ne peut modifier que ses propres produits
+        $produit_vendeur_id = $data['produit']['id_vendeur'];
+        $current_vendeur_id = $this->get_vendeur_id();
+        
+        if (!$this->is_admin() && $produit_vendeur_id != $current_vendeur_id) {
+            $this->session->set_flashdata('error', 'Vous n\'avez pas la permission de modifier ce produit.');
             redirect(base_url('Produits'));
         }
         
@@ -338,6 +351,15 @@ public function images($slug)
         
         if (!$produit) {
             $this->session->set_flashdata('error', 'Produit non trouvé.');
+            redirect(base_url('Produits'));
+        }
+        
+        // Vérification d'autorisation: le vendeur ne peut supprimer que ses propres produits
+        $produit_vendeur_id = $produit['id_vendeur'];
+        $current_vendeur_id = $this->get_vendeur_id();
+        
+        if (!$this->is_admin() && $produit_vendeur_id != $current_vendeur_id) {
+            $this->session->set_flashdata('error', 'Vous n\'avez pas la permission de supprimer ce produit.');
             redirect(base_url('Produits'));
         }
         

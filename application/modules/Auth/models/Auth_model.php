@@ -85,8 +85,16 @@ public function checkResetToken($token) {
     
     // Journaliser les tentatives de connexion
     public function logConnexionAttempt($id_utilisateur, $email_tente, $adresse_ip, $reussie, $motif_echec = null) {
+        $valid_user_id = null;
+        if ($id_utilisateur) {
+            $this->db->where('id_utilisateur', $id_utilisateur);
+            $check = $this->db->get('utilisateurs');
+            if ($check->num_rows() > 0) {
+                $valid_user_id = $id_utilisateur;
+            }
+        }
         $data = array(
-            'id_utilisateur' => $id_utilisateur,
+            'id_utilisateur' => $valid_user_id,
             'email_tente' => $email_tente,
             'adresse_ip' => $adresse_ip,
             'reussie' => $reussie ? 1 : 0,

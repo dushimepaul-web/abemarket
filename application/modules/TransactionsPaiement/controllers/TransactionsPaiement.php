@@ -135,6 +135,26 @@ class TransactionsPaiement extends MY_Controller {
         }
         
         $updated = $this->TransactionsPaiement_model->update($id, $update_data);
+
+        // Keep the order payment state synchronized with the verified transaction.
+        $transaction = $this->TransactionsPaiement_model->get_by_id($id);
+        if ($updated && $transaction && $transaction->id_commande) {
+            $orderPaymentStatus = null;
+            if ($statut === 'confirme') {
+                $orderPaymentStatus = 'paye';
+            } elseif ($statut === 'echoue') {
+                $orderPaymentStatus = 'echoue';
+            } elseif ($statut === 'annule') {
+                $orderPaymentStatus = 'en_attente';
+            }
+            if ($orderPaymentStatus) {
+                $orderUpdate = ['statut_paiement' => $orderPaymentStatus];
+                if ($statut === 'confirme') {
+                    $orderUpdate['date_paiement'] = date('Y-m-d H:i:s');
+                }
+                $this->db->where('id_commande', $transaction->id_commande)->update('commandes', $orderUpdate);
+            }
+        }
         
         echo json_encode([
             'success' => $updated,

@@ -77,13 +77,7 @@ class Home extends MY_Controller {
         $this->render('home_view', $data);
     }
 
-
-
-
-
-
-
-
+// ========== PAGE CATÉGORIE (pour afficher les produits par catégorie) ==========
 
 
 
@@ -498,7 +492,6 @@ public function get_quartiers() {
         echo json_encode($banners);
     }
 
-  
     /**
      * Affiche la page À propos
      */
@@ -933,54 +926,13 @@ public function getWishlistCount() {
     $this->render('sellers_view', $data);
 }
 
-/**
- * Page détail d'un vendeur
- */
-public function seller_details($slug) {
-    $data['seller'] = $this->Home_model->getSellerBySlugWithDetails($slug);
-    
-    if (!$data['seller']) {
-        show_404();
+    /**
+     * Page détail d'un vendeur
+     */
+    public function seller_details($slug) {
+        // Redirige vers la méthode seller plus complète
+        $this->seller($slug);
     }
-    
-    // Pagination des produits
-    $page = $this->input->get('page') ? (int)$this->input->get('page') : 1;
-    $per_page = 12;
-    $offset = ($page - 1) * $per_page;
-    
-    $data['products'] = $this->Home_model->getSellerProductsPaginated($data['seller']['id_vendeur'], $per_page, $offset);
-    $data['total_products'] = $data['seller']['product_count'];
-    $data['current_page'] = $page;
-    $data['per_page'] = $per_page;
-    $data['total_pages'] = ceil($data['total_products'] / $per_page);
-    
-    // Distribution des notes
-    $data['rating_distribution'] = $this->Home_model->getSellerRatingDistribution($data['seller']['id_vendeur']);
-    
-    // Avis récents
-    $data['recent_reviews'] = $this->Home_model->getSellerReviews($data['seller']['id_vendeur'], 10);
-    
-    // Configuration du site
-    $data['settings'] = $this->Home_model->getSiteSettings();
-    $data['main_categories'] = $this->Home_model->getMainCategories();
-    $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
-    
-    // Session
-    if ($this->session->userdata('user_id')) {
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
-    } else {
-        $data['cart_count'] = 0;
-        $data['wishlist_count'] = 0;
-        $data['user_profils'] = [];
-    }
-    
-    $data['meta_title'] = $data['seller']['nom_boutique'] . ' - ' . ($data['settings']['site_name'] ?? 'AbeMarket');
-    $data['meta_description'] = substr(strip_tags($data['seller']['description'] ?? ''), 0, 160);
-    
-    $this->render('seller_details_view', $data);
-}
     
 
 
@@ -1058,6 +1010,24 @@ public function seller($slug) {
         $productId = $this->input->post('product_id', TRUE);
         $variantId = $this->input->post('variant_id', TRUE) ?: null;
         $quantity = (int)$this->input->post('quantity', TRUE) ?: 1;
+        
+        // Vérifier que le produit existe et a un vendeur assigné
+        $this->load->model('Produit_model');
+        $product = $this->Produit_model->get_produit_by_id($productId);
+        
+        if (!$product) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['success' => false, 'message' => 'Produit non trouvé']));
+            return;
+        }
+        
+        if (empty($product['id_vendeur'])) {
+            $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['success' => false, 'message' => 'Ce produit n\'a pas de vendeur assigné. Contactez le support.']));
+            return;
+        }
         
         $result = $this->Home_model->addToCart(
             $this->session->userdata('user_id'),
@@ -1292,6 +1262,13 @@ public function seller($slug) {
             redirect('home/cart');
             return;
         }
+
+        $paymentMethod = $this->Home_model->getPaymentMethodById($this->input->post('payment_method', TRUE));
+        if (!$paymentMethod || $paymentMethod['type'] !== 'mobile_money') {
+            $this->session->set_flashdata('error', 'Veuillez choisir un moyen de paiement Mobile Money actif.');
+            redirect('home/checkout');
+            return;
+        }
         
         // Calculer le total
         $subtotal = 0;
@@ -1302,7 +1279,8 @@ public function seller($slug) {
         $total = $subtotal + $frais_livraison;
         
         // Générer le numéro de commande
-        $numero_commande = 'CMD-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        $numero_commande = 'CMD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
+        $reference_transaction = 'TRX-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
         
         // Préparer les données de la commande
         $orderData = [
@@ -1319,19 +1297,97 @@ public function seller($slug) {
         ];
         
         // Insérer la commande
-        $orderId = $this->Home_model->createOrder($orderData, $cartItems);
+        $addressData = [
+            'id_utilisateur' => $this->session->userdata('user_id'),
+            'type_adresse' => 'domicile',
+            'nom_complet' => $this->input->post('nom_complet', TRUE),
+            'telephone' => $this->input->post('telephone', TRUE),
+            'id_province' => $this->input->post('province', TRUE),
+            'id_commune' => $this->input->post('commune', TRUE),
+            'adresse_ligne' => $this->input->post('adresse', TRUE),
+            'point_repere' => $this->input->post('point_repere', TRUE),
+            'latitude' => 0,
+            'longitude' => 0,
+            'est_actif' => 1
+        ];
+        $paymentData = [
+            'reference_interne' => $reference_transaction,
+            'id_utilisateur' => $this->session->userdata('user_id'),
+            'id_mode_payement' => $paymentMethod['id_mode_payement'],
+            'type_transaction' => 'paiement',
+            'montant' => $total,
+            'frais' => 0,
+            'montant_net' => $total,
+            'devise' => 'BIF',
+            'telephone_payeur' => $this->input->post('telephone', TRUE),
+            'nom_payeur' => $this->input->post('nom_complet', TRUE),
+            'statut' => 'en_attente',
+            'message_statut' => 'En attente de la confirmation Mobile Money.',
+            'adresse_ip' => $this->input->ip_address()
+        ];
+        $orderId = $this->Home_model->createOrder($orderData, $cartItems, $addressData, $paymentData);
+        if (!$orderId) {
+            // Récupérer le message d'erreur détaillé du modèle
+            $errorMessage = $this->Home_model->getLastError();
+            if (!$errorMessage) {
+                $errorMessage = 'La commande n\'a pas pu être enregistrée. Veuillez contacter le support.';
+            }
+            $this->session->set_flashdata('error', $errorMessage);
+            redirect('home/checkout');
+            return;
+        }
         
         // Vider le panier
         $this->Home_model->clearCart($this->session->userdata('user_id'));
         
         // Rediriger vers la page de succès
         $this->session->set_flashdata('success', 'Votre commande a été enregistrée avec succès. Numéro: ' . $numero_commande);
-        redirect('home/order_success/' . $numero_commande);
+        redirect('payment/pending/' . $reference_transaction);
     }
     
     /**
      * Page de succès de commande
      */
+    public function payment_pending($reference) {
+        if (!$this->session->userdata('user_id')) {
+            redirect('auth/login');
+            return;
+        }
+        $data['payment'] = $this->db->select('t.*, c.numero_commande, mp.description, mp.instructions')
+            ->from('transactions_paiement t')
+            ->join('commandes c', 'c.id_commande = t.id_commande')
+            ->join('mode_payement mp', 'mp.id_mode_payement = t.id_mode_payement')
+            ->where('t.reference_interne', $reference)
+            ->where('t.id_utilisateur', $this->session->userdata('user_id'))
+            ->get()->row_array();
+        if (!$data['payment']) {
+            show_404();
+            return;
+        }
+        $data['meta_title'] = 'Paiement Mobile Money - AbeMarket';
+        $this->render('payment_pending_view', $data);
+    }
+
+    public function submit_payment_reference() {
+        if (!$this->session->userdata('user_id')) {
+            redirect('auth/login');
+            return;
+        }
+        $reference = $this->input->post('reference_interne', TRUE);
+        $operatorReference = trim($this->input->post('reference_operateur', TRUE));
+        $updated = !empty($reference) && !empty($operatorReference) && $this->db
+            ->where('reference_interne', $reference)
+            ->where('id_utilisateur', $this->session->userdata('user_id'))
+            ->where_in('statut', ['initie', 'en_attente'])
+            ->update('transactions_paiement', [
+                'reference_operateur' => $operatorReference,
+                'statut' => 'en_attente',
+                'message_statut' => 'Reference Mobile Money soumise : validation administrative requise.'
+            ]);
+        $this->session->set_flashdata($updated ? 'success' : 'error', $updated ? 'Reference envoyee. Le paiement sera verifie avant preparation.' : 'Reference de paiement invalide.');
+        redirect('payment/pending/' . $reference);
+    }
+
     public function order_success($numero_commande) {
         $data['settings'] = $this->Home_model->getSiteSettings();
         $data['main_categories'] = $this->Home_model->getMainCategories();
@@ -1462,12 +1518,14 @@ public function privacy_policy() {
     }
 
     public function sabonner() {
-    $email = $this->input->post('email');
+    $email = $this->input->post('email', TRUE);
+    
+    $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : site_url('home');
     
     // Validation email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $this->session->set_flashdata('error', 'Email invalide');
-        redirect($_SERVER['HTTP_REFERER']);
+        redirect($referer);
     }
     
     // Vérifier si l'email existe déjà
@@ -1492,7 +1550,7 @@ public function privacy_policy() {
         $this->session->set_flashdata('success', 'Merci pour votre inscription à la newsletter !');
     }
     
-    redirect($_SERVER['HTTP_REFERER']);
+    redirect($referer);
 }
 
 
@@ -1589,7 +1647,7 @@ public function moveToCartFromWishlist() {
         return;
     }
     
-    $productId = $this->input->post('product_id');
+    $productId = $this->input->post('product_id', TRUE);
     $userId = $this->session->userdata('user_id');
     
     $cartResult = $this->Home_model->addToCart($userId, $productId, null, 1);
@@ -1612,7 +1670,7 @@ public function removeFromWishlistAjax() {
         return;
     }
     
-    $productId = $this->input->post('product_id');
+    $productId = $this->input->post('product_id', TRUE);
     $userId = $this->session->userdata('user_id');
     
     $result = $this->Home_model->removeFromWishlist($userId, $productId);

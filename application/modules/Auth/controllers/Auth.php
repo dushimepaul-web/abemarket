@@ -23,7 +23,10 @@ class Auth extends MY_Controller {
             ->get('blacklist_ips')
             ->row();
 
-        if ($blacklisted) {
+        // Keep IP blacklisting enabled in production, but do not block local
+        // development sessions running through XAMPP/localhost.
+        $is_development = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
+        if ($blacklisted && !$is_development) {
             echo json_encode([
                 'success' => false,
                 'message' => 'Accès refusé.'
@@ -78,10 +81,6 @@ class Auth extends MY_Controller {
         $password_correct = false;
         if (password_verify($password, $user['mot_de_passe'])) {
             $password_correct = true;
-        } elseif (strlen($user['mot_de_passe']) === 32 && md5($password) === $user['mot_de_passe']) {
-            $password_correct = true;
-            // Transition transparente vers BCRYPT
-            $this->Auth_model->updatePassword($user['id_utilisateur'], $password);
         }
 
         if (!$password_correct) {
@@ -233,10 +232,13 @@ class Auth extends MY_Controller {
         $this->db->insert('codes_otp', $otp_data);
         
         // Envoyer l'email avec le code OTP via Mailer
+        // ob_start empêche les warnings PHP SMTP de corrompre la réponse JSON
+        ob_start();
         $email_sent = $this->mailer->sendVerificationCode($email, $prenom, $nom, $otp_code);
+        $email_output = ob_get_clean();
         
         if (!$email_sent) {
-            log_message('error', "Échec envoi email vérification à: $email");
+            log_message('error', "Échec envoi email vérification à: $email" . ($email_output ? ' | Output: ' . trim($email_output) : ''));
         }
         
         echo json_encode([
@@ -495,7 +497,9 @@ public function verify_otp() {
     
     // Récupérer l'utilisateur pour envoyer l'email de bienvenue
     $user = $this->db->get_where('utilisateurs', ['id_utilisateur' => $user_id])->row();
+    ob_start();
     $this->mailer->sendWelcomeEmail($user->email, $user->prenom, $user->nom);
+    ob_end_clean();
     
     echo json_encode([
         'success' => true, 
@@ -559,10 +563,14 @@ public function verify_otp() {
         $this->db->insert('codes_otp', $otp_data);
         
         // Envoyer l'email via Mailer
-        if ($this->mailer->sendVerificationCode($user->email, $user->prenom, $user->nom, $otp_code)) {
+        ob_start();
+        $email_sent = $this->mailer->sendVerificationCode($user->email, $user->prenom, $user->nom, $otp_code);
+        ob_end_clean();
+        
+        if ($email_sent) {
             echo json_encode(['success' => true, 'message' => 'Un nouveau code a été envoyé à votre email']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'envoi du code']);
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'envoi du code. Veuillez réessayer.']);
         }
     }
     
@@ -611,18 +619,18 @@ public function forgot_password() {
     $this->db->insert('codes_otp', $otp_data);
     
     // Envoyer le code via Mailer
-    if ($this->mailer->sendResetCode($email, $user['prenom'] . ' ' . $user['nom'], $otp_code)) {
-        // Stocker l'email en session
-        $this->session->set_userdata('reset_email', $email);
-        
-        echo json_encode([
-            'success' => true, 
-            'message' => 'Un code de réinitialisation a été envoyé à votre adresse email.',
-            'redirect_url' => base_url('auth/verify_code_page')
-        ]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'envoi du code. Veuillez réessayer.']);
-    }
+    ob_start();
+    $email_sent = $this->mailer->sendResetCode($email, $user['prenom'] . ' ' . $user['nom'], $otp_code);
+    ob_end_clean();
+    
+    // Stocker l'email en session (toujours, même si l'email échoue, pour permettre la vérification)
+    $this->session->set_userdata('reset_email', $email);
+    
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Un code de réinitialisation a été envoyé à votre adresse email.',
+        'redirect_url' => base_url('auth/verify_code_page')
+    ]);
 }
 
 
@@ -809,11 +817,11 @@ public function forgot_password() {
         
         $this->db->insert('codes_otp', $otp_data);
         
-        if ($this->mailer->sendResetCode($email, $user['prenom'] . ' ' . $user['nom'], $otp_code)) {
-            echo json_encode(['success' => true, 'message' => 'Un nouveau code a été envoyé à votre adresse email.']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'envoi du code.']);
-        }
+        ob_start();
+        $email_sent = $this->mailer->sendResetCode($email, $user['prenom'] . ' ' . $user['nom'], $otp_code);
+        ob_end_clean();
+        
+        echo json_encode(['success' => true, 'message' => 'Un nouveau code a été envoyé à votre adresse email.']);
     }
     
     // ============================================

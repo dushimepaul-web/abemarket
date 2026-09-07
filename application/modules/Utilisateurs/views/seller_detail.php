@@ -486,14 +486,28 @@
                                             <td><?= number_format($order['montant_commission'], 0, ',', ' ') ?> BIF</td>
                                             <td>
                                                 <?php
-                                                $status_class = match($order['statut_article']) {
-                                                    'livre' => 'success',
-                                                    'en_attente' => 'warning',
-                                                    'expedie' => 'primary',
-                                                    'annule' => 'danger',
-                                                    default => 'secondary'
-                                                };
-                                                ?>
+switch ($order['statut_article']) {
+    case 'livre':
+        $status_class = 'success';
+        break; 
+
+    case 'en_attente':
+        $status_class = 'warning';
+        break;
+
+    case 'expedie':
+        $status_class = 'primary';
+        break;
+
+    case 'annule':
+        $status_class = 'danger';
+        break;
+
+    default:
+        $status_class = 'secondary';
+        break;
+}
+?>
                                                 <span class="badge bg-<?= $status_class ?>"><?= ucfirst($order['statut_article']) ?></span>
                                             </td>
                                         </tr>

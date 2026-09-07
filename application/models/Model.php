@@ -412,8 +412,16 @@ public function updateLastLogin($user_id)
  */
 public function logConnexionAttempt($user_id, $email_tente, $ip_address, $reussie, $motif_echec = null)
 {
+    $valid_user_id = null;
+    if ($user_id) {
+        $this->db->where('id_utilisateur', $user_id);
+        $check = $this->db->get('utilisateurs');
+        if ($check->num_rows() > 0) {
+            $valid_user_id = $user_id;
+        }
+    }
     $data = array(
-        'id_utilisateur' => $user_id,
+        'id_utilisateur' => $valid_user_id,
         'email_tente' => $email_tente,
         'adresse_ip' => $ip_address,
         'reussie' => $reussie ? 1 : 0,

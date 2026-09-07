@@ -3,6 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Home_model extends CI_Model {
 
+    private $last_error = null;
+
     public function __construct() {
         parent::__construct();
         $this->load->database();
@@ -347,9 +349,6 @@ public function getContactInfo() {
 /**
  * Récupère les sujets du formulaire de contact
  */
-/**
- * Récupère les sujets du formulaire de contact
- */
 public function getContactSujets() {
     // Vérifier si la table existe
     if ($this->db->table_exists('contact_sujets')) {
@@ -372,10 +371,7 @@ public function getContactSujets() {
     ];
 }
 /**
- * Sauvegarde un message de contact (CORRIGÉE)
- */
-/**
- * Sauvegarde un message de contact (VERSION CORRIGÉE)
+ * Sauvegarde un message de contact
  */
 public function saveContactMessage($data) {
     // Vérifier si la table existe
@@ -640,15 +636,12 @@ public function countBlogPosts($categorie_slug = null) {
         return $result ? (int)$result['total'] : 0;
     }
     
-    /**
-     * Récupère les articles du panier
-     */
-  /**
+/**
  * Récupère les articles du panier
  */
 public function getCartItems($userId) {
     $this->db->select('p.id_panier, p.id_produit, p.id_variante, p.quantite,
-                       pr.nom_produit, pr.slug_produit, pr.prix_base, pr.prix_promo,
+                       pr.id_vendeur, pr.nom_produit, pr.slug_produit, pr.prix_base, pr.prix_promo,
                        (SELECT url_image FROM images_produit WHERE id_produit = pr.id_produit AND est_principale = 1 LIMIT 1) as image_url,
                        v.attributs_variante');
     $this->db->from('paniers p');
@@ -954,26 +947,81 @@ public function getCartItems($userId) {
     /**
      * Crée une commande
      */
-    public function createOrder($orderData, $cartItems) {
-        $this->db->trans_start();
+    public function createOrder($orderData, $cartItems, $addressData, $paymentData) {
+        $this->db->trans_begin();
+
+        $this->db->insert('adresses', $addressData);
+        $addressId = $this->db->insert_id();
+        $orderData['id_adresse_livraison'] = $addressId;
+
         $this->db->insert('commandes', $orderData);
         $orderId = $this->db->insert_id();
         
         foreach ($cartItems as $item) {
+            if (empty($item['id_vendeur'])) {
+                $error = 'Le produit "' . $item['nom_produit'] . '" n\'a pas de vendeur assigné. Veuillez vérifier les paramètres du produit.';
+                log_message('error', 'Order creation failed: ' . $error . ' (Product ID: ' . $item['id_produit'] . ')');
+                $this->last_error = $error;
+                $this->db->trans_rollback();
+                return false;
+            }
+            
             $articleData = [
                 'id_commande' => $orderId,
                 'id_produit' => $item['id_produit'],
                 'id_variante' => $item['id_variante'] ?? null,
+                'id_vendeur' => $item['id_vendeur'],
                 'nom_produit' => $item['nom_produit'],
                 'prix_unitaire' => $item['prix_effectif'],
                 'quantite' => $item['quantite'],
                 'prix_total' => $item['sous_total']
             ];
+            
             $this->db->insert('articles_commande', $articleData);
+            
+            // Vérifier si l'insertion a échoué
+            if ($this->db->affected_rows() <= 0) {
+                $dbError = $this->db->error();
+                $error = 'Erreur lors de l\'insertion du produit "' . $item['nom_produit'] . '". Détail: ' . (isset($dbError['message']) ? $dbError['message'] : 'Erreur inconnue');
+                log_message('error', 'Order creation failed: ' . $error);
+                $this->last_error = $error;
+                $this->db->trans_rollback();
+                return false;
+            }
+            
+            // Décrémentation du stock après insertion de l'article
+            $this->load->model('Produit_model');
+            $this->Produit_model->update_stock_by_id(
+                $item['id_produit'],
+                -$item['quantite'],
+                $item['id_variante'] ?? null
+            );
         }
+
+        $paymentData['id_commande'] = $orderId;
+        $this->db->insert('transactions_paiement', $paymentData);
+
+        if ($this->db->trans_status() === false) {
+            $error = 'Erreur lors de l\'enregistrement de la transaction de paiement';
+            log_message('error', 'Order creation failed (transaction): ' . $error);
+            $this->last_error = $error;
+            $this->db->trans_rollback();
+            return false;
+        }
+
+        $this->db->trans_commit();
         
-        $this->db->trans_complete();
-        return $this->db->trans_status() ? $orderId : false;
+        // Log de succès
+        log_message('info', 'Order created successfully: Order ID = ' . $orderId . ', Total = ' . $orderData['montant_total'] . ' BIF');
+        
+        return $orderId;
+    }
+    
+    /**
+     * Récupère le dernier message d'erreur lors de la création de commande
+     */
+    public function getLastError() {
+        return isset($this->last_error) ? $this->last_error : null;
     }
     
     /**
@@ -1002,6 +1050,13 @@ public function getCartItems($userId) {
         $this->db->order_by('ordre_affichage', 'ASC');
         $query = $this->db->get();
         return $query->result_array();
+    }
+
+    public function getPaymentMethodById($id) {
+        return $this->db->where('id_mode_payement', $id)
+            ->where('est_actif', 1)
+            ->get('mode_payement')
+            ->row_array();
     }
     
     /**
@@ -1761,10 +1816,6 @@ public function getProductsByCategoryOnly($categoryId, $sort, $perPage, $offset)
  * Récupère les filtres pour la page shop (prix min/max)
  * @return array Filtres disponibles
  */
-/**
- * Récupère les filtres pour la page shop (prix min/max)
- * @return array Filtres disponibles
- */
 
 /**
  * Récupère les produits avec filtres (prix, marques, note)
@@ -2223,23 +2274,7 @@ public function getSellerTopProducts($sellerId, $limit = 3) {
  * @return array|null Détails du vendeur
  */
 public function getSellerBySlugWithDetails($slug) {
-    $this->db->select('v.*, u.nom, u.prenom, u.email, u.telephone, u.avatar_url');
-    $this->db->from('vendeurs v');
-    $this->db->join('utilisateurs u', 'v.id_utilisateur = u.id_utilisateur');
-    $this->db->where('v.slug_boutique', $slug);
-    $this->db->where('v.statut', 'actif');
-    $this->db->where('v.est_approuve', 1);
-    $query = $this->db->get();
-    $seller = $query->row_array();
-    
-    if ($seller) {
-        $seller['product_count'] = $this->countSellerProducts($seller['id_vendeur']);
-        $seller['top_products'] = $this->getSellerTopProducts($seller['id_vendeur'], 5);
-        $seller['reviews'] = $this->getSellerReviews($seller['id_vendeur'], 5);
-        $seller['full_address'] = $this->getSellerFullAddress($seller);
-    }
-    
-    return $seller;
+    return $this->getSellerBySlugWithFullDetails($slug);
 }
 
 /**

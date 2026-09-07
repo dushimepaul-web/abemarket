@@ -77,6 +77,9 @@ class Mailer {
      * @return bool
      */
     public function send($to, $subject, $message, $alt_message = '') {
+        // ob_start empêche les warnings/errors SMTP de corrompre la réponse JSON
+        ob_start();
+        
         // Initialiser la bibliothèque email avec la configuration
         $this->CI->email->clear();
         $this->CI->email->initialize($this->config);
@@ -92,7 +95,10 @@ class Mailer {
         }
         
         // Envoyer et journaliser le résultat
-        if ($this->CI->email->send()) {
+        $result = $this->CI->email->send();
+        $debug_output = ob_get_clean();
+        
+        if ($result) {
             log_message('info', "Email envoyé à : $to - Sujet : $subject");
             return true;
         } else {

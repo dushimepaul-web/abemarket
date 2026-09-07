@@ -166,6 +166,11 @@ class Commande extends MY_Controller {
             echo json_encode(['success' => false, 'message' => 'Commande non trouvée']);
             return;
         }
+
+        if ($commande->statut_paiement !== 'paye' && $statut !== 'annule') {
+            echo json_encode(['success' => false, 'message' => 'La commande ne peut pas être préparée avant confirmation du paiement.']);
+            return;
+        }
         
         $id_vendeur = $this->get_vendeur_id();
         $is_admin = $this->is_admin();
