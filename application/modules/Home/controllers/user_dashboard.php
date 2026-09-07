@@ -927,6 +927,7 @@ public function complete_profile() {
 // ============================================
 
 public function save_complete_profile() {
+    $this->output->set_content_type('application/json');
     // Activer l'affichage des erreurs pour le débogage
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
@@ -1120,6 +1121,7 @@ public function upload_image($nom_file, $nom_champ) {
 // Obtenir les communes par province (AJAX)
     public function get_communes()
     {
+        $this->output->set_content_type('application/json');
         $id_province = $this->input->post('id_province');
         if ($id_province) {
             $communes = $this->db->select('id_commune, commune_name')
@@ -1137,6 +1139,7 @@ public function upload_image($nom_file, $nom_champ) {
     // Obtenir les quartiers par commune (AJAX)
     public function get_quartiers()
     {
+        $this->output->set_content_type('application/json');
         $id_commune = $this->input->post('id_commune');
         if ($id_commune) {
             $quartiers = $this->db->select('id_quartier, quartier_name')

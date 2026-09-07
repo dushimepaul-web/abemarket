@@ -105,6 +105,7 @@ class ZoneLivraison extends MY_Controller {
      * Sauvegarder une zone de livraison
      */
     public function save() {
+        $this->output->set_content_type('application/json');
         if (!$this->is_admin()) {
             echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
             return;
@@ -168,6 +169,7 @@ class ZoneLivraison extends MY_Controller {
      * Supprimer une zone de livraison
      */
     public function delete($id) {
+        $this->output->set_content_type('application/json');
         if (!$this->is_admin()) {
             echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
             return;
@@ -185,6 +187,7 @@ class ZoneLivraison extends MY_Controller {
      * Changer le statut d'une zone
      */
     public function toggle_statut($id) {
+        $this->output->set_content_type('application/json');
         if (!$this->is_admin()) {
             echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
             return;
@@ -251,6 +254,7 @@ class ZoneLivraison extends MY_Controller {
      * Récupérer les communes par province (AJAX)
      */
     public function get_communes() {
+        $this->output->set_content_type('application/json');
         $id_province = $this->input->post('id_province');
         
         if ($id_province) {
@@ -265,6 +269,7 @@ class ZoneLivraison extends MY_Controller {
      * Récupérer les quartiers par commune (AJAX)
      */
     public function get_quartiers() {
+        $this->output->set_content_type('application/json');
         $id_commune = $this->input->post('id_commune');
         
         if ($id_commune) {

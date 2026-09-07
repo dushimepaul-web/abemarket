@@ -426,49 +426,72 @@ public function ajax_delete_address($id) {
     echo json_encode(['success' => $result, 'message' => $result ? 'Adresse supprimée' : 'Erreur']);
 }
 
-/**
- * Récupération des communes par province (AJAX)
- */
-public function get_communes() {
-    $province_id = $this->input->post('province_id');
-    if (!$province_id) {
-        echo json_encode([]);
-        return;
+    /**
+     * Récupération des communes par province (AJAX)
+     */
+    public function get_communes() {
+        $this->output->set_content_type('application/json');
+        $province_id = $this->input->post('province_id');
+        if (!$province_id) {
+            echo json_encode([]);
+            return;
+        }
+        
+        $communes = $this->Home_model->get_communes_by_province($province_id);
+        echo json_encode($communes);
     }
-    
-    $communes = $this->db->select('id_commune, commune_name as nom')
-                         ->where('id_province', $province_id)
-                         ->where('est_actif', 1)
-                         ->get('communes')
-                         ->result_array();
-    
-    echo json_encode($communes);
-}
 
-/**
- * Récupération des quartiers par commune (AJAX)
- */
-public function get_quartiers() {
-    $commune_id = $this->input->post('commune_id');
-    if (!$commune_id) {
-        echo json_encode([]);
-        return;
+    /**
+     * Récupération des quartiers par commune (AJAX)
+     */
+    public function get_quartiers() {
+        $this->output->set_content_type('application/json');
+        $commune_id = $this->input->post('commune_id');
+        if (!$commune_id) {
+            echo json_encode([]);
+            return;
+        }
+        
+        $quartiers = $this->Home_model->get_quartiers_by_commune($commune_id);
+        echo json_encode($quartiers);
     }
-    
-    $quartiers = $this->db->select('id_quartier, quartier_name as nom')
-                          ->where('id_commune', $commune_id)
-                          ->where('est_actif', 1)
-                          ->get('quartiers')
-                          ->result_array();
-    
-    echo json_encode($quartiers);
-}
+
+    /**
+     * Récupération des zones par commune (AJAX)
+     */
+    public function get_zones() {
+        $this->output->set_content_type('application/json');
+        $commune_id = $this->input->post('commune_id');
+        if (!$commune_id) {
+            echo json_encode([]);
+            return;
+        }
+        
+        $zones = $this->Home_model->get_zones_by_commune($commune_id);
+        echo json_encode($zones);
+    }
+
+    /**
+     * Récupération des collines par zone (AJAX)
+     */
+    public function get_collines() {
+        $this->output->set_content_type('application/json');
+        $zone_id = $this->input->post('zone_id');
+        if (!$zone_id) {
+            echo json_encode([]);
+            return;
+        }
+        
+        $collines = $this->Home_model->get_collines_by_zone($zone_id);
+        echo json_encode($collines);
+    }
 
 
     /**
      * API pour récupérer les sous-catégories d'une catégorie (AJAX)
      */
     public function getSubCategories() {
+        $this->output->set_content_type('application/json');
         $category_id = $this->input->post('category_id');
         if (!$category_id) {
             echo json_encode(['error' => 'No category ID']);
@@ -1251,6 +1274,9 @@ public function seller($slug) {
         $this->form_validation->set_rules('telephone', 'Téléphone', 'required');
         $this->form_validation->set_rules('province', 'Province', 'required');
         $this->form_validation->set_rules('commune', 'Commune', 'required');
+        $this->form_validation->set_rules('quartier', 'Quartier', 'required');
+        $this->form_validation->set_rules('zone', 'Zone', 'required');
+        $this->form_validation->set_rules('colline', 'Colline', 'required');
         $this->form_validation->set_rules('adresse', 'Adresse', 'required');
         
         if ($this->form_validation->run() == FALSE) {
@@ -1309,6 +1335,9 @@ public function seller($slug) {
             'telephone' => $this->input->post('telephone', TRUE),
             'id_province' => $this->input->post('province', TRUE),
             'id_commune' => $this->input->post('commune', TRUE),
+            'id_quartier' => $this->input->post('quartier', TRUE),
+            'id_zone' => $this->input->post('zone', TRUE),
+            'id_colline' => $this->input->post('colline', TRUE),
             'adresse_ligne' => $this->input->post('adresse', TRUE),
             'point_repere' => $this->input->post('point_repere', TRUE),
             'latitude' => 0,
@@ -1567,6 +1596,7 @@ public function privacy_policy() {
  * Récupère la liste des souhaits pour l'offcanvas (AJAX)
  */
 public function getWishlistOffcanvas() {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
@@ -1647,6 +1677,7 @@ private function generateStarRating($rating) {
  * Ajouter au panier depuis la wishlist (AJAX)
  */
 public function moveToCartFromWishlist() {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'message' => 'Veuillez vous connecter']);
         return;
@@ -1670,6 +1701,7 @@ public function moveToCartFromWishlist() {
  * Supprimer de la wishlist (AJAX)
  */
 public function removeFromWishlistAjax() {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'message' => 'Veuillez vous connecter']);
         return;
@@ -1691,6 +1723,7 @@ public function removeFromWishlistAjax() {
  * Récupérer les IDs des produits dans la wishlist (pour l'affichage des icônes)
  */
 public function getUserWishlistIds() {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'wishlist_ids' => []]);
         return;
@@ -1708,6 +1741,7 @@ public function getUserWishlistIds() {
  * Applique un coupon (AJAX)
  */
 public function applyCoupon() {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'message' => 'Veuillez vous connecter']);
         return;

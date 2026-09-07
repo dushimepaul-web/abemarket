@@ -16,6 +16,7 @@ class Auth extends MY_Controller {
     // ============================================
     
     public function login() {
+        $this->output->set_content_type('application/json');
         // Vérification IP Blacklist avant toute vérification utilisateur
         $ip_address = $this->input->ip_address();
         $blacklisted = $this->db->where('adresse_ip', $ip_address)
@@ -132,6 +133,7 @@ class Auth extends MY_Controller {
     // ============================================
     
     public function register() {
+    $this->output->set_content_type('application/json');
     $prenom = trim($this->input->post('prenom'));
     $nom = trim($this->input->post('nom'));
     $email = trim($this->input->post('email'));
@@ -321,8 +323,7 @@ public function choose_profile_page() {
 
 
 public function save_profile_choice() {
-    // Permettre l'accès AJAX
-    header('Content-Type: application/json');
+    $this->output->set_content_type('application/json');
     
     $user_id = $this->session->userdata('id_utilisateur');
     $profile_type = $this->input->post('profile_type');
@@ -427,6 +428,7 @@ public function after_verification() {
 
     
 public function verify_otp() {
+    $this->output->set_content_type('application/json');
     $user_id = $this->input->post('user_id');
     $code = trim($this->input->post('code'));
     
@@ -524,6 +526,7 @@ public function verify_otp() {
     // ============================================
     
     public function resend_otp() {
+        $this->output->set_content_type('application/json');
         $user_id = $this->input->post('user_id');
         $email = $this->input->post('email');
         
@@ -579,8 +582,7 @@ public function verify_otp() {
 // ============================================
 
 public function forgot_password() {
-    // Forcer la réponse en JSON
-    header('Content-Type: application/json');
+    $this->output->set_content_type('application/json');
     
     $email = trim($this->input->post('email'));
     
@@ -655,6 +657,7 @@ public function forgot_password() {
     // ============================================
     
     public function verify_code() {
+        $this->output->set_content_type('application/json');
         $email = $this->session->userdata('reset_email');
         $code = trim($this->input->post('code'));
         $password = $this->input->post('password');
@@ -783,6 +786,7 @@ public function forgot_password() {
     // ============================================
     
     public function resend_reset_code() {
+        $this->output->set_content_type('application/json');
         $email = trim($this->input->post('email'));
         
         if (empty($email) || !valid_email($email)) {
@@ -844,6 +848,7 @@ public function forgot_password() {
     }
     
     public function logout_ajax() {
+        $this->output->set_content_type('application/json');
         if ($this->session->userdata('logged_in')) {
             $this->session->sess_destroy();
             echo json_encode(['success' => true, 'message' => 'Déconnecté']);

@@ -38,6 +38,7 @@ class Location extends MY_Controller {
     }
     
     public function ajouter($type) {
+        $this->output->set_content_type('application/json');
         if ($type == 'province') {
             $this->form_validation->set_rules('province_name', 'Nom', 'required|is_unique[provinces.province_name]');
             if ($this->form_validation->run()) {
@@ -52,6 +53,7 @@ class Location extends MY_Controller {
     }
     
     public function modifier($type, $id) {
+        $this->output->set_content_type('application/json');
         if ($type == 'province') {
             $data = ['province_name' => $this->input->post('province_name'), 'latitude' => $this->input->post('latitude'), 'longitude' => $this->input->post('longitude'), 'est_actif' => $this->input->post('est_actif') ? 1 : 0];
             $updated = $this->Location_model->modifier_province($id, $data);
@@ -91,6 +93,7 @@ class Location extends MY_Controller {
     }
     
     public function ajouter_commune() {
+        $this->output->set_content_type('application/json');
         $this->form_validation->set_rules('id_province', 'Province', 'required');
         $this->form_validation->set_rules('commune_name', 'Nom', 'required');
         if ($this->form_validation->run()) {
@@ -104,6 +107,7 @@ class Location extends MY_Controller {
     }
     
     public function modifier_commune($id) {
+        $this->output->set_content_type('application/json');
         $data = ['id_province' => $this->input->post('id_province'), 'commune_name' => $this->input->post('commune_name'), 'latitude' => $this->input->post('latitude'), 'longitude' => $this->input->post('longitude'), 'est_actif' => $this->input->post('est_actif') ? 1 : 0];
         $updated = $this->Location_model->modifier_commune($id, $data);
         echo json_encode($updated ? ['success' => true, 'message' => 'Commune modifiée avec succès'] : ['success' => false, 'message' => 'Erreur lors de la modification']);
@@ -142,6 +146,7 @@ class Location extends MY_Controller {
     }
     
     public function ajouter_quartier() {
+        $this->output->set_content_type('application/json');
         $this->form_validation->set_rules('id_commune', 'Commune', 'required');
         $this->form_validation->set_rules('quartier_name', 'Nom', 'required');
         if ($this->form_validation->run()) {
@@ -155,6 +160,7 @@ class Location extends MY_Controller {
     }
     
     public function modifier_quartier($id) {
+        $this->output->set_content_type('application/json');
         $data = ['id_commune' => $this->input->post('id_commune'), 'quartier_name' => $this->input->post('quartier_name'), 'zone' => $this->input->post('zone'), 'latitude' => $this->input->post('latitude'), 'longitude' => $this->input->post('longitude'), 'est_actif' => $this->input->post('est_actif') ? 1 : 0];
         $updated = $this->Location_model->modifier_quartier($id, $data);
         echo json_encode($updated ? ['success' => true, 'message' => 'Quartier modifié avec succès'] : ['success' => false, 'message' => 'Erreur lors de la modification']);
@@ -195,6 +201,7 @@ public function zone_detail($id) {
 }
 
 public function ajouter_zone() {
+    $this->output->set_content_type('application/json');
     $this->form_validation->set_rules('id_commune', 'Commune', 'required');
     $this->form_validation->set_rules('zone_name', 'Nom de la zone', 'required');
     
@@ -215,6 +222,7 @@ public function ajouter_zone() {
 }
 
 public function modifier_zone($id) {
+    $this->output->set_content_type('application/json');
     $data = [
         'id_commune' => $this->input->post('id_commune'),
         'zone_name' => $this->input->post('zone_name'),
@@ -273,6 +281,7 @@ public function modifier_zone($id) {
      * Ajouter une colline (AJAX)
      */
     public function ajouter_colline() {
+        $this->output->set_content_type('application/json');
         $this->form_validation->set_rules('id_zone', 'Zone', 'required');
         $this->form_validation->set_rules('colline_name', 'Nom de la colline', 'required');
         
@@ -296,6 +305,7 @@ public function modifier_zone($id) {
      * Modifier une colline (AJAX)
      */
     public function modifier_colline($id) {
+        $this->output->set_content_type('application/json');
         $data = [
             'id_zone' => $this->input->post('id_zone'),
             'colline_name' => $this->input->post('colline_name'),
@@ -310,6 +320,7 @@ public function modifier_zone($id) {
     // ==================== SUPPRESSIONS ====================
     
     public function supprimer($type, $id) {
+        $this->output->set_content_type('application/json');
         $result = false;
         if ($type == 'province') $result = $this->Location_model->supprimer_province($id);
         elseif ($type == 'commune') $result = $this->Location_model->supprimer_commune($id);
@@ -322,18 +333,22 @@ public function modifier_zone($id) {
     // ==================== AJAX ====================
     
     public function get_communes_by_province($id_province) {
+        $this->output->set_content_type('application/json');
         echo json_encode($this->Location_model->get_communes_by_province($id_province));
     }
     
     public function get_quartiers_by_commune($id_commune) {
+        $this->output->set_content_type('application/json');
         echo json_encode($this->Location_model->get_quartiers_by_commune($id_commune));
     }
     
-    public function get_zones_by_quartier($id_quartier) {
-        echo json_encode($this->Location_model->get_zones_by_quartier($id_quartier));
+    public function get_zones_by_commune($id_commune) {
+        $this->output->set_content_type('application/json');
+        echo json_encode($this->Location_model->get_zones_by_commune($id_commune));
     }
     
     public function get_collines_by_zone($id_zone) {
+        $this->output->set_content_type('application/json');
         echo json_encode($this->Location_model->get_collines_by_zone($id_zone));
     }
 }

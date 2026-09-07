@@ -1078,6 +1078,58 @@ public function getCartItems($userId) {
         $query = $this->db->get();
         return $query->result_array();
     }
+
+    /**
+     * Récupère les communes actives par province
+     */
+    public function get_communes_by_province($id_province) {
+        return $this->db->select('id_commune, commune_name as nom')
+                        ->from('communes')
+                        ->where('id_province', $id_province)
+                        ->where('est_actif', 1)
+                        ->order_by('commune_name', 'ASC')
+                        ->get()
+                        ->result_array();
+    }
+
+    /**
+     * Récupère les quartiers actifs par commune
+     */
+    public function get_quartiers_by_commune($id_commune) {
+        return $this->db->select('id_quartier, quartier_name as nom')
+                        ->from('quartiers')
+                        ->where('id_commune', $id_commune)
+                        ->where('est_actif', 1)
+                        ->order_by('quartier_name', 'ASC')
+                        ->get()
+                        ->result_array();
+    }
+
+    /**
+     * Récupère les zones actives par commune
+     */
+    public function get_zones_by_commune($id_commune) {
+        return $this->db->select('id_zone, zone_name as nom')
+                        ->from('zones')
+                        ->where('id_commune', $id_commune)
+                        ->where('est_actif', 1)
+                        ->order_by('zone_name', 'ASC')
+                        ->get()
+                        ->result_array();
+    }
+
+    /**
+     * Récupère les collines actives par zone
+     */
+    public function get_collines_by_zone($id_zone) {
+        return $this->db->select('id_colline, colline_name as nom')
+                        ->from('collines')
+                        ->where('id_zone', $id_zone)
+                        ->where('est_actif', 1)
+                        ->order_by('colline_name', 'ASC')
+                        ->get()
+                        ->result_array();
+    }
     
    
      

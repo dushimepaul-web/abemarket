@@ -8,6 +8,7 @@ class Api extends MY_Controller {
     }
 
     public function get_transporteur_id() {
+        $this->output->set_content_type('application/json');
         $user_id = $this->input->get('user_id');
         if (!$user_id) {
             echo json_encode(['success' => false, 'message' => 'user_id required']);
