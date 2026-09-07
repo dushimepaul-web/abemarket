@@ -192,7 +192,6 @@ class Payment extends MY_Controller {
                     ->where('id_commande', $data['order']['id_commande'])
                     ->get()->result_array();
                     
-                // Récupérer la transaction
                 $data['transaction'] = $this->db->where('reference_interne', $numero_commande)
                     ->order_by('date_creation', 'DESC')
                     ->limit(1)
@@ -212,8 +211,9 @@ class Payment extends MY_Controller {
         
         $data['meta_title'] = 'Paiement confirmé - ' . ($data['settings']['site_name'] ?? 'AbeMarket');
         
-        // Recharger la vue de succès de commande (même template)
-        $this->render('order_success', $data);
+        $this->load->view('includes/frontend/Header', $data);
+        $this->load->view('Home/views/order_success', $data);
+        $this->load->view('includes/frontend/Footer', $data);
     }
 
     /**

@@ -23,7 +23,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://localhost/abemarket';
+
+
+// Vérifier si on est en localhost
+if (isset($_SERVER['HTTP_HOST']) && ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['HTTP_HOST'] == '127.0.0.1')) {
+    $config['base_url'] = 'http://localhost/abemarket/';
+} else {
+    // Sinon, sur le serveur de production
+    $config['base_url'] = 'https://market.abe.bi/';
+}
 
 /*
 |--------------------------------------------------------------------------

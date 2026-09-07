@@ -23,6 +23,14 @@ class Home_model extends CI_Model {
     }
     
     /**
+     * Récupère les frais de livraison depuis les settings
+     */
+    public function getDeliveryFee() {
+        $settings = $this->getSiteSettings();
+        return isset($settings['frais_livraison']) ? (int)$settings['frais_livraison'] : 2000;
+    }
+    
+    /**
      * Récupère les catégories principales (niveau 0)
      */
     public function getMainCategories() {

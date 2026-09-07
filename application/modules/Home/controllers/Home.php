@@ -266,6 +266,7 @@ public function user_dashboard() {
  * Changement d'email (AJAX)
  */
 public function ajax_change_email() {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
@@ -300,6 +301,7 @@ public function ajax_change_email() {
  * Changement de mot de passe (AJAX)
  */
 public function ajax_change_password() {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
@@ -348,6 +350,7 @@ public function ajax_change_password() {
  * Mise à jour du profil (AJAX)
  */
 public function ajax_update_profile() {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
@@ -369,6 +372,7 @@ public function ajax_update_profile() {
  * Ajout d'adresse (AJAX)
  */
 public function ajax_add_address() {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
@@ -407,6 +411,7 @@ public function ajax_add_address() {
  * Suppression d'adresse (AJAX)
  */
 public function ajax_delete_address($id) {
+    $this->output->set_content_type('application/json');
     if (!$this->session->userdata('user_id')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
@@ -1163,10 +1168,10 @@ public function seller($slug) {
      * Affiche le panier
      */
     public function cart() {
-       // if (!$this->session->userdata('user_id')) {
-        //    redirect('auth/login');
-        //    return;
-       // }
+        if (!$this->session->userdata('user_id')) {
+            redirect('auth/login');
+            return;
+        }
         
         $data['settings'] = $this->Home_model->getSiteSettings();
         $data['main_categories'] = $this->Home_model->getMainCategories();
@@ -1178,7 +1183,7 @@ public function seller($slug) {
         foreach ($data['cartItems'] as $item) {
             $data['subtotal'] += $item['sous_total'];
         }
-        $data['frais_livraison'] = 2000;
+        $data['frais_livraison'] = $this->Home_model->getDeliveryFee();
         $data['total'] = $data['subtotal'] + $data['frais_livraison'];
         
         $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
@@ -1213,7 +1218,7 @@ public function seller($slug) {
         foreach ($data['cartItems'] as $item) {
             $data['subtotal'] += $item['sous_total'];
         }
-        $data['frais_livraison'] = 2000;
+        $data['frais_livraison'] = $this->Home_model->getDeliveryFee();
         $data['total'] = $data['subtotal'] + $data['frais_livraison'];
         
         // Récupérer les modes de paiement
@@ -1275,7 +1280,7 @@ public function seller($slug) {
         foreach ($cartItems as $item) {
             $subtotal += $item['sous_total'];
         }
-        $frais_livraison = 2000;
+        $frais_livraison = $this->Home_model->getDeliveryFee();
         $total = $subtotal + $frais_livraison;
         
         // Générer le numéro de commande

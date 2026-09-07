@@ -639,6 +639,7 @@ $route['cart'] = 'home/cart';
 $route['checkout'] = 'home/checkout';
 $route['checkout/process'] = 'home/processOrder';
 $route['payment/pending/(:any)'] = 'home/payment_pending/$1';
+$route['payment/success/(:any)'] = 'Payment/Payment/success/$1';
 $route['payment/submit-reference'] = 'home/submit_payment_reference';
 $route['wishlist'] = 'home/wishlist';
 $route['privacy-policy'] = 'home/privacy_policy';
