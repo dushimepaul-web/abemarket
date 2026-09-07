@@ -233,15 +233,23 @@ class Auth extends MY_Controller {
         
         $this->db->insert('codes_otp', $otp_data);
         
+        // Récupérer le logo du site depuis les settings
+        $logo_setting = $this->db->where('KeyValue', 'site_logo')->get('settings')->row();
+        $logo_filename = ($logo_setting && !empty($logo_setting->Value)) ? $logo_setting->Value : 'logo.png';
+        $logo_url = base_url('attachments/Settings/' . $logo_filename);
+
         // Envoyer l'email avec le code OTP via Cpanel_email_lib
         $this->load->library('Cpanel_email_lib');
         $subject = "Code de vérification - ABEMARKET";
-        $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
+        $message = "<div style='font-family:Arial,sans-serif;padding:25px;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #eaeaea;'>
+            <div style='text-align:center;margin-bottom:20px;'>
+                <img src='$logo_url' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
+            </div>
             <h2>Bonjour $prenom $nom,</h2>
             <p>Voici votre code de vérification pour votre compte ABEMARKET :</p>
-            <h1 style='color:#ff6600;background:#f8f9fa;padding:10px;text-align:center;letter-spacing:5px;'>$otp_code</h1>
+            <h1 style='color:#ff6600;background:#f8f9fa;padding:12px;text-align:center;letter-spacing:5px;border-radius:8px;'>$otp_code</h1>
             <p>Ce code expirera dans 15 minutes.</p>
-            <p>Cordialement,<br>L'équipe ABEMARKET</p>
+            <p>Cordialement,<br><strong>L'équipe ABEMARKET</strong></p>
         </div>";
         $result = $this->cpanel_email_lib->send_email($email, $subject, $message);
         $email_sent = isset($result['success']) && $result['success'];
@@ -502,13 +510,21 @@ public function verify_otp() {
     
     // Récupérer l'utilisateur pour envoyer l'email de bienvenue
     $user = $this->db->get_where('utilisateurs', ['id_utilisateur' => $user_id])->row();
+    
+    $logo_setting = $this->db->where('KeyValue', 'site_logo')->get('settings')->row();
+    $logo_filename = ($logo_setting && !empty($logo_setting->Value)) ? $logo_setting->Value : 'logo.png';
+    $logo_url = base_url('attachments/Settings/' . $logo_filename);
+
     $this->load->library('Cpanel_email_lib');
     $subject = "Bienvenue sur ABEMARKET";
-    $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
+    $message = "<div style='font-family:Arial,sans-serif;padding:25px;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #eaeaea;'>
+        <div style='text-align:center;margin-bottom:20px;'>
+            <img src='$logo_url' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
+        </div>
         <h2>Bienvenue {$user->prenom} {$user->nom} !</h2>
         <p>Votre compte a été vérifié et activé avec succès sur ABEMARKET.</p>
         <p>Vous pouvez dès à présent profiter de notre plateforme.</p>
-        <p>Cordialement,<br>L'équipe ABEMARKET</p>
+        <p>Cordialement,<br><strong>L'équipe ABEMARKET</strong></p>
     </div>";
     $this->cpanel_email_lib->send_email($user->email, $subject, $message);
     
@@ -574,15 +590,23 @@ public function verify_otp() {
         
         $this->db->insert('codes_otp', $otp_data);
         
+        // Récupérer le logo du site depuis les settings
+        $logo_setting = $this->db->where('KeyValue', 'site_logo')->get('settings')->row();
+        $logo_filename = ($logo_setting && !empty($logo_setting->Value)) ? $logo_setting->Value : 'logo.png';
+        $logo_url = base_url('attachments/Settings/' . $logo_filename);
+
         // Envoyer l'email via Cpanel_email_lib
         $this->load->library('Cpanel_email_lib');
         $subject = "Nouveau code de vérification - ABEMARKET";
-        $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
+        $message = "<div style='font-family:Arial,sans-serif;padding:25px;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #eaeaea;'>
+            <div style='text-align:center;margin-bottom:20px;'>
+                <img src='$logo_url' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
+            </div>
             <h2>Bonjour {$user->prenom} {$user->nom},</h2>
             <p>Voici votre nouveau code de vérification :</p>
-            <h1 style='color:#ff6600;background:#f8f9fa;padding:10px;text-align:center;letter-spacing:5px;'>$otp_code</h1>
+            <h1 style='color:#ff6600;background:#f8f9fa;padding:12px;text-align:center;letter-spacing:5px;border-radius:8px;'>$otp_code</h1>
             <p>Ce code expirera dans 15 minutes.</p>
-            <p>Cordialement,<br>L'équipe ABEMARKET</p>
+            <p>Cordialement,<br><strong>L'équipe ABEMARKET</strong></p>
         </div>";
         $result = $this->cpanel_email_lib->send_email($user->email, $subject, $message);
         $email_sent = isset($result['success']) && $result['success'];
@@ -637,16 +661,24 @@ public function forgot_password() {
     
     $this->db->insert('codes_otp', $otp_data);
     
+    // Récupérer le logo du site depuis les settings
+    $logo_setting = $this->db->where('KeyValue', 'site_logo')->get('settings')->row();
+    $logo_filename = ($logo_setting && !empty($logo_setting->Value)) ? $logo_setting->Value : 'logo.png';
+    $logo_url = base_url('attachments/Settings/' . $logo_filename);
+
     // Envoyer le code via Cpanel_email_lib
     $this->load->library('Cpanel_email_lib');
     $subject = "Réinitialisation de mot de passe - ABEMARKET";
-    $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
+    $message = "<div style='font-family:Arial,sans-serif;padding:25px;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #eaeaea;'>
+        <div style='text-align:center;margin-bottom:20px;'>
+            <img src='$logo_url' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
+        </div>
         <h2>Bonjour {$user['prenom']} {$user['nom']},</h2>
         <p>Vous avez demandé la réinitialisation de votre mot de passe sur ABEMARKET.</p>
         <p>Voici votre code de réinitialisation :</p>
-        <h1 style='color:#ff6600;background:#f8f9fa;padding:10px;text-align:center;letter-spacing:5px;'>$otp_code</h1>
+        <h1 style='color:#ff6600;background:#f8f9fa;padding:12px;text-align:center;letter-spacing:5px;border-radius:8px;'>$otp_code</h1>
         <p>Ce code expirera dans 15 minutes.</p>
-        <p>Cordialement,<br>L'équipe ABEMARKET</p>
+        <p>Cordialement,<br><strong>L'équipe ABEMARKET</strong></p>
     </div>";
     $this->cpanel_email_lib->send_email($email, $subject, $message);
     
