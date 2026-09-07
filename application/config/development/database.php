@@ -70,27 +70,60 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | The $query_builder variables lets you determine whether or not to load
 | the query builder class.
 */
+
+
+
+
 $active_group = 'default';
 $query_builder = TRUE;
 
-$db['default'] = array(
-	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'abemarket',
-	'dbdriver' => 'mysqli',
-	'dbprefix' => '',
-	'pconnect' => FALSE,
-	'db_debug' => (ENVIRONMENT !== 'production'),
-	'cache_on' => FALSE,
-	'cachedir' => '',
-	'char_set' => 'utf8',
-	'dbcollat' => 'utf8_general_ci',
-	'swap_pre' => '',
-	'encrypt' => FALSE,
-	'compress' => FALSE,
-	'stricton' => FALSE,
-	'failover' => array(),
-	'save_queries' => TRUE
-);
+// Détection automatique de l'environnement
+if (true) {
+    // Configuration pour le serveur local
+    $db['default'] = array(
+        'dsn'       => '',
+        'hostname'  => 'localhost',
+        'username'  => 'root',
+        'password'  => '',          // mot de passe local
+        'database'  => 'abemarket',
+        'dbdriver'  => 'mysqli',
+        'dbprefix'  => '',
+        'pconnect'  => FALSE,
+        'db_debug'  => (ENVIRONMENT !== 'production'),
+        'cache_on'  => FALSE,
+        'cachedir'  => '',
+        'char_set'  => 'utf8mb4',
+        'dbcollat'  => 'utf8mb4_general_ci',
+        'swap_pre'  => '',
+        'encrypt'   => FALSE,
+        'compress'  => FALSE,
+        'stricton'  => FALSE,
+        'failover'  => array(),
+        'save_queries' => TRUE
+    );
+} else {
+    // Configuration pour le serveur distant (identifiants via variables d'environnement)
+    $db['default'] = array(
+        'dsn'       => '',
+'hostname'  => 'localhost',
+'username'  => getenv('DB_USERNAME') ?: 'abemarket_market',
+'password'  => getenv('DB_PASSWORD') ?: 'Abe@@2028',
+'database'  => getenv('DB_DATABASE') ?: 'abemarket_market',
+'dbdriver'  => 'mysqli',
+'dbprefix'  => '',
+'pconnect'  => FALSE,
+'db_debug'  => (ENVIRONMENT !== 'production'),
+'cache_on'  => FALSE,
+'cachedir'  => '',
+'char_set'  => 'utf8mb4',
+'dbcollat'  => 'utf8mb4_general_ci',
+'swap_pre'  => '',
+'encrypt'   => FALSE,
+'compress'  => FALSE,
+'stricton'  => FALSE,
+'failover'  => array(),
+'save_queries' => TRUE,
+    );
+}
+
+
