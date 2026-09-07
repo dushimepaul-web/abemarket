@@ -1,15 +1,34 @@
 <?php
-echo "Document Root: " . $_SERVER['DOCUMENT_ROOT'] . "<br>";
-echo "Script Name: " . $_SERVER['SCRIPT_NAME'] . "<br>";
+// Charger l'environnement CodeIgniter pour tester l'envoi d'email
+define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
 
-// Chercher le fichier User_dashboard.php
-$paths = [
-    __DIR__ . '/application/controllers/User_dashboard.php',
-    __DIR__ . '/application/modules/Home/controllers/User_dashboard.php',
-    __DIR__ . '/application/modules/User_dashboard/controllers/User_dashboard.php',
-];
+// Chemin vers index.php ou bootstrap minimal
+require_once 'index.php';
 
-foreach ($paths as $path) {
-    echo "Chemin: " . $path . " - " . (file_exists($path) ? "EXISTE" : "N'EXISTE PAS") . "<br>";
+// Récupérer l'instance de CodeIgniter
+$CI =& get_instance();
+
+// Charger la bibliothèque cpanel_email_lib
+$CI->load->library('Cpanel_email_lib');
+
+$to = 'dushimepaul51@gmail.com';
+$subject = 'Test Envoi Email - ABEMARKET cPanel';
+$message = '<div style="font-family:Arial,sans-serif;padding:20px;background:#f9f9f9;border-radius:10px;">
+    <h2 style="color:#ff6600;">Test Email ABEMARKET</h2>
+    <p>Ceci est un message de test envoyé depuis le serveur cPanel avec <strong>Cpanel_email_lib</strong> et l\'adresse <strong>abemarket@abe.bi</strong>.</p>
+    <p>Si vous recevez ce message, la configuration et l\'envoi fonctionnent parfaitement !</p>
+    <p>Cordialement,<br>L\'équipe Technique ABEMARKET</p>
+</div>';
+
+$result = $CI->cpanel_email_lib->send_email($to, $subject, $message);
+
+echo "<h1>Résultat du test d'envoi d'email</h1>";
+if ($result['success'] ?? false) {
+    echo "<p style='color:green;font-weight:bold;'>Succès : Email envoyé avec succès à $to !</p>";
+} else {
+    echo "<p style='color:red;font-weight:bold;'>Erreur lors de l'envoi :</p>";
+    echo "<pre>" . print_r($result, true) . "</pre>";
+    echo "<h3>Debugger :</h3>";
+    echo "<pre>" . $CI->email->print_debugger() . "</pre>";
 }
 ?>
