@@ -628,30 +628,30 @@ $route['soldes-vendeurs/exporter'] = 'SoldesVendeurs/exporter';
 
 
 // Routes pour l'accueil
-$route['home'] = 'home/index';
-$route['about'] = 'home/about';
-$route['blog'] = 'home/blog';
-$route['offres'] = 'home/offres';
-$route['faq'] = 'home/faq';
-$route['contact'] = 'home/contact';
+$route['Home'] = 'Home/index';
+$route['about'] = 'Home/about';
+$route['blog'] = 'Home/blog';
+$route['offres'] = 'Home/offres';
+$route['faq'] = 'Home/faq';
+$route['contact'] = 'Home/contact';
 $route['shop'] = 'Home/shop';
 $route['Shop'] = 'Home/shop';
-$route['cart'] = 'home/cart';
-$route['checkout'] = 'home/checkout';
-$route['checkout/process'] = 'home/processOrder';
-$route['payment/pending/(:any)'] = 'home/payment_pending/$1';
+$route['cart'] = 'Home/cart';
+$route['checkout'] = 'Home/checkout';
+$route['checkout/process'] = 'Home/processOrder';
+$route['payment/pending/(:any)'] = 'Home/payment_pending/$1';
 $route['payment/success/(:any)'] = 'Payment/Payment/success/$1';
-$route['payment/submit-reference'] = 'home/submit_payment_reference';
-$route['wishlist'] = 'home/wishlist';
-$route['privacy-policy'] = 'home/privacy_policy';
-$route['sellers'] = 'home/sellers';
-$route['search'] = 'home/search';
+$route['payment/submit-reference'] = 'Home/submit_payment_reference';
+$route['wishlist'] = 'Home/wishlist';
+$route['privacy-policy'] = 'Home/privacy_policy';
+$route['sellers'] = 'Home/sellers';
+$route['search'] = 'Home/search';
 
 // Routes dynamiques
-$route['category/(:any)'] = 'home/category/$1';
-$route['product/(:any)'] = 'home/product/$1';
-$route['seller/(:any)'] = 'home/seller/$1';
-$route['order-success/(:any)'] = 'home/order_success/$1';
+$route['category/(:any)'] = 'Home/category/$1';
+$route['product/(:any)'] = 'Home/product/$1';
+$route['seller/(:any)'] = 'Home/seller/$1';
+$route['order-success/(:any)'] = 'Home/order_success/$1';
 
 
 
@@ -703,7 +703,7 @@ $route['update-order-status'] = 'Home/Ordertracking/updateOrderStatus';
 $route['confirm-delivery'] = 'Home/Ordertracking/confirmDeliveryByQR';
 
 // Tableau de bord utilisateur frontend
-$route['user/dashboard'] = 'home/User_dashboard';
+$route['user/dashboard'] = 'Home/User_dashboard';
 
 // =============================================
 // ROUTES POUR DASHBOARDS MULTI-RÔLES
