@@ -346,8 +346,6 @@ if ($this->session->userdata('user_id')) {
     </div>
     <div class="offcanvas-body">
         <div class="cart-product-box">
-            }
-            ?>
             
             <!-- Loading spinner (caché par défaut) -->
             <div id="cartLoadingSpinner" class="text-center py-5" style="display: none;">

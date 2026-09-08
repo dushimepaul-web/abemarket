@@ -303,10 +303,21 @@ $isLoggedIn = $this->session->userdata('logged_in');
 </li>
 
 <!-- Panier -->
+<?php
+$hdr_cart_count = 0;
+if ($this->session->userdata('user_id')) {
+    $hdr_cart_count = $this->session->userdata('cart_count') ?? 0;
+} else {
+    $guestCart = $this->session->userdata('guest_cart') ?: [];
+    foreach ($guestCart as $item) {
+        $hdr_cart_count += intval($item['quantity'] ?? 1);
+    }
+}
+?>
 <li>
     <a href="#" class="cart-icon" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
         <i class="iconsax" data-icon-name="basket-2"></i>
-        <span class="label"><span id="cart-count-header"><?= $cart_count ?? 0; ?></span></span>
+        <span class="label"><span id="cart-count-header"><?= $hdr_cart_count ?></span></span>
     </a>
 </li>
 
