@@ -251,6 +251,27 @@
 <!-- Scripts -->
 <script>
 $(document).ready(function() {
+    // Add to cart
+    $(document).on('click', '.add-to-cart-btn', function(e) {
+        e.preventDefault();
+        let productId = $(this).data('product-id');
+        $.ajax({
+            url: '<?= base_url("home/addToCart") ?>',
+            type: 'POST',
+            data: { product_id: productId, quantity: 1 },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#cart-count-header').text(response.cart_count);
+                    $('.cart-count').text(response.cart_count);
+                    Swal.fire({ icon: 'success', title: 'Ajouté !', text: 'Produit ajouté au panier', timer: 1500, showConfirmButton: false });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Erreur', text: response.message || 'Erreur lors de l\'ajout' });
+                }
+            }
+        });
+    });
+
     // Tri des produits
     $('#sortProducts').change(function() {
         let sort = $(this).val();

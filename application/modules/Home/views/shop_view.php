@@ -503,7 +503,7 @@ $(document).ready(function() {
     // Add to cart (delegated)
     $(document).on('click', '.add-to-cart-btn', function(e) {
         e.preventDefault();
-        let productId = $(this).data('product');
+        let productId = $(this).data('product-id');
         
         $.ajax({
             url: '<?= base_url("home/addToCart") ?>',
@@ -513,7 +513,8 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     showToast('Produit ajouté au panier', 'success');
-                    updateCartCount();
+                    $('#cart-count-header').text(response.cart_count);
+                    $('.cart-count').text(response.cart_count);
                 } else {
                     showToast(response.message || 'Erreur lors de l\'ajout', 'error');
                 }
