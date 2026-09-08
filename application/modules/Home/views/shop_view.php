@@ -504,6 +504,9 @@ $(document).ready(function() {
     $(document).on('click', '.add-to-cart-btn', function(e) {
         e.preventDefault();
         let productId = $(this).data('product-id');
+        let $btn = $(this);
+        
+        $btn.prop('disabled', true).html('<i class="ri-loader-4-line"></i>...');
         
         $.ajax({
             url: '<?= base_url("home/addToCart") ?>',
@@ -514,13 +517,20 @@ $(document).ready(function() {
                 if (response.success) {
                     showToast('Produit ajouté au panier', 'success');
                     $('#cart-count-header').text(response.cart_count);
+                    $('#cartCountBadge').text(response.cart_count);
                     $('.cart-count').text(response.cart_count);
+                    $btn.html('<i class="ri-check-line"></i> Ajouté !').css('background', '#28a745');
+                    setTimeout(function() {
+                        $btn.html('<i class="ri-shopping-cart-2-line"></i> Ajouter au panier').css('background', '#ff6b35').prop('disabled', false);
+                    }, 1500);
                 } else {
                     showToast(response.message || 'Erreur lors de l\'ajout', 'error');
+                    $btn.html('<i class="ri-shopping-cart-2-line"></i> Ajouter au panier').prop('disabled', false);
                 }
             },
             error: function() {
                 showToast('Erreur lors de l\'ajout au panier', 'error');
+                $btn.html('<i class="ri-shopping-cart-2-line"></i> Ajouter au panier').prop('disabled', false);
             }
         });
     });
