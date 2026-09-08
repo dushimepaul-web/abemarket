@@ -423,6 +423,9 @@ public function saveContactMessage($data) {
  * Récupère le contenu de la page À propos
  */
 public function getAboutContent() {
+    if (!$this->db->table_exists('about_content')) {
+        return [];
+    }
     $this->db->where('est_actif', 1);
     $this->db->order_by('ordre_affichage', 'ASC');
     $query = $this->db->get('about_content');
@@ -437,6 +440,9 @@ public function getAboutContent() {
  * Récupère les membres de l'équipe
  */
 public function getTeamMembers() {
+    if (!$this->db->table_exists('team_members')) {
+        return [];
+    }
     $this->db->where('est_actif', 1);
     $this->db->order_by('ordre_affichage', 'ASC');
     return $this->db->get('team_members')->result_array();
@@ -446,6 +452,9 @@ public function getTeamMembers() {
  * Récupère les témoignages clients
  */
 public function getTestimonials() {
+    if (!$this->db->table_exists('testimonials')) {
+        return [];
+    }
     $this->db->where('est_approuve', 1);
     $this->db->order_by('ordre_affichage', 'ASC');
     return $this->db->get('testimonials')->result_array();
