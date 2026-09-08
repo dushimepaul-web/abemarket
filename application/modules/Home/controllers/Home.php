@@ -1083,7 +1083,10 @@ public function seller($slug) {
             }
             $this->session->set_userdata('guest_cart', $guestCart);
             $result = true;
-            $cartCount = count($guestCart);
+            $cartCount = 0;
+            foreach ($guestCart as $item) {
+                $cartCount += intval($item['quantity'] ?? 1);
+            }
         }
         
         $this->output
