@@ -11,8 +11,11 @@
     <meta name="author" content="<?= htmlspecialchars($settings['site_author'] ?? 'AbeMarket', ENT_QUOTES, 'UTF-8'); ?>">
     
     <!-- Favicon dynamique -->
-    <link rel="icon" href="<?= base_url('uploads/settings/' . ($settings['site_favicon'] ?? 'favicon.svg')); ?>" type="image/x-icon">
-    <link rel="apple-touch-icon" href="<?= base_url('uploads/settings/' . ($settings['site_favicon'] ?? 'favicon.svg')); ?>">
+    <?php $favicon = $settings['site_favicon'] ?? 'favicon.svg'; ?>
+    <?php $ext = pathinfo($favicon, PATHINFO_EXTENSION); ?>
+    <?php $mime = ($ext === 'svg') ? 'image/svg+xml' : (($ext === 'png') ? 'image/png' : 'image/x-icon'); ?>
+    <link rel="icon" href="<?= base_url('uploads/settings/' . $favicon); ?>" type="<?= $mime; ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('uploads/settings/' . $favicon); ?>">
     
     <meta name="title-color" content="#ff9900">
     <meta name="apple-mobile-web-app-capable" content="yes">
