@@ -492,15 +492,17 @@ const searchInputBox = document.getElementById("searchInputBox");
 const resultBox1 = document.getElementById("resultBox");
 const overlay = document.getElementById("searchOverlay");
 
-searchInputBox.addEventListener("click", () => {
-    resultBox1.classList.add("show");
-    overlay.classList.add("show");
-});
+if (searchInputBox && resultBox1 && overlay) {
+    searchInputBox.addEventListener("click", () => {
+        resultBox1.classList.add("show");
+        overlay.classList.add("show");
+    });
 
-overlay.addEventListener("click", () => {
-    resultBox1.classList.remove("show");
-    overlay.classList.remove("show");
-});
+    overlay.addEventListener("click", () => {
+        resultBox1.classList.remove("show");
+        overlay.classList.remove("show");
+    });
+}
 
 /*=====================
     15. Empty Cart Js
@@ -775,7 +777,8 @@ const percentageEl = document.querySelector(".percentage");
 function updateUI(val) {
     const progress = Math.round(val);
     if (percentageEl) percentageEl.textContent = progress;
-    document.querySelector(".preloader-progress-bar").style.width = progress + "%";
+    const progressBar = document.querySelector(".preloader-progress-bar");
+    if (progressBar) progressBar.style.width = progress + "%";
     updateColors(progress);
 }
 
