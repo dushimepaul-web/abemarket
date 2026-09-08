@@ -523,6 +523,7 @@ $(document).ready(function() {
                     setTimeout(function() {
                         $btn.html('<i class="ri-shopping-cart-2-line"></i> Ajouter au panier').css('background', '#ff6b35').prop('disabled', false);
                     }, 1500);
+                    refreshCartOffcanvas();
                 } else {
                     showToast(response.message || 'Erreur lors de l\'ajout', 'error');
                     $btn.html('<i class="ri-shopping-cart-2-line"></i> Ajouter au panier').prop('disabled', false);
@@ -534,6 +535,21 @@ $(document).ready(function() {
             }
         });
     });
+    
+    function refreshCartOffcanvas() {
+        $.ajax({
+            url: '<?= base_url("home/refreshCartOffcanvas") ?>',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#cartItemsList').replaceWith($(response.html).find('#cartItemsList'));
+                    $('#cartTotalBox').replaceWith($(response.html).find('#cartTotalBox'));
+                    $('#cartCountBadge').text(response.cart_count);
+                }
+            }
+        });
+    }
     
     // Add to wishlist (delegated)
     $(document).on('click', '.add-to-wishlist', function(e) {

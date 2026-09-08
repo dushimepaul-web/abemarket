@@ -741,6 +741,7 @@ $route['home/moveToCartFromWishlist'] = 'Home/moveToCartFromWishlist';
 $route['home/getWishlistOffcanvas'] = 'Home/getWishlistOffcanvas';
 $route['home/getUserWishlistIds'] = 'Home/getUserWishlistIds';
 $route['home/applyCoupon'] = 'Home/applyCoupon';
+$route['home/refreshCartOffcanvas'] = 'Home/refreshCartOffcanvas';
 $route['home/newsletter_subscribe'] = 'Home/newsletter_subscribe';
 $route['home/get_communes'] = 'Home/get_communes';
 $route['home/get_quartiers'] = 'Home/get_quartiers';

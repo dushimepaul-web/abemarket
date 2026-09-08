@@ -1814,4 +1814,54 @@ public function applyCoupon() {
     echo json_encode($result);
 }
 
+public function refreshCartOffcanvas() {
+    $cart_items = [];
+    $cart_subtotal = 0;
+    $cart_total_items = 0;
+
+    if ($this->session->userdata('user_id')) {
+        $user_id = $this->session->userdata('user_id');
+        $cart_items = $this->Home_model->getCartItems($user_id);
+        if (!empty($cart_items)) {
+            foreach ($cart_items as $item) {
+                $cart_subtotal += floatval($item['sous_total'] ?? 0);
+                $cart_total_items += intval($item['quantite'] ?? 0);
+            }
+        }
+    } else {
+        $guestCart = $this->session->userdata('guest_cart') ?: [];
+        foreach ($guestCart as $key => $item) {
+            $qty = $item['quantity'] ?? 1;
+            $price = $item['prix_base'] ?? 0;
+            $cart_items[] = [
+                'id_panier' => 'guest_' . $key,
+                'id_produit' => $item['product_id'],
+                'nom_produit' => $item['nom_produit'] ?? 'Produit',
+                'slug_produit' => '',
+                'prix_effectif' => $price,
+                'sous_total' => $price * $qty,
+                'quantite' => $qty,
+                'image_url' => $item['image_url'] ?? 'assets/frontend/images/product/placeholder.png'
+            ];
+            $cart_subtotal += $price * $qty;
+            $cart_total_items += $qty;
+        }
+    }
+
+    $html = $this->load->view('partials/cart_offcanvas_items', [
+        'cart_items' => $cart_items,
+        'cart_total_items' => $cart_total_items,
+        'cart_subtotal' => $cart_subtotal
+    ], TRUE);
+
+    $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode([
+            'success' => true,
+            'html' => $html,
+            'cart_count' => $cart_total_items,
+            'subtotal' => $cart_subtotal
+        ]));
+}
+
 }
