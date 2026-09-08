@@ -1210,15 +1210,40 @@ public function seller($slug) {
      * Affiche le panier
      */
     public function cart() {
-        if (!$this->session->userdata('user_id')) {
-            redirect('auth/login');
-            return;
-        }
-        
         $data['settings'] = $this->Home_model->getSiteSettings();
         $data['main_categories'] = $this->Home_model->getMainCategories();
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
-        $data['cartItems'] = $this->Home_model->getCartItems($this->session->userdata('user_id'));
+        
+        if ($this->session->userdata('user_id')) {
+            // Utilisateur connecté → panier BDD
+            $data['cartItems'] = $this->Home_model->getCartItems($this->session->userdata('user_id'));
+            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
+            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
+            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        } else {
+            // Visiteur → panier session
+            $guestCart = $this->session->userdata('guest_cart') ?: [];
+            $data['cartItems'] = [];
+            foreach ($guestCart as $item) {
+                $data['cartItems'][] = [
+                    'id_panier' => 0,
+                    'id_produit' => $item['product_id'],
+                    'id_variante' => $item['variant_id'],
+                    'quantite' => $item['quantity'],
+                    'nom_produit' => $item['nom_produit'],
+                    'slug_produit' => '',
+                    'prix_base' => $item['prix_base'],
+                    'prix_promo' => $item['prix_base'],
+                    'sous_total' => $item['prix_base'] * $item['quantity'],
+                    'url_image' => $item['image_url']
+                ];
+            }
+            $data['cart_count'] = count($guestCart);
+            $data['wishlist_count'] = 0;
+            $data['user_profils'] = [];
+        }
+        
+        $data['is_guest'] = !$this->session->userdata('user_id');
         
         // Calculer le total
         $data['subtotal'] = 0;
@@ -1227,10 +1252,6 @@ public function seller($slug) {
         }
         $data['frais_livraison'] = $this->Home_model->getDeliveryFee();
         $data['total'] = $data['subtotal'] + $data['frais_livraison'];
-        
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
         
         $data['meta_title'] = 'Mon panier - ' . ($data['settings']['site_name'] ?? 'AbeMarket');
         $this->render('cart_view', $data);

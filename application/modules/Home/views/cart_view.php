@@ -118,7 +118,16 @@
 
                             <!-- Boutons d'action -->
                             <div class="cart-btn-group">
-                                <a href="<?= base_url('checkout'); ?>" class="btn check-out-button">Valider la commande</a>
+                                <?php if (!empty($is_guest)): ?>
+                                    <a href="<?= base_url('auth/login'); ?>" class="btn check-out-button">
+                                        <i class="ri-login-box-line"></i> Se connecter pour commander
+                                    </a>
+                                    <p class="text-center text-muted mt-2" style="font-size:13px;">
+                                        <a href="<?= base_url('auth/register'); ?>" class="text-primary">Créer un compte</a> gratuit
+                                    </p>
+                                <?php else: ?>
+                                    <a href="<?= base_url('checkout'); ?>" class="btn check-out-button">Valider la commande</a>
+                                <?php endif; ?>
                                 <a href="<?= base_url('shop'); ?>" class="btn continue-shopping-btn">Continuer mes achats</a>
                             </div>
                         </div>
