@@ -7,7 +7,7 @@
  * https://github.com/Dushimepaul
 */
 
-class Dashboard extends My_Controller
+class Dashboard extends MY_Controller
 {
     
     public function __construct()

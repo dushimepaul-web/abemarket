@@ -604,7 +604,7 @@ function cancelOrder(orderId) {
         $('#loading').fadeIn();
         
         $.ajax({
-            url: '<?php echo base_url("index.php/ordertracking/updateOrderStatus"); ?>',
+            url: '<?php echo base_url("update-order-status"); ?>',
             method: 'POST',
             data: {
                 id_commande: orderId,

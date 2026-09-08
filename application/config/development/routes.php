@@ -391,7 +391,7 @@ $route['approvisionnements/get_variantes_with_stock'] = 'Approvisionnements/get_
 $route['approvisionnements/get_stock_actuel'] = 'Approvisionnements/get_stock_actuel';
 
 // Routes AJAX pour l'ajout de stock
-$route['approvisionnements/ajouter_stock'] = 'Approvisionnements/ajouter_stock';
+$route['approvisionnements/ajouter_stock'] = 'Approvisionnements/ajouter_stock_produit';
 $route['approvisionnements/ajouter_stock_produit'] = 'Approvisionnements/ajouter_stock_produit';
 $route['approvisionnements/ajouter_stock_variante'] = 'Approvisionnements/ajouter_stock_variante';
 
@@ -411,8 +411,8 @@ $route['tentatives-connexion/index/(:num)']                         = 'Utilisate
 // Routes pour la blacklist IP
 $route['tentatives-connexion/blacklister_ip']                       = 'Utilisateurs/TentativesConnexion/blacklister_ip';
 $route['tentatives-connexion/retirer_blacklist']                    = 'Utilisateurs/TentativesConnexion/retirer_blacklist';
-$route['tentatives-connexion/bloquer_ip']                           = 'Utilisateurs/TentativesConnexion/bloquer_ip';
-$route['tentatives-connexion/debloquer_ip']                         = 'Utilisateurs/TentativesConnexion/debloquer_ip';
+$route['tentatives-connexion/bloquer_ip']                           = 'Utilisateurs/TentativesConnexion/blacklister_ip';
+$route['tentatives-connexion/debloquer_ip']                         = 'Utilisateurs/TentativesConnexion/retirer_blacklist';
 $route['tentatives-connexion/nettoyer_expirees']                    = 'Utilisateurs/TentativesConnexion/nettoyer_expirees';
 
 // Routes pour la gestion des tentatives
@@ -424,10 +424,10 @@ $route['tentatives-connexion/vider']                                = 'Utilisate
 $route['tentatives-connexion/exporter']                             = 'Utilisateurs/TentativesConnexion/exporter';
 
 // Route pour la vérification d'IP (API)
-$route['tentatives-connexion/verifier']                             = 'Utilisateurs/TentativesConnexion/verifier';
+$route['tentatives-connexion/verifier']                             = 'Utilisateurs/TentativesConnexion/index';
 
 // Route pour le debug
-$route['tentatives-connexion/debug']                                = 'Utilisateurs/TentativesConnexion/debug';
+$route['tentatives-connexion/debug']                                = 'Utilisateurs/TentativesConnexion/index';
 
 
 
@@ -624,6 +624,108 @@ $route['soldes-vendeurs/recalculer/(:num)'] = 'SoldesVendeurs/recalculer/$1';
 $route['soldes-vendeurs/recalculer-tous'] = 'SoldesVendeurs/recalculer_tous';
 $route['soldes-vendeurs/exporter'] = 'SoldesVendeurs/exporter';
 
+// =============================================
+// ROUTES POUR BANNERS (Bannières)
+// =============================================
+$route['banners'] = 'Banners/index';
+$route['banners/add'] = 'Banners/add';
+$route['banners/edit/(:num)'] = 'Banners/edit/$1';
+$route['banners/delete/(:num)'] = 'Banners/delete/$1';
+$route['banners/toggle_status/(:num)'] = 'Banners/toggle_status/$1';
+$route['banners/by_position/(:any)'] = 'Banners/by_position/$1';
+$route['banners/delete_expired'] = 'Banners/delete_expired';
+$route['banners/disable_expired'] = 'Banners/disable_expired';
+$route['banners/stats'] = 'Banners/stats';
+$route['banners/duplicate/(:num)'] = 'Banners/duplicate/$1';
+
+// =============================================
+// ROUTES POUR RETOURS
+// =============================================
+$route['retours'] = 'Retours/index';
+$route['retours/mes-demandes'] = 'Retours/mes_demandes';
+$route['retours/detail/(:num)'] = 'Retours/detail/$1';
+$route['retours/demander'] = 'Retours/demander';
+$route['retours/traiter/(:num)'] = 'Retours/traiter/$1';
+$route['retours/delete/(:num)'] = 'Retours/delete/$1';
+$route['retours/exporter'] = 'Retours/exporter';
+
+// =============================================
+// ROUTES POUR BLACKLIST IPS
+// =============================================
+$route['blacklist-ips'] = 'blacklist_ips/Blacklist_ips/index';
+$route['blacklist-ips/add'] = 'blacklist_ips/Blacklist_ips/ajouter';
+$route['blacklist-ips/save'] = 'blacklist_ips/Blacklist_ips/save';
+$route['blacklist-ips/detail/(:num)'] = 'blacklist_ips/Blacklist_ips/detail/$1';
+$route['blacklist-ips/edit/(:num)'] = 'blacklist_ips/Blacklist_ips/edit/$1';
+$route['blacklist-ips/update/(:num)'] = 'blacklist_ips/Blacklist_ips/update/$1';
+$route['blacklist-ips/delete/(:num)'] = 'blacklist_ips/Blacklist_ips/delete/$1';
+$route['blacklist-ips/check'] = 'blacklist_ips/Blacklist_ips/check_ip';
+
+// =============================================
+// ROUTES POUR CONFIG PAIEMENT VENDEUR
+// =============================================
+$route['config-paiement-vendeur'] = 'config_paiement_vendeur/Config_paiement_vendeur/index';
+$route['config-paiement-vendeur/add'] = 'config_paiement_vendeur/Config_paiement_vendeur/ajouter';
+$route['config-paiement-vendeur/save'] = 'config_paiement_vendeur/Config_paiement_vendeur/save';
+$route['config-paiement-vendeur/detail/(:num)'] = 'config_paiement_vendeur/Config_paiement_vendeur/detail/$1';
+$route['config-paiement-vendeur/edit/(:num)'] = 'config_paiement_vendeur/Config_paiement_vendeur/edit/$1';
+$route['config-paiement-vendeur/update/(:num)'] = 'config_paiement_vendeur/Config_paiement_vendeur/update/$1';
+$route['config-paiement-vendeur/delete/(:num)'] = 'config_paiement_vendeur/Config_paiement_vendeur/delete/$1';
+$route['config-paiement-vendeur/toggle/(:num)'] = 'config_paiement_vendeur/Config_paiement_vendeur/toggle/$1';
+$route['config-paiement-vendeur/verify/(:num)'] = 'config_paiement_vendeur/Config_paiement_vendeur/verifier/$1';
+
+// =============================================
+// ROUTES POUR SETTINGS
+// =============================================
+$route['settings'] = 'Settings/index';
+$route['settings/update'] = 'Settings/update';
+$route['settings/add'] = 'Settings/ajouter_parametre';
+$route['settings/edit/(:num)'] = 'Settings/modifier_parametre/$1';
+$route['settings/delete/(:num)'] = 'Settings/supprimer_parametre/$1';
+
+// =============================================
+// ROUTES POUR UTILISATEURS (main controller)
+// =============================================
+$route['utilisateurs'] = 'Utilisateurs/Utilisateurs/index';
+$route['utilisateurs/add'] = 'Utilisateurs/Utilisateurs/add';
+$route['utilisateurs/edit/(:num)'] = 'Utilisateurs/Utilisateurs/edit/$1';
+$route['utilisateurs/view/(:num)'] = 'Utilisateurs/Utilisateurs/view/$1';
+$route['utilisateurs/delete/(:num)'] = 'Utilisateurs/Utilisateurs/delete/$1';
+$route['utilisateurs/toggle_status/(:num)'] = 'Utilisateurs/Utilisateurs/toggle_status/$1';
+
+// =============================================
+// ROUTES POUR COMMANDES (main controller)
+// =============================================
+$route['commandes'] = 'Commande/Commande/index';
+$route['commandes/detail/(:num)'] = 'Commande/Commande/detail/$1';
+$route['commandes/edit/(:num)'] = 'Commande/Commande/edit/$1';
+$route['commandes/change-statut'] = 'Commande/Commande/change_statut';
+$route['commandes/exporter'] = 'Commande/Commande/exporter';
+
+// =============================================
+// ROUTES POUR PRODUITS (main controller)
+// =============================================
+$route['produits'] = 'Produits/Produits/index';
+$route['produits/add'] = 'Produits/Produits/add';
+$route['produits/edit/(:any)'] = 'Produits/Produits/edit/$1';
+$route['produits/delete/(:any)'] = 'Produits/Produits/delete/$1';
+$route['produits/view/(:any)'] = 'Produits/Produits/view/$1';
+$route['produits/toggle_status/(:any)'] = 'Produits/Produits/toggle_status/$1';
+$route['produits/images/(:any)'] = 'Produits/Produits/images/$1';
+$route['produits/variantes/(:any)'] = 'Produits/Produits/variantes/$1';
+
+// =============================================
+// ROUTES POUR ADRESSES (main controller)
+// =============================================
+$route['adresses'] = 'Adresse/Adresse/index';
+$route['adresses/add'] = 'Adresse/Adresse/adresse_add_edit';
+$route['adresses/edit/(:num)'] = 'Adresse/Adresse/adresse_add_edit/$1';
+$route['adresses/detail/(:num)'] = 'Adresse/Adresse/adresse_detail/$1';
+$route['adresses/delete/(:num)'] = 'Adresse/Adresse/supprimer/$1';
+$route['adresses/set_default/(:num)'] = 'Adresse/Adresse/set_default/$1';
+$route['adresses/exporter'] = 'Adresse/Adresse/exporter';
+$route['adresses/importer'] = 'Adresse/Adresse/importer';
+
 
 
 
@@ -644,6 +746,13 @@ $route['home/get_communes'] = 'Home/get_communes';
 $route['home/get_quartiers'] = 'Home/get_quartiers';
 $route['home/get_zones'] = 'Home/get_zones';
 $route['home/get_collines'] = 'Home/get_collines';
+$route['home/getSubCategories'] = 'Home/getSubCategories';
+$route['home/getAllCategoriesJson'] = 'Home/getAllCategoriesJson';
+$route['home/getBannersJson'] = 'Home/getBannersJson';
+$route['home/ajaxSearch'] = 'Home/ajaxSearch';
+$route['home/getCartCount'] = 'Home/getCartCount';
+$route['home/getWishlistCount'] = 'Home/getWishlistCount';
+$route['home/sabonner'] = 'Home/sabonner';
 $route['about'] = 'Home/about';
 $route['blog'] = 'Home/blog';
 $route['offres'] = 'Home/offres';
@@ -694,8 +803,10 @@ $route['user_dashboard/ajax_get_seller_stats'] = 'Home/User_dashboard/ajax_get_s
 $route['user_dashboard/logout'] = 'Home/User_dashboard/logout';
 $route['user_dashboard'] = 'Home/User_dashboard/index';
 $route['User_dashboard'] = 'Home/User_dashboard/index';
-$route['home/User_dashboard/ajax_get_address/(:num)'] = 'Home/User_dashboard/ajax_get_address/$1';
-
+$route['home/User_dashboard/ajax_get_addresses'] = 'Home/User_dashboard/ajax_get_addresses';
+$route['home/User_dashboard/ajax_update_address'] = 'Home/User_dashboard/ajax_update_address';
+$route['home/User_dashboard/ajax_change_avatar'] = 'Home/User_dashboard/ajax_change_avatar';
+$route['home/User_dashboard/ajax_update_boutique'] = 'Home/User_dashboard/ajax_update_boutique';
 
 $route['User_dashboard/complete_profile'] = 'Home/User_dashboard/complete_profile';
 $route['User_dashboard/save_complete_profile'] = 'Home/User_dashboard/save_complete_profile';
@@ -719,6 +830,19 @@ $route['confirm-delivery'] = 'Home/Ordertracking/confirmDeliveryByQR';
 
 // Tableau de bord utilisateur frontend
 $route['user/dashboard'] = 'Home/User_dashboard';
+
+// ProduitsVendeur (gestion des produits vendeur)
+$route['ProduitsVendeur'] = 'Home/ProduitsVendeur/index';
+$route['ProduitsVendeur/add'] = 'Home/ProduitsVendeur/add';
+$route['ProduitsVendeur/edit/(:any)'] = 'Home/ProduitsVendeur/edit/$1';
+$route['ProduitsVendeur/delete/(:any)'] = 'Home/ProduitsVendeur/delete/$1';
+$route['ProduitsVendeur/view/(:any)'] = 'Home/ProduitsVendeur/view/$1';
+$route['ProduitsVendeur/images/(:any)'] = 'Home/ProduitsVendeur/images/$1';
+$route['ProduitsVendeur/variantes/(:any)'] = 'Home/ProduitsVendeur/variantes/$1';
+$route['ProduitsVendeur/delete_image/(:num)'] = 'Home/ProduitsVendeur/delete_image/$1';
+$route['ProduitsVendeur/set_main_image/(:num)'] = 'Home/ProduitsVendeur/set_main_image/$1';
+$route['ProduitsVendeur/reorder_images'] = 'Home/ProduitsVendeur/reorder_images';
+$route['ProduitsVendeur/ajax_upload_image/(:num)'] = 'Home/ProduitsVendeur/ajax_upload_image/$1';
 
 // =============================================
 // ROUTES POUR DASHBOARDS MULTI-RÔLES

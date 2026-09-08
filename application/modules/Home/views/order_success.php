@@ -235,7 +235,7 @@
 
                                     <ul class="order-details-box">
                                         <li>1419 Kelley Road <br>Biloxi, MS 39531</li>
-                                        <li>Expected date of delivery: <a href="order-tracking.html"
+                                        <li>Expected date of delivery: <a href="<?php echo base_url('order-tracking'); ?>"
                                                 class="txt-danger-color">Track Order</a></li>
                                         <li class="total-price">Oct 21, 2025</li>
                                     </ul>

@@ -581,6 +581,53 @@ public function ajax_update_address() {
 }
 
 
+/**
+ * AJAX - Met à jour les informations de la boutique vendeur
+ */
+public function ajax_update_boutique() {
+    $user_id = $this->session->userdata('id_utilisateur');
+    
+    if (!$this->UserModel->is_vendeur($user_id)) {
+        $this->output
+             ->set_content_type('application/json')
+             ->set_output(json_encode(['success' => false, 'message' => 'Accès non autorisé']));
+        return;
+    }
+    
+    $vendeur = $this->db->get_where('vendeurs', ['id_utilisateur' => $user_id])->row();
+    
+    if (!$vendeur) {
+        $this->output
+             ->set_content_type('application/json')
+             ->set_output(json_encode(['success' => false, 'message' => 'Boutique non trouvée']));
+        return;
+    }
+    
+    $data = [
+        'nom_boutique' => $this->input->post('nom_boutique'),
+        'description' => $this->input->post('description'),
+        'telephone' => $this->input->post('telephone'),
+        'whatsapp' => $this->input->post('whatsapp')
+    ];
+    
+    if (!empty($_FILES['logo_boutique']['name'])) {
+        $uploaded_file = $this->upload_image($_FILES['logo_boutique']['tmp_name'], $_FILES['logo_boutique']['name']);
+        if ($uploaded_file) {
+            $data['logo_boutique'] = 'attachments/Users/' . $uploaded_file;
+        }
+    }
+    
+    $result = $this->db->where('id_vendeur', $vendeur->id_vendeur)->update('vendeurs', $data);
+    
+    $this->output
+         ->set_content_type('application/json')
+         ->set_output(json_encode([
+             'success' => $result,
+             'message' => $result ? 'Boutique mise à jour avec succès' : 'Erreur lors de la mise à jour'
+         ]));
+}
+
+
 
 
  // Ajouter un produit
