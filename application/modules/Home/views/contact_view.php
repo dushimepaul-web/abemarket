@@ -147,42 +147,62 @@
 </section>
 <!-- Google Maps Section End -->
 
-<?php if ($this->session->flashdata('success')): ?>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        if (!sessionStorage.getItem('contact_toast_shown')) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: '<?= addslashes($this->session->flashdata('success')); ?>',
-                showConfirmButton: false,
-                timer: 4000,
-                timerProgressBar: true
-            });
-            sessionStorage.setItem('contact_toast_shown', 'true');
-            setTimeout(() => sessionStorage.removeItem('contact_toast_shown'), 3000);
-        }
-    });
-</script>
-<?php endif; ?>
+<!-- Google Maps Section End -->
 
-<?php if ($this->session->flashdata('error') || validation_errors()): ?>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        if (!sessionStorage.getItem('contact_toast_error_shown')) {
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'error',
-                title: '<?= addslashes($this->session->flashdata('error') ?: validation_errors()); ?>',
-                showConfirmButton: false,
-                timer: 5000,
-                timerProgressBar: true
-            });
-            sessionStorage.setItem('contact_toast_error_shown', 'true');
-            setTimeout(() => sessionStorage.removeItem('contact_toast_error_shown'), 3000);
-        }
+$(document).ready(function() {
+    $('.contact-right-box').on('submit', function(e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $submitBtn = $form.find('button[type="submit"]');
+        var originalBtnText = $submitBtn.text();
+
+        $submitBtn.prop('disabled', true).text('Envoi en cours...');
+
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            data: $form.serialize() + '&submit=1',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: response.message,
+                        showConfirmButton: false,
+                        timer: 4000,
+                        timerProgressBar: true
+                    });
+                    $form[0].reset();
+                } else {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: response.message || 'Une erreur est survenue.',
+                        showConfirmButton: false,
+                        timer: 5000,
+                        timerProgressBar: true
+                    });
+                }
+            },
+            error: function() {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: 'Erreur de connexion au serveur.',
+                    showConfirmButton: false,
+                    timer: 5000,
+                    timerProgressBar: true
+                });
+            },
+            complete: function() {
+                $submitBtn.prop('disabled', false).text(originalBtnText);
+            }
+        });
     });
+});
 </script>
-<?php endif; ?>

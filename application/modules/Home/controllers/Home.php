@@ -640,7 +640,7 @@ public function ajax_delete_address($id) {
     }
     
     // Traitement du formulaire de contact
-    if ($this->input->post('submit')) {
+    if ($this->input->post('submit') || $this->input->is_ajax_request()) {
         $this->form_validation->set_rules('name', 'Nom', 'required|min_length[2]');
         $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
         $this->form_validation->set_rules('phone', 'Téléphone', 'required|min_length[8]');
@@ -658,6 +658,13 @@ public function ajax_delete_address($id) {
             
             $result = $this->Home_model->saveContactMessage($message_data);
             
+            if ($this->input->is_ajax_request()) {
+                return $this->output->set_content_type('application/json')->set_output(json_encode([
+                    'success' => $result,
+                    'message' => $result ? 'Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.' : 'Une erreur est survenue lors de l\'envoi.'
+                ]));
+            }
+            
             if ($result) {
                 $this->session->set_flashdata('success', 'Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.');
             } else {
@@ -665,6 +672,12 @@ public function ajax_delete_address($id) {
             }
             redirect('contact');
         } else {
+            if ($this->input->is_ajax_request()) {
+                return $this->output->set_content_type('application/json')->set_output(json_encode([
+                    'success' => false,
+                    'message' => strip_tags(validation_errors())
+                ]));
+            }
             // Conserver les données saisies
             $data['old_input'] = $this->input->post();
             $this->session->set_flashdata('error', validation_errors());
