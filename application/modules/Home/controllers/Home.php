@@ -491,15 +491,13 @@ public function ajax_delete_address($id) {
      * API pour récupérer les sous-catégories d'une catégorie (AJAX)
      */
     public function getSubCategories() {
-        $this->output->set_content_type('application/json');
         $category_id = $this->input->post('category_id');
         if (!$category_id) {
-            echo json_encode(['error' => 'No category ID']);
-            return;
+            return $this->output->set_content_type('application/json')->set_output(json_encode(['error' => 'No category ID']));
         }
         
         $subcategories = $this->Home_model->getSubCategoriesByParent($category_id);
-        echo json_encode($subcategories);
+        return $this->output->set_content_type('application/json')->set_output(json_encode($subcategories));
     }
     
     /**
@@ -507,8 +505,7 @@ public function ajax_delete_address($id) {
      */
     public function getAllCategoriesJson() {
         $categories = $this->Home_model->getAllCategoriesWithSub();
-        header('Content-Type: application/json');
-        echo json_encode($categories);
+        return $this->output->set_content_type('application/json')->set_output(json_encode($categories));
     }
     
     /**
@@ -516,8 +513,7 @@ public function ajax_delete_address($id) {
      */
     public function getBannersJson() {
         $banners = $this->Home_model->getSliderBanners();
-        header('Content-Type: application/json');
-        echo json_encode($banners);
+        return $this->output->set_content_type('application/json')->set_output(json_encode($banners));
     }
 
     /**
