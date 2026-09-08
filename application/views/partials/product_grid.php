@@ -2,13 +2,6 @@
     <?php foreach($products as $product): ?>
     <div class="col">
         <div class="product-box-4-main">
-            <div class="select-option-box">
-                <div class="select-box">
-                    <div>
-                        <button class="close-btn btn" onclick="closeSidebar()"><i class="ri-close-line"></i></button>
-                    </div>
-                </div>
-            </div>
             <div class="productMain product-box-4 pro-bg-white">
                 <div class="product-image">
                     <a href="<?= base_url('product/' . $product['slug_produit']) ?>">
