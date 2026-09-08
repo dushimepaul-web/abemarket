@@ -34,10 +34,10 @@
                         <?php endif; ?>
                     </h5>
                     <div class="option-box">
-                        <button class="btn add-cart-btn add-to-cart-btn" data-product-id="<?= $product['id_produit'] ?>">
+                        <button class="btn add-cart-btn add-to-cart-btn" data-product-id="<?= $product['id_produit'] ?>" style="width:100%;padding:10px 0;background:#ff6b35;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:14px;transition:all 0.3s;">
                             <i class="ri-shopping-cart-2-line"></i> Ajouter au panier
                         </button>
-                        <ul class="option-list">
+                        <ul class="option-list" style="display:flex;gap:10px;margin-top:8px;">
                             <li>
                                 <a href="#" class="wishlistProduct add-to-wishlist" data-product="<?= $product['id_produit'] ?>">
                                     <i class="ri-heart-3-line"></i>
