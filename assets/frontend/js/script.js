@@ -611,8 +611,9 @@ document.addEventListener("DOMContentLoaded", function () {
     18. Page Load Newsletter Modal Js
 ==========================*/
 document.addEventListener("DOMContentLoaded", function () {
-    if (!localStorage.getItem("modalShown")) {
-        var myModal = new bootstrap.Modal(document.getElementById('newsletterModal'));
+    var modalEl = document.getElementById('newsletterModal');
+    if (modalEl && !localStorage.getItem("modalShown")) {
+        var myModal = new bootstrap.Modal(modalEl);
         myModal.show();
         localStorage.setItem("modalShown", "true");
     }
@@ -623,6 +624,7 @@ document.addEventListener("DOMContentLoaded", function () {
 =======================*/
 document.addEventListener("DOMContentLoaded", function () {
     const exitModalEl = document.getElementById("exitModal");
+    if (!exitModalEl) return;
     const exitModal = new bootstrap.Modal(exitModalEl);
 
     if (!localStorage.getItem("exitModalShown")) {
@@ -648,6 +650,8 @@ window.onload = function () {
 
     let minutesEl = document.getElementById("minutes");
     let secondsEl = document.getElementById("seconds");
+
+    if (!minutesEl || !secondsEl) return;
 
     updateDisplay(remaining);
     let timer = setInterval(() => {
