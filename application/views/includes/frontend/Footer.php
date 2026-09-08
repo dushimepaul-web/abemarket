@@ -295,6 +295,7 @@
 
 
 <!-- Cart Offcanvas Start -->
+<?php $cart_total_items = 0; ?>
 <div class="offcanvas offcanvas-end cart-offcanvas" id="cartOffcanvas">
     <div class="offcanvas-header">
         <div class="title-offcanvas">
