@@ -12,15 +12,16 @@ class Auth extends MY_Controller {
     }
     
     // ============================================
-    // PAGE DE CONNEXION
+    // PAGE DE CONNEXION UTILISATEUR
     // ============================================
     
     public function login_page() {
-        $this->load->view('Login_View');
+        $data['settings'] = [];
+        $this->load->view('auth/login_user_view', $data);
     }
 
     // ============================================
-    // CONNEXION
+    // CONNEXION (AJAX)
     // ============================================
     
     public function login() {
