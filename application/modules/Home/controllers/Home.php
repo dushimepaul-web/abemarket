@@ -592,6 +592,7 @@ public function ajax_delete_address($id) {
         }
         
         $data['meta_title'] = 'Promotions - ' . ($data['settings']['site_name'] ?? 'AbeMarket');
+        $data['total_pages'] = 1;
         $this->render('promotions_view', $data);
     }
     
