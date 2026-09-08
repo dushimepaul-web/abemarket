@@ -2,8 +2,8 @@
  <div class="custom-container"><div class="row justify-content-center"><div class="col-lg-7">
   <div class="card p-4">
    <h2>Paiement Mobile Money</h2>
-   <?php if ($this->session->flashdata('success')): ?><div class="alert alert-success"><?= $this->session->flashdata('success') ?></div><?php endif; ?>
-   <?php if ($this->session->flashdata('error')): ?><div class="alert alert-danger"><?= $this->session->flashdata('error') ?></div><?php endif; ?>
+   <?php if ($this->session->flashdata('success')): ?><div class="alert alert-success"><?= htmlspecialchars($this->session->flashdata('success'), ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
+   <?php if ($this->session->flashdata('error')): ?><div class="alert alert-danger"><?= htmlspecialchars($this->session->flashdata('error'), ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
    <p>Commande <strong><?= htmlspecialchars($payment['numero_commande']) ?></strong> — montant à payer : <strong><?= number_format($payment['montant'], 0, ',', ' ') ?> BIF</strong>.</p>
    <p>Mode : <strong><?= htmlspecialchars($payment['description']) ?></strong></p>
    <?php if (!empty($payment['instructions'])): ?><div class="alert alert-info"><?= nl2br(htmlspecialchars($payment['instructions'])) ?></div><?php endif; ?>

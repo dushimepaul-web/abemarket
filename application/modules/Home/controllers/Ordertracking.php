@@ -13,11 +13,7 @@ class Ordertracking extends MY_Controller {
         $this->load->helper('url');
         $this->load->helper('form');
         $this->load->helper('file');
-        
-        // Démarrer la session si nécessaire
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        $this->load->library('session');
     }
     
     /**
@@ -121,7 +117,7 @@ class Ordertracking extends MY_Controller {
             return $this->output->set_output(json_encode(['success' => false, 'message' => 'Permission refusée']));
         }
         
-        $result = $this->Ordertracking_model->updateOrderStatus($id_commande, $nouveau_statut, $commentaire, $_SESSION['user_id']);
+        $result = $this->Ordertracking_model->updateOrderStatus($id_commande, $nouveau_statut, $commentaire, $this->session->userdata('user_id'));
         
         return $this->output->set_output(json_encode($result));
     }
@@ -142,7 +138,7 @@ class Ordertracking extends MY_Controller {
             return $this->output->set_output(json_encode(['success' => false, 'message' => 'Token QR manquant']));
         }
         
-        $result = $this->Ordertracking_model->confirmDeliveryByQR($token, $_SESSION['user_id']);
+        $result = $this->Ordertracking_model->confirmDeliveryByQR($token, $this->session->userdata('user_id'));
         
         return $this->output->set_output(json_encode($result));
     }
@@ -160,11 +156,12 @@ class Ordertracking extends MY_Controller {
      * Vérifie les droits d'accès
      */
     private function userCanViewCommande($id_utilisateur_commande) {
-        if (!isset($_SESSION['user_id'])) {
+        $user_id = $this->session->userdata('user_id');
+        if (!$user_id) {
             return false;
         }
         
-        if ($_SESSION['user_id'] == $id_utilisateur_commande) {
+        if ($user_id == $id_utilisateur_commande) {
             return true;
         }
         
@@ -179,11 +176,11 @@ class Ordertracking extends MY_Controller {
      * Vérifie les rôles utilisateur
      */
     private function userHasRole($roles) {
-        if (!isset($_SESSION['user_roles'])) {
+        $user_roles = $this->session->userdata('user_roles');
+        if (!$user_roles) {
             return false;
         }
         
-        $user_roles = $_SESSION['user_roles'];
         return count(array_intersect($roles, $user_roles)) > 0;
     }
 }

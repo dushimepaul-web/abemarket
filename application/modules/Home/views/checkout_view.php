@@ -1,7 +1,7 @@
 <section class="checkout-section-new section-t-space">
  <div class="custom-container">
   <h2>Finaliser la commande</h2>
-  <?php if ($this->session->flashdata('error')): ?><div class="alert alert-danger"><?= $this->session->flashdata('error') ?></div><?php endif; ?>
+   <?php if ($this->session->flashdata('error')): ?><div class="alert alert-danger"><?= htmlspecialchars($this->session->flashdata('error'), ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
   <form method="post" action="<?= base_url('checkout/process') ?>" class="row g-4">
    <div class="col-lg-7"><div class="checkout-left-box"><div class="billing-box checkbox-bg-color">
     <h4>Adresse de livraison</h4><div class="row g-3">

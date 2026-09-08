@@ -252,8 +252,8 @@ $route['article-commande/update/(:num)']            = 'Commande/ArticleCommande/
 $route['article-commande/get-variantes']            = 'Commande/ArticleCommande/get_variantes';
 
 // Litiges
-$route['litige/add']                                = 'Commande/LitigeCommande/add_edit';
-$route['litige/edit/(:num)']                        = 'Commande/LitigeCommande/add_edit/$1';
+$route['litige/add']                                = 'Commande/LitigeCommande/creer';
+$route['litige/edit/(:num)']                        = 'Commande/LitigeCommande/edit/$1';
 $route['litige/save']                               = 'Commande/LitigeCommande/save';
 $route['litige/update/(:num)']                      = 'Commande/LitigeCommande/update/$1';
 // Suppressions

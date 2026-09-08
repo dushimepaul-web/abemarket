@@ -447,10 +447,17 @@ class ProduitsVendeur extends MY_Controller
      */
     public function delete($slug)
     {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST' && !$this->input->is_ajax_request()) {
+            $this->session->set_flashdata('error', 'Méthode non autorisée.');
+            redirect(base_url('ProduitsVendeur'));
+            return;
+        }
+
         // Vérifier si le produit appartient au vendeur
         if (!$this->produit_slug_appartient_vendeur($slug)) {
             $this->session->set_flashdata('error', 'Accès non autorisé à ce produit.');
             redirect(base_url('ProduitsVendeur'));
+            return;
         }
         
         $produit = $this->Produit_model->get_produit_by_slug($slug);
@@ -458,6 +465,7 @@ class ProduitsVendeur extends MY_Controller
         if (!$produit) {
             $this->session->set_flashdata('error', 'Produit non trouvé.');
             redirect(base_url('ProduitsVendeur'));
+            return;
         }
         
         $produit_id = $produit['id_produit'];
