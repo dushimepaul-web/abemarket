@@ -5,25 +5,6 @@
             <div class="select-option-box">
                 <div class="select-box">
                     <div>
-                        <div class="color-box">
-                            <h4 class="h5">Colors</h4>
-                            <ul class="color-list">
-                                <li><a href="#!" style="background-color: #f4c266;"></a></li>
-                                <li><a href="#!" style="background-color: #e7e597;"></a></li>
-                                <li><a href="#!" style="background-color: #6aa473;"></a></li>
-                            </ul>
-                        </div>
-                        <div class="size-box">
-                            <h4 class="h5">Sizes</h4>
-                            <ul class="size-list">
-                                <li><a href="#!">xs</a></li>
-                                <li><a href="#!">s</a></li>
-                                <li><a href="#!">m</a></li>
-                                <li><a href="#!">l</a></li>
-                                <li><a href="#!">xl</a></li>
-                            </ul>
-                        </div>
-                        <button class="btn add-cart-btn add-to-cart-btn" data-product="<?= $product['id_produit'] ?>">add to cart</button>
                         <button class="close-btn btn" onclick="closeSidebar()"><i class="ri-close-line"></i></button>
                     </div>
                 </div>
@@ -60,16 +41,13 @@
                         <?php endif; ?>
                     </h5>
                     <div class="option-box">
-                        <button class="btn select-btn">Select Options</button>
+                        <button class="btn add-cart-btn add-to-cart-btn" data-product-id="<?= $product['id_produit'] ?>">
+                            <i class="ri-shopping-cart-2-line"></i> Ajouter au panier
+                        </button>
                         <ul class="option-list">
                             <li>
                                 <a href="#" class="wishlistProduct add-to-wishlist" data-product="<?= $product['id_produit'] ?>">
                                     <i class="ri-heart-3-line"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="ri-repeat-2-line"></i>
                                 </a>
                             </li>
                         </ul>
