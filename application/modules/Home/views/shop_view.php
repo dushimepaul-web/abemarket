@@ -543,8 +543,8 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    $('#cartItemsList').replaceWith($(response.html).find('#cartItemsList'));
-                    $('#cartTotalBox').replaceWith($(response.html).find('#cartTotalBox'));
+                    $('.cart-product-box').html(response.html);
+                    $('#cart-count-header').text(response.cart_count);
                     $('#cartCountBadge').text(response.cart_count);
                 }
             }
