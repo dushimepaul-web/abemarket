@@ -817,6 +817,7 @@ $route['User_dashboard/get_communes'] = 'Home/User_dashboard/get_communes';
 
 
 $route['auth/login'] = 'Auth/login_page';
+$route['auth/register'] = 'Auth/register_page';
 $route['auth/verify_code_page'] = 'Auth/verify_code_page';
 $route['auth/verify_code'] = 'Auth/verify_code';
 $route['auth/resend_reset_code'] = 'Auth/resend_reset_code';

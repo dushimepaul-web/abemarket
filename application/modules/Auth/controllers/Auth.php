@@ -141,6 +141,19 @@ class Auth extends MY_Controller {
     // INSCRIPTION AVEC ENVOI DE CODE OTP (utilisant Mailer)
     // ============================================
     
+    // ============================================
+    // PAGE D'INSCRIPTION UTILISATEUR
+    // ============================================
+    
+    public function register_page() {
+        $data['settings'] = [];
+        $this->load->view('auth/register_user_view', $data);
+    }
+
+    // ============================================
+    // INSCRIPTION (AJAX)
+    // ============================================
+    
     public function register() {
     $this->output->set_content_type('application/json');
     $prenom = trim($this->input->post('prenom'));
