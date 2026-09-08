@@ -759,6 +759,7 @@ $route['blog'] = 'Home/blog';
 $route['offres'] = 'Home/offres';
 $route['faq'] = 'Home/faq';
 $route['contact'] = 'Home/contact';
+$route['home/contact'] = 'Home/contact';
 $route['shop'] = 'Home/shop';
 $route['Shop'] = 'Home/shop';
 $route['cart'] = 'Home/cart';
