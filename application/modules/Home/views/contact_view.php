@@ -71,7 +71,7 @@
                         </div>
                     <?php endif; ?>
                     
-                    <form class="contact-right-box" method="post" action="<?= base_url('home/contact'); ?>">
+                    <form class="contact-right-box" method="post" action="<?= base_url('contact'); ?>">
                         <h3>PARLEZ-NOUS</h3>
                         <p><span>"</span><span class="txt-danger-color">&nbsp;*&nbsp;</span><span>"</span><span class="ps-1">indique les champs requis</span></p>
                         <div class="row g-md-4 g-3">
