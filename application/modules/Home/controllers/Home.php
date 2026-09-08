@@ -1225,18 +1225,18 @@ public function seller($slug) {
             // Visiteur → panier session
             $guestCart = $this->session->userdata('guest_cart') ?: [];
             $data['cartItems'] = [];
-            foreach ($guestCart as $item) {
+            foreach ($guestCart as $key => $item) {
                 $data['cartItems'][] = [
-                    'id_panier' => 0,
+                    'id_panier' => 'guest_' . $key,
                     'id_produit' => $item['product_id'],
-                    'id_variante' => $item['variant_id'],
+                    'id_variante' => $item['variant_id'] ?? null,
                     'quantite' => $item['quantity'],
-                    'nom_produit' => $item['nom_produit'],
+                    'nom_produit' => $item['nom_produit'] ?? 'Produit',
                     'slug_produit' => '',
-                    'prix_base' => $item['prix_base'],
-                    'prix_promo' => $item['prix_base'],
-                    'sous_total' => $item['prix_base'] * $item['quantity'],
-                    'url_image' => $item['image_url']
+                    'prix_base' => $item['prix_base'] ?? 0,
+                    'prix_effectif' => $item['prix_base'] ?? 0,
+                    'image_url' => $item['image_url'] ?? 'assets/frontend/images/product/placeholder.png',
+                    'sous_total' => ($item['prix_base'] ?? 0) * ($item['quantity'] ?? 1)
                 ];
             }
             $data['cart_count'] = count($guestCart);
