@@ -1047,6 +1047,14 @@ public function seller($slug) {
                 ->set_output(json_encode(['success' => false, 'message' => 'Produit non trouvé']));
             return;
         }
+
+        $img = $this->db->select('url_image')
+                        ->where('id_produit', $productId)
+                        ->where('est_principale', 1)
+                        ->limit(1)
+                        ->get('images_produit')
+                        ->row_array();
+        $product['image_url'] = $img['url_image'] ?? '';
         
         if (empty($product['id_vendeur'])) {
             $this->output
