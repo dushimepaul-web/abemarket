@@ -1783,29 +1783,30 @@ public function getUserWishlistIds() {
  */
 public function applyCoupon() {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
-        echo json_encode(['success' => false, 'message' => 'Veuillez vous connecter']);
-        return;
-    }
     
     $couponCode = $this->input->post('coupon', TRUE);
-    $subtotal = $this->input->post('subtotal', TRUE);
     
     if (!$couponCode) {
         echo json_encode(['success' => false, 'message' => 'Code promo invalide']);
         return;
     }
     
-    // Récupérer le sous-total actuel du panier
-    if (!$subtotal) {
+    $subtotal = 0;
+    if ($this->session->userdata('user_id')) {
         $cartItems = $this->Home_model->getCartItems($this->session->userdata('user_id'));
-        $subtotal = 0;
         foreach ($cartItems as $item) {
             $subtotal += $item['sous_total'];
+        }
+    } else {
+        $guestCart = $this->session->userdata('guest_cart') ?: [];
+        foreach ($guestCart as $item) {
+            $subtotal += ($item['prix_base'] ?? 0) * ($item['quantity'] ?? 1);
         }
     }
     
     $result = $this->Home_model->checkCoupon($couponCode, $subtotal);
+    $result['success'] = $result['valid'] ?? false;
+    $result['discount'] = $result['reduction'] ?? 0;
     
     echo json_encode($result);
 }
