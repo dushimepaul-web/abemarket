@@ -889,7 +889,11 @@ public function getCartCount() {
     if ($this->session->userdata('user_id')) {
         $count = $this->Home_model->getCartCount($this->session->userdata('user_id'));
     } else {
+        $guestCart = $this->session->userdata('guest_cart') ?: [];
         $count = 0;
+        foreach ($guestCart as $item) {
+            $count += $item['quantity'];
+        }
     }
     $this->output->set_content_type('application/json')->set_output(json_encode($count));
 }
@@ -1029,18 +1033,10 @@ public function seller($slug) {
      * Ajoute un produit au panier (AJAX)
      */
     public function addToCart() {
-        if (!$this->session->userdata('user_id')) {
-            $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode(['success' => false, 'message' => 'Veuillez vous connecter']));
-            return;
-        }
-        
         $productId = $this->input->post('product_id', TRUE);
         $variantId = $this->input->post('variant_id', TRUE) ?: null;
         $quantity = (int)$this->input->post('quantity', TRUE) ?: 1;
         
-        // Vérifier que le produit existe et a un vendeur assigné
         $this->load->model('Produit_model');
         $product = $this->Produit_model->get_produit_by_id($productId);
         
@@ -1058,14 +1054,36 @@ public function seller($slug) {
             return;
         }
         
-        $result = $this->Home_model->addToCart(
-            $this->session->userdata('user_id'),
-            $productId,
-            $variantId,
-            $quantity
-        );
-        
-        $cartCount = $this->Home_model->getCartCount($this->session->userdata('user_id'));
+        // Utilisateur connecté → panier en BDD
+        if ($this->session->userdata('user_id')) {
+            $result = $this->Home_model->addToCart(
+                $this->session->userdata('user_id'),
+                $productId,
+                $variantId,
+                $quantity
+            );
+            $cartCount = $this->Home_model->getCartCount($this->session->userdata('user_id'));
+        } else {
+            // Visiteur → panier en session
+            $guestCart = $this->session->userdata('guest_cart') ?: [];
+            $key = $productId . '_' . ($variantId ?: '0');
+            
+            if (isset($guestCart[$key])) {
+                $guestCart[$key]['quantity'] += $quantity;
+            } else {
+                $guestCart[$key] = [
+                    'product_id' => $productId,
+                    'variant_id' => $variantId,
+                    'quantity' => $quantity,
+                    'nom_produit' => $product['nom_produit'],
+                    'prix_base' => $product['prix_promo'] ?: $product['prix_base'],
+                    'image_url' => $product['image_url'] ?? ''
+                ];
+            }
+            $this->session->set_userdata('guest_cart', $guestCart);
+            $result = true;
+            $cartCount = count($guestCart);
+        }
         
         $this->output
             ->set_content_type('application/json')
