@@ -12,10 +12,8 @@
     
     <!-- Favicon dynamique -->
     <?php $favicon = $settings['site_favicon'] ?? 'favicon.svg'; ?>
-    <?php $ext = pathinfo($favicon, PATHINFO_EXTENSION); ?>
-    <?php $mime = ($ext === 'svg') ? 'image/svg+xml' : (($ext === 'png') ? 'image/png' : 'image/x-icon'); ?>
-    <link rel="icon" href="<?= base_url('uploads/settings/' . $favicon); ?>" type="<?= $mime; ?>">
-    <link rel="apple-touch-icon" href="<?= base_url('uploads/settings/' . $favicon); ?>">
+    <link rel="icon" href="<?= base_url('attachments/Settings/' . $favicon); ?>" type="image/x-icon">
+    <link rel="apple-touch-icon" href="<?= base_url('attachments/Settings/' . $favicon); ?>">
     
     <meta name="title-color" content="#ff9900">
     <meta name="apple-mobile-web-app-capable" content="yes">

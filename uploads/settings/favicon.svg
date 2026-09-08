@@ -1,4 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#e74c3c"/>
-  <text x="50" y="65" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="white">A</text>
+  <!-- Fond sombre arrondi -->
+  <rect width="100" height="100" rx="18" fill="#1a1a2e"/>
+  
+  <!-- Panier - corps principal -->
+  <path d="M25 45 L20 80 C20 85 25 90 30 90 L70 90 C75 90 80 85 80 80 L75 45 Z" fill="#f5a623"/>
+  
+  <!-- Anse gauche -->
+  <path d="M35 45 L30 25 C30 20 35 15 40 15 L40 45" fill="none" stroke="#7a8b9a" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Anse droite -->
+  <path d="M65 45 L70 25 C70 20 65 15 60 15 L60 45" fill="none" stroke="#7a8b9a" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Barres verticales du panier -->
+  <rect x="38" y="55" width="4" height="25" rx="2" fill="#c47a1a"/>
+  <rect x="48" y="55" width="4" height="25" rx="2" fill="#c47a1a"/>
+  <rect x="58" y="55" width="4" height="25" rx="2" fill="#c47a1a"/>
 </svg>
