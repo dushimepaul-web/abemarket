@@ -1237,6 +1237,16 @@ public function seller($slug) {
             $guestCart = $this->session->userdata('guest_cart') ?: [];
             $data['cartItems'] = [];
             foreach ($guestCart as $key => $item) {
+                $imageUrl = $item['image_url'] ?? '';
+                if (empty($imageUrl)) {
+                    $img = $this->db->select('url_image')
+                                    ->where('id_produit', $item['product_id'])
+                                    ->where('est_principale', 1)
+                                    ->limit(1)
+                                    ->get('images_produit')
+                                    ->row_array();
+                    $imageUrl = $img['url_image'] ?? '';
+                }
                 $data['cartItems'][] = [
                     'id_panier' => 'guest_' . $key,
                     'id_produit' => $item['product_id'],
@@ -1246,7 +1256,7 @@ public function seller($slug) {
                     'slug_produit' => '',
                     'prix_base' => $item['prix_base'] ?? 0,
                     'prix_effectif' => $item['prix_base'] ?? 0,
-                    'image_url' => $item['image_url'] ?? 'assets/frontend/images/product/placeholder.png',
+                    'image_url' => $imageUrl,
                     'sous_total' => ($item['prix_base'] ?? 0) * ($item['quantity'] ?? 1)
                 ];
             }
@@ -1841,6 +1851,16 @@ public function refreshCartOffcanvas() {
         foreach ($guestCart as $key => $item) {
             $qty = $item['quantity'] ?? 1;
             $price = $item['prix_base'] ?? 0;
+            $imageUrl = $item['image_url'] ?? '';
+            if (empty($imageUrl)) {
+                $img = $this->db->select('url_image')
+                                ->where('id_produit', $item['product_id'])
+                                ->where('est_principale', 1)
+                                ->limit(1)
+                                ->get('images_produit')
+                                ->row_array();
+                $imageUrl = $img['url_image'] ?? '';
+            }
             $cart_items[] = [
                 'id_panier' => 'guest_' . $key,
                 'id_produit' => $item['product_id'],
@@ -1849,7 +1869,7 @@ public function refreshCartOffcanvas() {
                 'prix_effectif' => $price,
                 'sous_total' => $price * $qty,
                 'quantite' => $qty,
-                'image_url' => $item['image_url'] ?? 'assets/frontend/images/product/placeholder.png'
+                'image_url' => $imageUrl
             ];
             $cart_subtotal += $price * $qty;
             $cart_total_items += $qty;

@@ -320,6 +320,16 @@ if ($this->session->userdata('user_id')) {
     foreach ($guestCart as $key => $item) {
         $qty = $item['quantity'] ?? 1;
         $price = $item['prix_base'] ?? 0;
+        $imageUrl = $item['image_url'] ?? '';
+        if (empty($imageUrl)) {
+            $img = $this->db->select('url_image')
+                            ->where('id_produit', $item['product_id'])
+                            ->where('est_principale', 1)
+                            ->limit(1)
+                            ->get('images_produit')
+                            ->row_array();
+            $imageUrl = $img['url_image'] ?? '';
+        }
         $cart_items[] = [
             'id_panier' => 'guest_' . $key,
             'id_produit' => $item['product_id'],
@@ -328,7 +338,7 @@ if ($this->session->userdata('user_id')) {
             'prix_effectif' => $price,
             'sous_total' => $price * $qty,
             'quantite' => $qty,
-            'image_url' => $item['image_url'] ?? 'assets/frontend/images/product/placeholder.png'
+            'image_url' => $imageUrl
         ];
         $cart_subtotal += $price * $qty;
         $cart_total_items += $qty;
