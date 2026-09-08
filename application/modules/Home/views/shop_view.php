@@ -30,13 +30,13 @@
                 <div class="left-box">
                     <div class="shop-left-sidebar">
                         <button class="back-button btn">
-                            <i class="ri-arrow-left-line"></i> Back
+                            <i class="ri-arrow-left-line"></i> Retour
                         </button>
 
                         <div class="filter-category-2">
                             <div class="filter-title">
-                                <h2>Filters</h2>
-                                <a href="<?= base_url('shop') ?>" class="clear-all" id="clearAllFilters">Clear All</a>
+                                <h2>Filtres</h2>
+                                <a href="<?= base_url('shop') ?>" class="clear-all" id="clearAllFilters">Tout effacer</a>
                             </div>
                         </div>
 
@@ -46,7 +46,7 @@
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#panelsStayOpen-collapseTwo">
-                                        <span>Categories</span>
+                                        <span>Catégories</span>
                                     </button>
                                 </h2>
                                 <div id="panelsStayOpen-collapseTwo" class="accordion-collapse collapse show">
@@ -91,7 +91,7 @@
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                         data-bs-target="#panelsStayOpen-collapseThree">
-                                        <span>Price</span>
+                                        <span>Prix</span>
                                     </button>
                                 </h2>
                                 <div id="panelsStayOpen-collapseThree" class="accordion-collapse collapse show">
@@ -240,29 +240,29 @@
                                 <a href="#!"><i class="ri-equalizer-2-line"></i> Filter Menu</a>
                             </div>
                             <div class="d-flex align-items-center dropdown-box">
-                                <h5 class="text-content">Sort By :</h5>
+                                <h5 class="text-content">Trier par :</h5>
                                 <div class="dropdown">
                                     <button class="dropdown-toggle" type="button" id="dropdownMenuButton1"
                                         data-bs-toggle="dropdown">
                                         <span id="selectedSort">
                                             <?php
                                             switch($currentSort):
-                                                case 'price_asc': echo 'Price: Low to High'; break;
-                                                case 'price_desc': echo 'Price: High to Low'; break;
-                                                case 'rating': echo 'Best Rating'; break;
-                                                case 'bestselling': echo 'Best Selling'; break;
-                                                default: echo 'Newest First';
+                                                case 'price_asc': echo 'Prix : Croissant'; break;
+                                                case 'price_desc': echo 'Prix : Décroissant'; break;
+                                                case 'rating': echo 'Meilleures notes'; break;
+                                                case 'bestselling': echo 'Meilleures ventes'; break;
+                                                default: echo 'Plus récents';
                                             endswitch;
                                             ?>
                                         </span>
                                         <i class="ri-arrow-down-s-line"></i>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item sort-item" href="#" data-sort="newest">Newest First</a></li>
-                                        <li><a class="dropdown-item sort-item" href="#" data-sort="price_asc">Price: Low to High</a></li>
-                                        <li><a class="dropdown-item sort-item" href="#" data-sort="price_desc">Price: High to Low</a></li>
-                                        <li><a class="dropdown-item sort-item" href="#" data-sort="rating">Best Rating</a></li>
-                                        <li><a class="dropdown-item sort-item" href="#" data-sort="bestselling">Best Selling</a></li>
+                                        <li><a class="dropdown-item sort-item" href="#" data-sort="newest">Plus récents</a></li>
+                                        <li><a class="dropdown-item sort-item" href="#" data-sort="price_asc">Prix : Croissant</a></li>
+                                        <li><a class="dropdown-item sort-item" href="#" data-sort="price_desc">Prix : Décroissant</a></li>
+                                        <li><a class="dropdown-item sort-item" href="#" data-sort="rating">Meilleures notes</a></li>
+                                        <li><a class="dropdown-item sort-item" href="#" data-sort="bestselling">Meilleures ventes</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -477,7 +477,7 @@ $(document).ready(function() {
             page: 1
         };
         
-        $('#selectedSort').text('Newest First');
+        $('#selectedSort').text('Plus récents');
         $('#page-title').text('Boutique');
         $('#breadcrumb-category').remove();
         
