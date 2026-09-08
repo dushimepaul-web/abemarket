@@ -123,13 +123,13 @@
                         <li>
                             <div class="dropdown theme-form-select">
                                 <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" id="select-language">
-                                    <img src="<?= base_url('assets/frontend/images/country/france.png'); ?>" class="img-fluid" alt="">
+                                    <img src="<?= base_url('assets/frontend/images/country/france.svg'); ?>" class="img-fluid" alt="">
                                     <span>FR</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
                                         <a onclick="setLanguage('fr')" class="dropdown-item" href="#">
-                                            <img src="<?= base_url('assets/frontend/images/country/france.png'); ?>" class="img-fluid" alt="">
+                                            <img src="<?= base_url('assets/frontend/images/country/france.svg'); ?>" class="img-fluid" alt="">
                                             <span>FR</span>
                                         </a>
                                     </li>

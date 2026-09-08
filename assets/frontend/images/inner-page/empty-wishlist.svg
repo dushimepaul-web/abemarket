@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" data-name="Layer 1" id="emptyWishlist" viewBox="0 0 896 747.97143"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>empty_wishlist</title>
+    <!-- Heart shape outline -->
+    <path d="M448 650 C448 650 150 450 150 280 C150 150 250 100 350 100 C400 100 440 130 448 160 C456 130 496 100 546 100 C646 100 746 150 746 280 C746 450 448 650 448 650Z" 
+          fill="none" stroke="#2f2e41" stroke-width="4"/>
+    <!-- Heart shape fill with dashed line to show empty -->
+    <path d="M448 650 C448 650 150 450 150 280 C150 150 250 100 350 100 C400 100 440 130 448 160 C456 130 496 100 546 100 C646 100 746 150 746 280 C746 450 448 650 448 650Z" 
+          fill="rgba(var(--primary-color),0.1)" stroke="none"/>
+    <!-- Plus sign in center -->
+    <rect x="428" y="300" width="40" height="8" fill="#3f3d56" rx="4"/>
+    <rect x="444" y="284" width="8" height="40" fill="#3f3d56" rx="4"/>
+    <!-- Text -->
+    <text x="448" y="720" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#3f3d56">Votre liste de souhaits est vide</text>
+</svg>

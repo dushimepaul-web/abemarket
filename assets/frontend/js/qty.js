@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const progressBar = document.querySelector('.cart-offcanvas .progress-bar');
 
   function updateTotal() {
+    if (!totalPriceElement) return;
+
     const cartItems = document.querySelectorAll('.cart-product-box .vertical-product-box');
     let total = 0;
     let itemCount = 0;
@@ -44,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    if (cartItems.length === 0) {
+    if (cartItems.length === 0 && totalPriceElement) {
       totalPriceElement.textContent = `$0.00`;
     }
   }

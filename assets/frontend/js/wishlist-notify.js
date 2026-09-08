@@ -208,7 +208,10 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     function initWishlistStatesFromServer() {
         fetch(BASE_URL + 'home/getUserWishlistIds')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            })
             .then(data => {
                 if (data.success && data.wishlist_ids) {
                     const wishlistIds = data.wishlist_ids.map(id => parseInt(id));

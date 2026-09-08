@@ -241,6 +241,8 @@ function checkEmptyList() {
     const productList = document.querySelector(".product-box-list");
     const emptyMessage = document.querySelector(".empty-message");
 
+    if (!productList || !emptyMessage) return;
+
     if (productList.children.length === 0) {
         productList.style.display = "none";
         emptyMessage.style.display = "block";
