@@ -31,20 +31,27 @@
                             Vous avez des questions ou besoin d'aide ? Notre équipe est là pour vous aider ! Contactez-nous à tout moment, nous vous répondrons dans les plus brefs délais.
                         </p>
                         
-                        <!-- Informations de contact dynamiques -->
-                        <?php if (!empty($contact_info)): ?>
-                            <?php foreach ($contact_info as $info): ?>
-                                <p>
-                                    <?php if (!empty($info['icone'])): ?>
-                                    <i class="<?= htmlspecialchars($info['icone'], ENT_QUOTES, 'UTF-8'); ?>"></i> 
-                                    <?php endif; ?>
-                                    <?= htmlspecialchars($info['info_value'], ENT_QUOTES, 'UTF-8'); ?>
-                                </p>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p><i class="ri-mail-line"></i> <?= $settings['site_email'] ?? 'contact@abemarket.com'; ?></p>
-                            <p><i class="ri-phone-line"></i> <?= $settings['site_phone'] ?? '+257 68 86 39 45'; ?></p>
-                        <?php endif; ?>
+                        <!-- Informations de contact dynamiques depuis settings -->
+                        <div class="contact-details mt-4">
+                            <p class="mb-3">
+                                <i class="ri-mail-line text-theme me-2" style="font-size: 18px; vertical-align: middle;"></i> 
+                                <a href="mailto:<?= htmlspecialchars($settings['site_email'] ?? 'abemarket@gmail.com', ENT_QUOTES, 'UTF-8'); ?>" class="text-content">
+                                    <?= htmlspecialchars($settings['site_email'] ?? 'abemarket@gmail.com', ENT_QUOTES, 'UTF-8'); ?>
+                                </a>
+                            </p>
+                            <p class="mb-3">
+                                <i class="ri-phone-line text-theme me-2" style="font-size: 18px; vertical-align: middle;"></i> 
+                                <a href="tel:<?= htmlspecialchars($settings['site_phone'] ?? '+257 68 86 39 45', ENT_QUOTES, 'UTF-8'); ?>" class="text-content">
+                                    <?= htmlspecialchars($settings['site_phone'] ?? '+257 68 86 39 45', ENT_QUOTES, 'UTF-8'); ?>
+                                </a>
+                            </p>
+                            <?php if (!empty($settings['site_address'])): ?>
+                            <p class="mb-3">
+                                <i class="ri-map-pin-line text-theme me-2" style="font-size: 18px; vertical-align: middle;"></i> 
+                                <span class="text-content"><?= htmlspecialchars($settings['site_address'], ENT_QUOTES, 'UTF-8'); ?></span>
+                            </p>
+                            <?php endif; ?>
+                        </div>
                         
                         <h2 class="contact-title">CONTACT</h2>
                     </div>
@@ -139,3 +146,35 @@
     </div>
 </section>
 <!-- Google Maps Section End -->
+
+<?php if ($this->session->flashdata('success')): ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: '<?= addslashes($this->session->flashdata('success')); ?>',
+            showConfirmButton: false,
+            timer: 4000,
+            timerProgressBar: true
+        });
+    });
+</script>
+<?php endif; ?>
+
+<?php if ($this->session->flashdata('error') || validation_errors()): ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: '<?= addslashes($this->session->flashdata('error') ?: validation_errors()); ?>',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true
+        });
+    });
+</script>
+<?php endif; ?>
