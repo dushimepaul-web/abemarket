@@ -220,7 +220,7 @@
                                         <?php if(!empty($cat['url_image'])): ?>
                                         <img src="<?= base_url($cat['url_image']) ?>" class="img-fluid" alt="<?= htmlspecialchars($cat['nom_categorie']) ?>">
                                         <?php else: ?>
-                                        <img src="<?= base_url('assets/images/category/placeholder.png') ?>" class="img-fluid" alt="">
+                                        <img src="<?= base_url('assets/frontend/images/product/placeholder.png') ?>" class="img-fluid" alt="">
                                         <?php endif; ?>
                                     </a>
                                     <h4><?= htmlspecialchars($cat['nom_categorie']) ?></h4>
@@ -270,11 +270,11 @@
 
                         <div class="grid-option d-none d-md-block">
                             <ul>
-                                <li class="two-grid"><button class="btn grid-btn" data-grid="2"><svg><use xlink:href="../assets/svg/grid-option.svg#gridTwo"></use></svg></button></li>
-                                <li class="three-grid"><button class="btn grid-btn" data-grid="3"><svg><use xlink:href="../assets/svg/grid-option.svg#gridThree"></use></svg></button></li>
-                                <li class="grid-btn"><button class="btn grid-btn" data-grid="4"><svg><use xlink:href="../assets/svg/grid-option.svg#gridFour"></use></svg></button></li>
-                                <li class="five-grid d-xxl-inline-block d-none active"><button class="btn grid-btn" data-grid="5"><svg><use xlink:href="../assets/svg/grid-option.svg#gridFive"></use></svg></button></li>
-                                <li class="list-btn"><button class="btn list-view-btn"><svg><use xlink:href="../assets/svg/grid-option.svg#list"></use></svg></button></li>
+                                <li class="two-grid"><button class="btn grid-btn" data-grid="2"><svg><use xlink:href="<?= base_url('assets/svg/grid-option.svg'); ?>#gridTwo"></use></svg></button></li>
+                                <li class="three-grid"><button class="btn grid-btn" data-grid="3"><svg><use xlink:href="<?= base_url('assets/svg/grid-option.svg'); ?>#gridThree"></use></svg></button></li>
+                                <li class="grid-btn"><button class="btn grid-btn" data-grid="4"><svg><use xlink:href="<?= base_url('assets/svg/grid-option.svg'); ?>#gridFour"></use></svg></button></li>
+                                <li class="five-grid d-xxl-inline-block d-none active"><button class="btn grid-btn" data-grid="5"><svg><use xlink:href="<?= base_url('assets/svg/grid-option.svg'); ?>#gridFive"></use></svg></button></li>
+                                <li class="list-btn"><button class="btn list-view-btn"><svg><use xlink:href="<?= base_url('assets/svg/grid-option.svg'); ?>#list"></use></svg></button></li>
                             </ul>
                         </div>
                     </div>

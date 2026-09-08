@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!-- Grid 2 -->
+  <symbol id="gridTwo" viewBox="0 0 16 16">
+    <rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor"/>
+    <rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor"/>
+    <rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor"/>
+    <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"/>
+  </symbol>
+  <!-- Grid 3 -->
+  <symbol id="gridThree" viewBox="0 0 16 16">
+    <rect x="0.5" y="0.5" width="4" height="4" rx="0.5" fill="currentColor"/>
+    <rect x="6" y="0.5" width="4" height="4" rx="0.5" fill="currentColor"/>
+    <rect x="11.5" y="0.5" width="4" height="4" rx="0.5" fill="currentColor"/>
+    <rect x="0.5" y="6" width="4" height="4" rx="0.5" fill="currentColor"/>
+    <rect x="6" y="6" width="4" height="4" rx="0.5" fill="currentColor"/>
+    <rect x="11.5" y="6" width="4" height="4" rx="0.5" fill="currentColor"/>
+    <rect x="0.5" y="11.5" width="4" height="4" rx="0.5" fill="currentColor"/>
+    <rect x="6" y="11.5" width="4" height="4" rx="0.5" fill="currentColor"/>
+    <rect x="11.5" y="11.5" width="4" height="4" rx="0.5" fill="currentColor"/>
+  </symbol>
+  <!-- Grid 4 -->
+  <symbol id="gridFour" viewBox="0 0 16 16">
+    <rect x="0.5" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="4.5" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="8.5" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="12.5" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="0.5" y="5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="4.5" y="5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="8.5" y="5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="12.5" y="5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="0.5" y="9.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="4.5" y="9.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="8.5" y="9.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="12.5" y="9.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="0.5" y="13" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="4.5" y="13" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="8.5" y="13" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="12.5" y="13" width="3" height="3" rx="0.5" fill="currentColor"/>
+  </symbol>
+  <!-- Grid 5 -->
+  <symbol id="gridFive" viewBox="0 0 20 16">
+    <rect x="0.5" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="4.5" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="8.5" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="12.5" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="16.5" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="0.5" y="5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="4.5" y="5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="8.5" y="5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="12.5" y="5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="16.5" y="5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="0.5" y="9.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="4.5" y="9.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="8.5" y="9.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="12.5" y="9.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+    <rect x="16.5" y="9.5" width="3" height="3" rx="0.5" fill="currentColor"/>
+  </symbol>
+  <!-- List -->
+  <symbol id="list" viewBox="0 0 16 16">
+    <rect x="0.5" y="1" width="15" height="3" rx="1" fill="currentColor"/>
+    <rect x="0.5" y="6.5" width="15" height="3" rx="1" fill="currentColor"/>
+    <rect x="0.5" y="12" width="15" height="3" rx="1" fill="currentColor"/>
+  </symbol>
+</svg>
