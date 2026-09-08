@@ -1037,8 +1037,9 @@ public function seller($slug) {
         $variantId = $this->input->post('variant_id', TRUE) ?: null;
         $quantity = (int)$this->input->post('quantity', TRUE) ?: 1;
         
-        $this->load->model('Produit_model');
-        $product = $this->Produit_model->get_produit_by_id($productId);
+        $product = $this->db->where('id_produit', $productId)
+                            ->get('produits')
+                            ->row_array();
         
         if (!$product) {
             $this->output

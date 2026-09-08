@@ -304,11 +304,7 @@ $isLoggedIn = $this->session->userdata('logged_in');
 
 <!-- Panier -->
 <li>
-    <?php if ($isLoggedIn): ?>
-        <a href="#" class="cart-icon" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
-    <?php else: ?>
-        <a href="#" onclick="openAuthModal('login'); return false;">
-    <?php endif; ?>
+    <a href="#" class="cart-icon" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
         <i class="iconsax" data-icon-name="basket-2"></i>
         <span class="label"><span id="cart-count-header"><?= $cart_count ?? 0; ?></span></span>
     </a>
