@@ -248,7 +248,7 @@
                                         <h4>Description :</h4>
                                     </div>
                                     <div class="description-list">
-                                        <?= $product['description'] ?? '<p>Aucune description disponible pour ce produit.</p>'; ?>
+                                         <?= strip_tags($product['description'] ?? '<p>Aucune description disponible pour ce produit.</p>', '<p><br><b><i><strong><em><ul><ol><li><div><span>'); ?>
                                     </div>
                                 </div>
 
@@ -354,7 +354,7 @@
                 <!-- Description -->
                 <div class="tab-pane fade active show" id="description">
                     <div class="product-description">
-                        <?= $product['description'] ?? '<p>Aucune description disponible.</p>'; ?>
+                        <?= strip_tags($product['description'] ?? '<p>Aucune description disponible.</p>', '<p><br><b><i><strong><em><ul><ol><li><div><span>'); ?>
                     </div>
                 </div>
 

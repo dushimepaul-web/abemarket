@@ -25,6 +25,7 @@ class ProduitsVendeur extends MY_Controller
         
         // Charger le modèle
         $this->load->model('Produit_model');
+        $this->load->model('Model');
         
         // Créer le dossier d'upload s'il n'existe pas (spécifique au vendeur)
         $upload_path = FCPATH . 'uploads/produits/' . $this->vendeur_id . '/';
@@ -463,7 +464,7 @@ class ProduitsVendeur extends MY_Controller
         
         // Supprimer les images physiques
         $images = $this->Produit_model->get_images_by_produit_id($produit_id);
-        $upload_folder = FCPATH . 'uploads/produits' . $this->vendeur_id . '/';
+        $upload_folder = FCPATH . 'uploads/produits/' . $this->vendeur_id . '/';
         
         foreach ($images as $img) {
             if (!empty($img['url_image'])) {
@@ -558,8 +559,8 @@ class ProduitsVendeur extends MY_Controller
                     
                     $insert_data = [
                         'id_produit' => $produit_id,
-                        'url_image' => 'uploads/produits' . $this->vendeur_id . '/' . $filename,
-                        'url_miniature' => 'uploads/produits' . $this->vendeur_id . '/' . $thumb_name,
+                        'url_image' => 'uploads/produits/' . $this->vendeur_id . '/' . $filename,
+                        'url_miniature' => 'uploads/produits/' . $this->vendeur_id . '/' . $thumb_name,
                         'texte_alt' => $produit['nom_produit'] ?? 'Image produit',
                         'est_principale' => $est_principale,
                         'ordre_affichage' => $ordre_actuel + $uploaded + 1,
@@ -685,7 +686,7 @@ class ProduitsVendeur extends MY_Controller
         }
         
         // Supprimer les fichiers physiques
-        $upload_folder = FCPATH . 'uploads/produits' . $this->vendeur_id . '/';
+        $upload_folder = FCPATH . 'uploads/produits/' . $this->vendeur_id . '/';
         $image_path = $upload_folder . basename($image['url_image']);
         
         if (file_exists($image_path)) {

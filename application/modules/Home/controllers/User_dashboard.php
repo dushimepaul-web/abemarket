@@ -20,6 +20,8 @@ class User_dashboard extends MY_Controller {
         
         // Charger le modèle
         $this->load->model('UserModel');
+        $this->load->model('Produit_model');
+        $this->load->model('Model');
     }
     
     public function index() {
@@ -56,8 +58,8 @@ class User_dashboard extends MY_Controller {
         $data['cartItems'] = [];
         $data['user_profils'] = [];
         
-        if ($this->session->userdata('user_id')) {
-            $user_id = $this->session->userdata('user_id');
+        if ($this->session->userdata('id_utilisateur')) {
+            $user_id = $this->session->userdata('id_utilisateur');
             $data['cart_count'] = $this->Home_model->getCartCount($user_id);
             $data['wishlist_count'] = $this->Home_model->getWishlistCount($user_id);
             $data['cartItems'] = $this->Home_model->getCartItems($user_id);
@@ -695,7 +697,65 @@ public function ajax_update_boutique() {
                 // Gestion des images
                 if (!empty($_FILES['images']['name'][0])) {
                     $this->upload_images($produit_id, $_FILES['images']);
+    /**
+     * Générer SKU
+     */
+    private function generateSku($nom)
+    {
+        $prefix = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $nom), 0, 3));
+        if (empty($prefix)) $prefix = 'PRD';
+        return $prefix . '-' . date('Ymd') . '-' . rand(100, 999);
+    }
+
+    /**
+     * Générer code produit
+     */
+    private function generateCodeProduit()
+    {
+        return 'PROD-' . date('Ymd') . '-' . rand(1000, 9999);
+    }
+
+    /**
+     * Upload multiple d'images
+     */
+    private function upload_images($produit_id, $files)
+    {
+        $vendeur = $this->db->where('id_utilisateur', $this->session->userdata('id_utilisateur'))->get('vendeurs')->row_array();
+        $vendeur_id = $vendeur ? $vendeur['id_vendeur'] : 0;
+        $ref_folder = FCPATH . 'uploads/produits/' . $vendeur_id . '/';
+        
+        if (!is_dir($ref_folder)) {
+            mkdir($ref_folder, 0777, TRUE);
+        }
+        
+        $existing_images = $this->Produit_model->get_images_by_produit_id($produit_id);
+        $ordre_actuel = count($existing_images);
+        $is_first_upload = ($ordre_actuel == 0);
+        
+        for ($i = 0; $i < count($files['name']); $i++) {
+            if ($files['error'][$i] == 0) {
+                $ext = pathinfo($files['name'][$i], PATHINFO_EXTENSION);
+                $filename = date("YmdHis") . '_' . uniqid() . '.' . strtolower($ext);
+                
+                if (move_uploaded_file($files['tmp_name'][$i], $ref_folder . $filename)) {
+                    $est_principale = 0;
+                    if ($is_first_upload && $i == 0) {
+                        $est_principale = 1;
+                    }
+                    
+                    $img_data = [
+                        'id_produit' => $produit_id,
+                        'url_image' => 'uploads/produits/' . $vendeur_id . '/' . $filename,
+                        'est_principale' => $est_principale,
+                        'ordre' => $ordre_actuel + $i + 1
+                    ];
+                    $this->db->insert('images_produit', $img_data);
                 }
+            }
+        }
+    }
+
+}
                 
                 $this->session->set_flashdata('success', 'Produit créé avec succès.');
                 redirect(base_url('Produits'));
@@ -975,9 +1035,6 @@ public function complete_profile() {
 
 public function save_complete_profile() {
     $this->output->set_content_type('application/json');
-    // Activer l'affichage des erreurs pour le débogage
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
     
     $user_id = $this->session->userdata('id_utilisateur');
     
