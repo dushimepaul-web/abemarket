@@ -565,6 +565,8 @@ $(document).ready(function() {
                 if (response.success) {
                     showToast('Produit ajouté à votre liste de souhaits', 'success');
                     updateWishlistCount();
+                    $('#wishlist-count-header').text(response.wishlist_count);
+                    $('#wishlistCountBadge').text(response.wishlist_count);
                     $(this).find('i').removeClass('ri-heart-3-line').addClass('ri-heart-fill');
                 } else {
                     showToast(response.message || 'Erreur', 'info');

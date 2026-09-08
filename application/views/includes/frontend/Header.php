@@ -291,14 +291,19 @@ $isLoggedIn = $this->session->userdata('logged_in');
 ?>
 
 <!-- Wishlist -->
+<?php
+$hdr_wishlist_count = 0;
+if ($isLoggedIn) {
+    $hdr_wishlist_count = $wishlist_count ?? 0;
+} else {
+    $guestWishlist = $this->session->userdata('guest_wishlist') ?: [];
+    $hdr_wishlist_count = count($guestWishlist);
+}
+?>
 <li>
-    <?php if ($isLoggedIn): ?>
-        <a data-bs-toggle="offcanvas" href="#wishlistOffcanvas">
-    <?php else: ?>
-        <a href="#" onclick="openAuthModal('login'); return false;">
-    <?php endif; ?>
+    <a data-bs-toggle="offcanvas" href="#wishlistOffcanvas">
         <i class="iconsax" data-icon-name="heart"></i>
-        <span class="label"><span><?= $wishlist_count ?? 0; ?></span></span>
+        <span class="label"><span id="wishlist-count-header"><?= $hdr_wishlist_count ?></span></span>
     </a>
 </li>
 

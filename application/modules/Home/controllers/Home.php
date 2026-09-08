@@ -1159,44 +1159,56 @@ public function seller($slug) {
      * Ajoute un produit à la liste de souhaits (AJAX)
      */
     public function addToWishlist() {
-        if (!$this->session->userdata('user_id')) {
-            $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode(['success' => false, 'message' => 'Veuillez vous connecter']));
-            return;
+        $productId = $this->input->post('product_id', TRUE);
+        
+        if ($this->session->userdata('user_id')) {
+            $result = $this->Home_model->addToWishlist($this->session->userdata('user_id'), $productId);
+            $count = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
+        } else {
+            $guestWishlist = $this->session->userdata('guest_wishlist') ?: [];
+            if (in_array($productId, $guestWishlist)) {
+                $this->output->set_content_type('application/json')->set_output(json_encode([
+                    'success' => false, 'message' => 'Déjà dans votre liste de souhaits'
+                ]));
+                return;
+            }
+            $guestWishlist[] = $productId;
+            $this->session->set_userdata('guest_wishlist', $guestWishlist);
+            $result = true;
+            $count = count($guestWishlist);
         }
         
-        $productId = $this->input->post('product_id', TRUE);
-        $result = $this->Home_model->addToWishlist($this->session->userdata('user_id'), $productId);
-        
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode([
-                'success' => $result,
-                'message' => $result ? 'Ajouté à votre liste de souhaits' : 'Déjà dans votre liste de souhaits'
-            ]));
+        $this->output->set_content_type('application/json')->set_output(json_encode([
+            'success' => $result,
+            'message' => $result ? 'Ajouté à votre liste de souhaits' : 'Déjà dans votre liste de souhaits',
+            'wishlist_count' => $count
+        ]));
     }
     
     /**
      * Supprime un produit de la liste de souhaits (AJAX)
      */
     public function removeFromWishlist() {
-        if (!$this->session->userdata('user_id')) {
-            $this->output
-                ->set_content_type('application/json')
-                ->set_output(json_encode(['success' => false, 'message' => 'Veuillez vous connecter']));
-            return;
+        $productId = $this->input->post('product_id', TRUE);
+        
+        if ($this->session->userdata('user_id')) {
+            $result = $this->Home_model->removeFromWishlist($this->session->userdata('user_id'), $productId);
+            $count = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
+        } else {
+            $guestWishlist = $this->session->userdata('guest_wishlist') ?: [];
+            $guestWishlist = array_values(array_filter($guestWishlist, function($id) use ($productId) {
+                return $id != $productId;
+            }));
+            $this->session->set_userdata('guest_wishlist', $guestWishlist);
+            $result = true;
+            $count = count($guestWishlist);
         }
         
-        $productId = $this->input->post('product_id', TRUE);
-        $result = $this->Home_model->removeFromWishlist($this->session->userdata('user_id'), $productId);
-        
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode([
-                'success' => $result,
-                'message' => $result ? 'Retiré de votre liste de souhaits' : 'Erreur lors de la suppression'
-            ]));
+        $this->output->set_content_type('application/json')->set_output(json_encode([
+            'success' => $result,
+            'message' => $result ? 'Retiré de votre liste de souhaits' : 'Erreur lors de la suppression',
+            'wishlist_count' => $count
+        ]));
     }
     
     /**
