@@ -412,6 +412,26 @@ public function saveContactMessage($data) {
     
     if ($result) {
         log_message('info', 'Message contact inséré. ID: ' . $this->db->insert_id());
+        
+        // Envoyer un email de notification à l'administrateur
+        try {
+            $settings = $this->getSiteSettings();
+            $admin_email = !empty($settings['admin_email']) ? $settings['admin_email'] : (!empty($settings['site_email']) ? $settings['site_email'] : 'abemarket@abe.bi');
+            
+            $this->load->library('cpanel_email_lib');
+            $subject = 'Nouveau message de contact - ' . ($insert_data['sujet'] ?? 'Support');
+            $html_message = '<h3>Nouveau message reçu depuis le formulaire de contact</h3>' .
+                            '<p><strong>Nom :</strong> ' . htmlspecialchars($insert_data['nom']) . '</p>' .
+                            '<p><strong>Email :</strong> ' . htmlspecialchars($insert_data['email']) . '</p>' .
+                            '<p><strong>Téléphone :</strong> ' . htmlspecialchars($insert_data['telephone'] ?? 'Non fourni') . '</p>' .
+                            '<p><strong>Sujet :</strong> ' . htmlspecialchars($insert_data['sujet']) . '</p>' .
+                            '<p><strong>Message :</strong><br>' . nl2br(htmlspecialchars($insert_data['message'])) . '</p>';
+            
+            $this->cpanel_email_lib->send_email($admin_email, $subject, $html_message);
+        } catch (Exception $e) {
+            log_message('error', 'Erreur envoi email contact admin: ' . $e->getMessage());
+        }
+
         return true;
     } else {
         log_message('error', 'Erreur insertion contact: ' . $this->db->last_query());
