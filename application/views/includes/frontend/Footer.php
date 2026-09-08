@@ -295,7 +295,46 @@
 
 
 <!-- Cart Offcanvas Start -->
-<?php $cart_total_items = 0; ?>
+<?php 
+// Calcul du panier AVANT le HTML
+$cart_items = [];
+$cart_subtotal = 0;
+$cart_total_items = 0;
+
+if ($this->session->userdata('user_id')) {
+    $user_id = $this->session->userdata('user_id');
+    try {
+        $cart_items = $this->Home_model->getCartItems($user_id);
+        if (!empty($cart_items) && is_array($cart_items)) {
+            foreach ($cart_items as $item) {
+                if (isset($item['sous_total'])) $cart_subtotal += floatval($item['sous_total']);
+                if (isset($item['quantite'])) $cart_total_items += intval($item['quantite']);
+            }
+        }
+    } catch (Exception $e) {
+        log_message('error', 'Erreur récupération panier: ' . $e->getMessage());
+        $cart_items = [];
+    }
+} else {
+    $guestCart = $this->session->userdata('guest_cart') ?: [];
+    foreach ($guestCart as $key => $item) {
+        $qty = $item['quantity'] ?? 1;
+        $price = $item['prix_base'] ?? 0;
+        $cart_items[] = [
+            'id_panier' => 'guest_' . $key,
+            'id_produit' => $item['product_id'],
+            'nom_produit' => $item['nom_produit'] ?? 'Produit',
+            'slug_produit' => '',
+            'prix_effectif' => $price,
+            'sous_total' => $price * $qty,
+            'quantite' => $qty,
+            'image_url' => $item['image_url'] ?? 'assets/frontend/images/product/placeholder.png'
+        ];
+        $cart_subtotal += $price * $qty;
+        $cart_total_items += $qty;
+    }
+}
+?>
 <div class="offcanvas offcanvas-end cart-offcanvas" id="cartOffcanvas">
     <div class="offcanvas-header">
         <div class="title-offcanvas">
@@ -307,46 +346,6 @@
     </div>
     <div class="offcanvas-body">
         <div class="cart-product-box">
-            <?php 
-            // Initialisation sécurisée
-            $cart_items = [];
-            $cart_subtotal = 0;
-            $cart_total_items = 0;
-            
-            if ($this->session->userdata('user_id')) {
-                // Utilisateur connecté → panier BDD
-                $user_id = $this->session->userdata('user_id');
-                try {
-                    $cart_items = $this->Home_model->getCartItems($user_id);
-                    if (!empty($cart_items) && is_array($cart_items)) {
-                        foreach ($cart_items as $item) {
-                            if (isset($item['sous_total'])) $cart_subtotal += floatval($item['sous_total']);
-                            if (isset($item['quantite'])) $cart_total_items += intval($item['quantite']);
-                        }
-                    }
-                } catch (Exception $e) {
-                    log_message('error', 'Erreur récupération panier: ' . $e->getMessage());
-                    $cart_items = [];
-                }
-            } else {
-                // Visiteur → panier session
-                $guestCart = $this->session->userdata('guest_cart') ?: [];
-                foreach ($guestCart as $key => $item) {
-                    $qty = $item['quantity'] ?? 1;
-                    $price = $item['prix_base'] ?? 0;
-                    $cart_items[] = [
-                        'id_panier' => 'guest_' . $key,
-                        'id_produit' => $item['product_id'],
-                        'nom_produit' => $item['nom_produit'] ?? 'Produit',
-                        'slug_produit' => '',
-                        'prix_effectif' => $price,
-                        'sous_total' => $price * $qty,
-                        'quantite' => $qty,
-                        'image_url' => $item['image_url'] ?? 'assets/frontend/images/product/placeholder.png'
-                    ];
-                    $cart_subtotal += $price * $qty;
-                    $cart_total_items += $qty;
-                }
             }
             ?>
             
