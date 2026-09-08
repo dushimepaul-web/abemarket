@@ -150,15 +150,19 @@
 <?php if ($this->session->flashdata('success')): ?>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'success',
-            title: '<?= addslashes($this->session->flashdata('success')); ?>',
-            showConfirmButton: false,
-            timer: 4000,
-            timerProgressBar: true
-        });
+        if (!sessionStorage.getItem('contact_toast_shown')) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '<?= addslashes($this->session->flashdata('success')); ?>',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+            });
+            sessionStorage.setItem('contact_toast_shown', 'true');
+            setTimeout(() => sessionStorage.removeItem('contact_toast_shown'), 3000);
+        }
     });
 </script>
 <?php endif; ?>
@@ -166,15 +170,19 @@
 <?php if ($this->session->flashdata('error') || validation_errors()): ?>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: 'error',
-            title: '<?= addslashes($this->session->flashdata('error') ?: validation_errors()); ?>',
-            showConfirmButton: false,
-            timer: 5000,
-            timerProgressBar: true
-        });
+        if (!sessionStorage.getItem('contact_toast_error_shown')) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: '<?= addslashes($this->session->flashdata('error') ?: validation_errors()); ?>',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true
+            });
+            sessionStorage.setItem('contact_toast_error_shown', 'true');
+            setTimeout(() => sessionStorage.removeItem('contact_toast_error_shown'), 3000);
+        }
     });
 </script>
 <?php endif; ?>
