@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription - <?= htmlspecialchars($settings['site_name'] ?? 'AbeMarket') ?></title>
     <link rel="icon" href="<?= base_url('attachments/Settings/' . $this->Model->get_setting('site_favicon', 'favicon.svg')); ?>">
-    <link rel="stylesheet" href="<?= base_url('assets/frontend/css/themefour.css'); ?>">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <link rel="stylesheet" href="<?= base_url('assets/frontend/css/vendors/bootstrap.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/frontend/css/style.css'); ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/frontend/css/vendors/remixicon.css'); ?>">
     <style>
         body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
         .register-container { max-width: 500px; margin: 60px auto; }
