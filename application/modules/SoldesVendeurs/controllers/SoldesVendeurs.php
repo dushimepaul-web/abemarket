@@ -5,14 +5,16 @@ class SoldesVendeurs extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
+        if (!$this->session->userdata('logged_in')) {
+            redirect('auth/login');
+        }
+        if ($this->session->userdata('role') === 'vendeur') {
+            redirect('Home/User_dashboard');
+        }
         $this->load->model('SoldesVendeurs_model');
         $this->load->model('Vendeurs_model');
         $this->load->model('PaiementsVendeurs_model');
         $this->load->library('pagination');
-        
-        if (!$this->session->userdata('logged_in')) {
-            redirect('auth/login');
-        }
     }
 
     private function is_admin() {

@@ -32,11 +32,8 @@ class MY_Controller extends MX_Controller
      */
     public function __construct()
     {
-        // To inherit directly the attributes of the parent class.
         parent::__construct();
 
-        // This function returns the main CodeIgniter object.
-        // Normally, to call any of the available CodeIgniter object or pre defined library classes then you need to declare.
         $CI =& get_instance();
 
         // Copyright year calculation for the footer

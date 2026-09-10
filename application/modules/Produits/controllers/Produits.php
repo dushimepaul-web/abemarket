@@ -9,11 +9,10 @@ class Produits extends MY_Controller
         if ($this->session->userdata('logged_in') !== TRUE) {
             redirect('Admin');
         }
-        
-        // Charger le modèle
+        if ($this->session->userdata('role') === 'vendeur') {
+            redirect('Home/User_dashboard');
+        }
         $this->load->model('Produit_model');
-        
-        // Créer le dossier d'upload s'il n'existe pas
         $upload_path = FCPATH . 'uploads/produits/';
         if (!is_dir($upload_path)) {
             mkdir($upload_path, 0777, TRUE);

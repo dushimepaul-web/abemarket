@@ -5,17 +5,17 @@ class Approvisionnements extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
+        if (!$this->session->userdata('logged_in')) {
+            redirect('auth/login');
+        }
+        if ($this->session->userdata('role') === 'vendeur') {
+            redirect('Home/User_dashboard');
+        }
         $this->load->model('Approvisionnement_model');
         $this->load->model('Produit_model');
         $this->load->model('VarianteProduit_model');
         $this->load->library('form_validation');
         $this->load->library('pagination');
-        
-        if (!$this->session->userdata('logged_in')) {
-            redirect('auth/login');
-        }
-        
-        // Créer le dossier d'upload si nécessaire
         $upload_path = FCPATH . 'uploads/approvisionnements/';
         if (!is_dir($upload_path)) {
             mkdir($upload_path, 0777, true);

@@ -831,6 +831,7 @@ $route['User_dashboard/get_communes'] = 'Home/User_dashboard/get_communes';
 $route['User_dashboard/get_zones'] = 'Home/User_dashboard/get_zones';
 $route['User_dashboard/get_collines'] = 'Home/User_dashboard/get_collines';
 
+$route['user_dashboard/ajax_date_order_status'] = 'Home/User_dashboard/ajax_date_order_status';
 
 
 

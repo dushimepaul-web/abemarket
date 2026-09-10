@@ -9,9 +9,8 @@ class MaBoutique extends MY_Controller
         if ($this->session->userdata('logged_in') !== true) {
             redirect('Admin');
         }
-        $role = $this->session->userdata('role');
-        if (!in_array($role, ['vendeur', 'super_admin', 'admin'])) {
-            show_error('Accès réservé aux vendeurs', 403);
+        if ($this->session->userdata('role') === 'vendeur') {
+            redirect('Home/User_dashboard');
         }
         $this->load->library('upload');
         $this->load->model('Model');

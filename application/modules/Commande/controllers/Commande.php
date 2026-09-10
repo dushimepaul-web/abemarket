@@ -5,14 +5,16 @@ class Commande extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
+        if (!$this->session->userdata('logged_in')) {
+            redirect('auth/login');
+        }
+        if ($this->session->userdata('role') === 'vendeur') {
+            redirect('Home/User_dashboard');
+        }
         $this->load->model('Commande_model');
         $this->load->model('Produit_model');
         $this->load->library('form_validation');
         $this->load->library('pagination');
-        
-        if (!$this->session->userdata('logged_in')) {
-            redirect('auth/login');
-        }
     }
 
     private function is_admin() {

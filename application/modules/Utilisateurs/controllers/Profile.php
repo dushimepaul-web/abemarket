@@ -9,6 +9,9 @@ class Profile extends MY_Controller
         if ($this->session->userdata('logged_in') !== TRUE) {
             redirect('Admin');
         }
+        if ($this->session->userdata('role') === 'vendeur') {
+            redirect('Home/User_dashboard');
+        }
     }
 
     public function index()

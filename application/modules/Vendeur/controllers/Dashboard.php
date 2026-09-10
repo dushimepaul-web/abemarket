@@ -5,10 +5,13 @@ class Dashboard extends MY_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('Model');
         if ($this->session->userdata('logged_in') !== TRUE) {
             redirect('Admin');
         }
+        if ($this->session->userdata('role') === 'vendeur') {
+            redirect('Home/User_dashboard');
+        }
+        $this->load->model('Model');
     }
 
     public function index()
