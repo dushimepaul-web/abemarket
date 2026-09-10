@@ -71,6 +71,23 @@ class Home_model extends CI_Model {
     }
     
     /**
+     * Récupère tous les IDs de sous-catégories (récursif)
+     */
+    public function getSubCategoryIds($parentId) {
+        $ids = [];
+        $this->db->select('id_categorie');
+        $this->db->from('categories');
+        $this->db->where('id_parent', $parentId);
+        $this->db->where('est_actif', 1);
+        $query = $this->db->get();
+        foreach ($query->result_array() as $row) {
+            $ids[] = $row['id_categorie'];
+            $ids = array_merge($ids, $this->getSubCategoryIds($row['id_categorie']));
+        }
+        return $ids;
+    }
+    
+    /**
      * Récupère une catégorie par son slug
      */
     public function getCategoryBySlug($slug) {

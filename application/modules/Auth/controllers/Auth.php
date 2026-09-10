@@ -17,7 +17,7 @@ class Auth extends MY_Controller {
     
     public function login_page() {
         $data['settings'] = [];
-        $this->load->view('auth/login_user_view', $data);
+        $this->load->view('login_user_view', $data);
     }
 
     // ============================================
@@ -154,7 +154,7 @@ class Auth extends MY_Controller {
     
     public function register_page() {
         $data['settings'] = [];
-        $this->load->view('auth/register_user_view', $data);
+        $this->load->view('register_user_view', $data);
     }
 
     // ============================================
@@ -747,7 +747,7 @@ public function forgot_password() {
         }
         
         $data['email'] = $email;
-        $this->load->view('Auth/verify_code_view', $data);
+        $this->load->view('verify_code_view', $data);
     }
     
     // ============================================

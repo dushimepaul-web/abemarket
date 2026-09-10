@@ -108,19 +108,35 @@ public function category($slug) {
     $perPage = 12;
     $offset = ($page - 1) * $perPage;
     
+    // Filtres
+    $min_price = $this->input->get('min_price', TRUE);
+    $max_price = $this->input->get('max_price', TRUE);
+    $brands = $this->input->get('brands', TRUE);
+    
+    // Récupérer les IDs de la catégorie + sous-catégories
+    $categoryIds = $this->Home_model->getSubCategoryIds($category['id_categorie']);
+    $categoryIds[] = $category['id_categorie'];
+    
     $data['settings'] = $this->Home_model->getSiteSettings();
     $data['main_categories'] = $this->Home_model->getMainCategories();
     $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
     $data['category'] = $category;
     $data['currentSort'] = $sort;
     $data['currentPage'] = $page;
+    $data['categories'] = $this->Home_model->getMainCategoriesWithCount();
+    $data['currentCategory'] = $category['id_categorie'];
+    $data['filters'] = $this->Home_model->getShopFilters();
+    $data['min_price'] = $min_price;
+    $data['max_price'] = $max_price;
+    $data['brands'] = $brands;
+    $data['categories_hierarchy'] = $this->Home_model->getCategoriesHierarchy();
     
-    // Récupérer les produits de la catégorie (y compris sous-catégories)
-    $data['products'] = $this->Home_model->getProductsPaginated($category['id_categorie'], $sort, $perPage, $offset);
-    $data['totalProducts'] = $this->Home_model->countAllProducts($category['id_categorie']);
+    // Récupérer les produits (y compris sous-catégories)
+    $data['products'] = $this->Home_model->getProductsPaginated($categoryIds, $sort, $perPage, $offset, $min_price, $max_price, $brands);
+    $data['totalProducts'] = $this->Home_model->countAllProducts($categoryIds, $min_price, $max_price, $brands);
     $data['totalPages'] = ceil($data['totalProducts'] / $perPage);
     
-    // Récupérer les sous-catégories pour le filtre
+    // Sous-catégories pour le filtre sidebar
     $data['subcategories'] = $this->Home_model->getSubCategories($category['id_categorie']);
     
     if ($this->session->userdata('user_id')) {
