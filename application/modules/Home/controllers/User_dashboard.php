@@ -849,16 +849,16 @@ public function ajax_update_boutique() {
         }
         
         // Upload des images
+        $vendeur_id = $this->UserModel->get_vendeur_id($user_id);
+        $upload_dir = FCPATH . 'uploads/produits/' . $vendeur_id . '/';
+        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+        
         $main_image_path = null;
         if (!empty($_FILES['images']['name'][0])) {
-            $config['upload_path'] = './uploads/produits/';
+            $config['upload_path'] = $upload_dir;
             $config['allowed_types'] = 'gif|jpg|png|jpeg|webp';
             $config['max_size'] = 4096;
             $config['encrypt_name'] = true;
-            
-            if (!is_dir($config['upload_path'])) {
-                mkdir($config['upload_path'], 0777, true);
-            }
             
             $this->load->library('upload', $config);
             
@@ -875,7 +875,7 @@ public function ajax_update_boutique() {
                     $upload_data = $this->upload->data();
                     $uploaded_count++;
                     if ($uploaded_count === 1) {
-                        $main_image_path = 'uploads/produits/' . $upload_data['file_name'];
+                        $main_image_path = 'uploads/produits/' . $vendeur_id . '/' . $upload_data['file_name'];
                     }
                 }
             }
@@ -896,7 +896,6 @@ public function ajax_update_boutique() {
         
         // Sauvegarder les images dans images_produit
         if ($product_id && !empty($_FILES['images']['name'][0])) {
-            $this->load->library('upload', $config);
             $ordre = 1;
             $file_count = count($_FILES['images']['name']);
             for ($i = 0; $i < $file_count; $i++) {
@@ -910,7 +909,7 @@ public function ajax_update_boutique() {
                     $upload_data = $this->upload->data();
                     $this->db->insert('images_produit', [
                         'id_produit' => $product_id,
-                        'url_image' => 'uploads/produits/' . $upload_data['file_name'],
+                        'url_image' => 'uploads/produits/' . $vendeur_id . '/' . $upload_data['file_name'],
                         'est_principale' => ($ordre === 1) ? 1 : 0,
                         'ordre_affichage' => $ordre
                     ]);
@@ -1107,19 +1106,18 @@ public function ajax_update_boutique() {
         
         if ($result) {
             if (!empty($_FILES['main_image']['name'])) {
-                $config['upload_path'] = './uploads/produits/';
+                $edit_upload_dir = FCPATH . 'uploads/produits/' . $vendeur_id . '/';
+                if (!is_dir($edit_upload_dir)) mkdir($edit_upload_dir, 0777, true);
+                
+                $config['upload_path'] = $edit_upload_dir;
                 $config['allowed_types'] = 'gif|jpg|png|jpeg|webp';
                 $config['max_size'] = 2048;
                 $config['encrypt_name'] = true;
                 
-                if (!is_dir($config['upload_path'])) {
-                    mkdir($config['upload_path'], 0777, true);
-                }
-                
                 $this->load->library('upload', $config);
                 if ($this->upload->do_upload('main_image')) {
                     $upload_data = $this->upload->data();
-                    $new_image = 'uploads/produits/' . $upload_data['file_name'];
+                    $new_image = 'uploads/produits/' . $vendeur_id . '/' . $upload_data['file_name'];
                     
                     $this->db->where('id_produit', $product_id)->update('images_produit', ['est_principale' => 0]);
                     
@@ -1205,11 +1203,13 @@ public function ajax_update_boutique() {
         $produit = $this->db->where('id_produit', $product_id)->where('id_vendeur', $vendeur_id)->get('produits')->row_array();
         if (!$produit) { echo json_encode(['success' => false, 'message' => 'Produit non trouvé']); return; }
         
-        $config['upload_path'] = './uploads/produits/';
+        $upload_dir = FCPATH . 'uploads/produits/' . $vendeur_id . '/';
+        if (!is_dir($upload_dir)) mkdir($upload_dir, 0777, true);
+        
+        $config['upload_path'] = $upload_dir;
         $config['allowed_types'] = 'gif|jpg|png|jpeg|webp';
         $config['max_size'] = 4096;
         $config['encrypt_name'] = true;
-        if (!is_dir($config['upload_path'])) mkdir($config['upload_path'], 0777, true);
         $this->load->library('upload', $config);
         
         $existing_count = $this->db->where('id_produit', $product_id)->count_all_results('images_produit');
@@ -1228,7 +1228,7 @@ public function ajax_update_boutique() {
                     $upload_data = $this->upload->data();
                     $this->db->insert('images_produit', [
                         'id_produit' => $product_id,
-                        'url_image' => 'uploads/produits/' . $upload_data['file_name'],
+                        'url_image' => 'uploads/produits/' . $vendeur_id . '/' . $upload_data['file_name'],
                         'est_principale' => ($existing_count === 0 && $uploaded === 0) ? 1 : 0,
                         'ordre_affichage' => $existing_count + $uploaded + 1
                     ]);
