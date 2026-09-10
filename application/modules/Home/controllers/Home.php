@@ -1468,6 +1468,68 @@ public function seller($slug) {
             return;
         }
         
+        $this->load->library('Cpanel_email_lib');
+        
+        $client = $this->db->where('id_utilisateur', $this->session->userdata('id_utilisateur'))->get('utilisateurs')->row();
+        if ($client && !empty($client->email)) {
+            $subject = "Commande {$numero_commande} confirmée";
+            $message = "
+            <div style='font-family:Arial,sans-serif;max-width:600px;margin:auto'>
+                <div style='background:#0d6efd;color:#fff;padding:20px;text-align:center;border-radius:8px 8px 0 0'>
+                    <h2 style='margin:0'>ABEMARKET</h2>
+                </div>
+                <div style='padding:20px;border:1px solid #ddd;border-radius:0 0 8px 8px'>
+                    <p>Bonjour <strong>{$client->prenom} {$client->nom}</strong>,</p>
+                    <p>Votre commande <strong>{$numero_commande}</strong> a bien été enregistrée.</p>
+                    <div style='background:#f8f9fa;padding:15px;border-radius:5px;margin:15px 0;text-align:center'>
+                        <p style='margin:0;font-size:14px;color:#666'>Montant total</p>
+                        <p style='margin:5px 0;font-size:22px;font-weight:bold;color:#0d6efd'>" . number_format($total, 0, ',', ' ') . " BIF</p>
+                    </div>
+                    <p style='color:#666;font-size:13px'>Statut : <strong>En attente de paiement</strong></p>
+                    <p style='color:#666;font-size:13px'>Vous serez notifié à chaque changement de statut.</p>
+                </div>
+                <div style='text-align:center;padding:10px;color:#999;font-size:11px'>ABEMARKET — Votre marketplace de confiance</div>
+            </div>";
+            @$this->Cpanel_email_lib->send_email($client->email, $subject, $message);
+        }
+
+        $vendor_ids = array_unique(array_column($cartItems, 'id_vendeur'));
+        foreach ($vendor_ids as $vid) {
+            $vendor_user = $this->db->select('u.email, u.prenom, u.nom')
+                ->from('vendeurs v')
+                ->join('utilisateurs u', 'u.id_utilisateur = v.id_utilisateur')
+                ->where('v.id_vendeur', $vid)
+                ->get()->row();
+            if (!$vendor_user || empty($vendor_user->email)) continue;
+
+            $vendor_items = array_filter($cartItems, function($item) use ($vid) { return $item['id_vendeur'] == $vid; });
+            $items_html = '';
+            foreach ($vendor_items as $vi) {
+                $items_html .= "<li>{$vi['nom_produit']} × {$vi['quantite']} — " . number_format($vi['sous_total'], 0, ',', ' ') . " BIF</li>";
+            }
+            $vendor_total = array_sum(array_column($vendor_items, 'sous_total'));
+
+            $v_subject = "Nouvelle commande {$numero_commande} reçue";
+            $v_message = "
+            <div style='font-family:Arial,sans-serif;max-width:600px;margin:auto'>
+                <div style='background:#198754;color:#fff;padding:20px;text-align:center;border-radius:8px 8px 0 0'>
+                    <h2 style='margin:0'>ABEMARKET — Nouvelle commande</h2>
+                </div>
+                <div style='padding:20px;border:1px solid #ddd;border-radius:0 0 8px 8px'>
+                    <p>Bonjour <strong>{$vendor_user->prenom} {$vendor_user->nom}</strong>,</p>
+                    <p>Vous avez reçu une nouvelle commande <strong>{$numero_commande}</strong>.</p>
+                    <ul style='color:#333;font-size:13px'>{$items_html}</ul>
+                    <div style='background:#f8f9fa;padding:15px;border-radius:5px;margin:15px 0;text-align:center'>
+                        <p style='margin:0;font-size:14px;color:#666'>Total de la commande</p>
+                        <p style='margin:5px 0;font-size:22px;font-weight:bold;color:#198754'>" . number_format($vendor_total, 0, ',', ' ') . " BIF</p>
+                    </div>
+                    <p style='color:#666;font-size:13px'>Connectez-vous à votre espace vendeur pour préparer la commande.</p>
+                </div>
+                <div style='text-align:center;padding:10px;color:#999;font-size:11px'>ABEMARKET — Votre marketplace de confiance</div>
+            </div>";
+            @$this->Cpanel_email_lib->send_email($vendor_user->email, $v_subject, $v_message);
+        }
+        
         // Vider le panier
         $this->Home_model->clearCart($this->session->userdata('id_utilisateur'));
         

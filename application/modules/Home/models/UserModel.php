@@ -123,7 +123,48 @@ class UserModel extends CI_Model {
             'modifie_par' => $this->session->userdata('id_utilisateur')
         ]);
         
+        $this->send_order_status_email($order, $status);
+        
         return true;
+    }
+
+    private function send_order_status_email($order, $status) {
+        $user = $this->db->where('id_utilisateur', $order->id_utilisateur)->get('utilisateurs')->row();
+        if (!$user || empty($user->email)) return;
+
+        $labels = [
+            'en_attente' => 'En attente de paiement',
+            'payee' => 'Payée',
+            'en_preparation' => 'En préparation',
+            'expediee' => 'Expédiée',
+            'en_livraison' => 'En livraison',
+            'livree' => 'Livrée',
+            'annulee' => 'Annulée',
+            'retournee' => 'Retournée',
+        ];
+        $label = $labels[$status] ?? $status;
+
+        $subject = "Commande {$order->numero_commande} — Statut mis à jour";
+        $message = "
+        <div style='font-family:Arial,sans-serif;max-width:600px;margin:auto'>
+            <div style='background:#0d6efd;color:#fff;padding:20px;text-align:center;border-radius:8px 8px 0 0'>
+                <h2 style='margin:0'>ABEMARKET</h2>
+            </div>
+            <div style='padding:20px;border:1px solid #ddd;border-radius:0 0 8px 8px'>
+                <p>Bonjour <strong>{$user->prenom} {$user->nom}</strong>,</p>
+                <p>Le statut de votre commande <strong>{$order->numero_commande}</strong> a été mis à jour.</p>
+                <div style='background:#f8f9fa;padding:15px;border-radius:5px;margin:15px 0;text-align:center'>
+                    <p style='margin:0;font-size:14px;color:#666'>Nouveau statut</p>
+                    <p style='margin:5px 0;font-size:20px;font-weight:bold;color:#0d6efd'>{$label}</p>
+                </div>
+                <p style='color:#666;font-size:13px'>Total : <strong>" . number_format($order->montant_total, 0, ',', ' ') . " BIF</strong></p>
+                <p style='color:#666;font-size:13px'>Suivez votre commande dans votre espace client.</p>
+            </div>
+            <div style='text-align:center;padding:10px;color:#999;font-size:11px'>ABEMARKET — Votre marketplace de confiance</div>
+        </div>";
+
+        $this->load->library('Cpanel_email_lib');
+        $this->Cpanel_email_lib->send_email($user->email, $subject, $message);
     }
 
     // ==================== PRODUITS (VENDEUR) ====================
