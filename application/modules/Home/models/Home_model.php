@@ -2351,14 +2351,32 @@ public function getSellerStockPercentage($sellerId) {
 public function getSellerFullAddress($seller) {
     $addressParts = [];
     
-    if (!empty($seller['id_province'])) {
+    if (!empty($seller['province_name'])) {
+        $addressParts[] = $seller['province_name'];
+    } elseif (!empty($seller['id_province'])) {
         $province = $this->getProvinceName($seller['id_province']);
         if ($province) $addressParts[] = $province;
     }
     
-    if (!empty($seller['id_commune'])) {
+    if (!empty($seller['commune_name'])) {
+        $addressParts[] = $seller['commune_name'];
+    } elseif (!empty($seller['id_commune'])) {
         $commune = $this->getCommuneName($seller['id_commune']);
         if ($commune) $addressParts[] = $commune;
+    }
+    
+    if (!empty($seller['zone_name'])) {
+        $addressParts[] = $seller['zone_name'];
+    } elseif (!empty($seller['id_zone'])) {
+        $zone = $this->getZoneName($seller['id_zone']);
+        if ($zone) $addressParts[] = $zone;
+    }
+    
+    if (!empty($seller['colline_name'])) {
+        $addressParts[] = $seller['colline_name'];
+    } elseif (!empty($seller['id_colline'])) {
+        $colline = $this->getCollineName($seller['id_colline']);
+        if ($colline) $addressParts[] = $colline;
     }
     
     if (empty($addressParts)) {
@@ -2394,6 +2412,24 @@ public function getCommuneName($communeId) {
     $query = $this->db->get();
     $result = $query->row_array();
     return $result ? $result['commune_name'] : null;
+}
+
+public function getZoneName($zoneId) {
+    $this->db->select('zone_name');
+    $this->db->from('zones');
+    $this->db->where('id_zone', $zoneId);
+    $query = $this->db->get();
+    $result = $query->row_array();
+    return $result ? $result['zone_name'] : null;
+}
+
+public function getCollineName($collineId) {
+    $this->db->select('colline_name');
+    $this->db->from('collines');
+    $this->db->where('id_colline', $collineId);
+    $query = $this->db->get();
+    $result = $query->row_array();
+    return $result ? $result['colline_name'] : null;
 }
 
 /**
@@ -2504,9 +2540,14 @@ public function getFeaturedSellersWithProducts($limit = 6) {
  * @return array|null Données du vendeur
  */
 public function getSellerBySlugWithFullDetails($slug) {
-    $this->db->select('v.*, u.nom, u.prenom, u.email, u.telephone, u.avatar_url');
+    $this->db->select('v.*, u.nom, u.prenom, u.email, u.telephone, u.avatar_url,
+        p.province_name, c.commune_name, z.zone_name, co.colline_name');
     $this->db->from('vendeurs v');
     $this->db->join('utilisateurs u', 'v.id_utilisateur = u.id_utilisateur');
+    $this->db->join('provinces p', 'p.id_province = v.id_province', 'left');
+    $this->db->join('communes c', 'c.id_commune = v.id_commune', 'left');
+    $this->db->join('zones z', 'z.id_zone = v.id_zone', 'left');
+    $this->db->join('collines co', 'co.id_colline = v.id_colline', 'left');
     $this->db->where('v.slug_boutique', $slug);
     $this->db->where('v.statut', 'actif');
     $this->db->where('v.est_approuve', 1);

@@ -92,6 +92,12 @@
                                 <h5><?= htmlspecialchars($seller['telephone']) ?></h5>
                             </li>
                             <?php endif; ?>
+                            <?php if (!empty($seller['whatsapp'])): ?>
+                            <li>
+                                <i class="ri-whatsapp-line"></i>
+                                <h5><a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $seller['whatsapp']) ?>" target="_blank"><?= htmlspecialchars($seller['whatsapp']) ?></a></h5>
+                            </li>
+                            <?php endif; ?>
                             <?php if (!empty($seller['email'])): ?>
                             <li>
                                 <i class="ri-mail-line"></i>
@@ -102,6 +108,20 @@
                             <?php endif; ?>
                         </ul>
                     </div>
+
+                    <?php if (!empty($seller['full_address']) && $seller['full_address'] !== 'Adresse non renseignée'): ?>
+                    <div class="vendor-details-box" style="margin-top:15px;">
+                        <h6><i class="ri-map-pin-line"></i> Adresse:</h6>
+                        <p style="margin:5px 0 0;color:#555;"><?= htmlspecialchars($seller['full_address']) ?></p>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($seller['latitude']) && !empty($seller['longitude'])): ?>
+                    <div style="margin-top:15px;">
+                        <h6><i class="ri-map-2-line"></i> Localisation:</h6>
+                        <div id="sellerMap" style="height:200px;border-radius:8px;margin-top:8px;border:1px solid #eee;"></div>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -390,3 +410,19 @@ if (minRange && maxRange) {
     updatePriceRange();
 }
 </script>
+
+<?php if (!empty($seller['latitude']) && !empty($seller['longitude'])): ?>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var lat = <?= floatval($seller['latitude']) ?>;
+    var lng = <?= floatval($seller['longitude']) ?>;
+    var map = L.map('sellerMap').setView([lat, lng], 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    L.marker([lat, lng]).addTo(map).bindPopup('<?= htmlspecialchars($seller["nom_boutique"]) ?>');
+});
+</script>
+<?php endif; ?>
