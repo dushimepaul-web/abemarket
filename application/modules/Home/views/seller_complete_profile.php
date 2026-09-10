@@ -313,13 +313,23 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Quartier</label>
-                            <select class="form-select" name="id_quartier" id="id_quartier" disabled>
+                            <label>Zone</label>
+                            <select class="form-select" name="id_zone" id="id_zone" disabled>
                                 <option value="">Sélectionner d'abord une commune</option>
                             </select>
                         </div>
                     </div>
                 </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Colline</label>
+                            <select class="form-select" name="id_colline" id="id_colline" disabled>
+                                <option value="">Sélectionner d'abord une zone</option>
+                            </select>
+                        </div>
+                    </div>
                 
                 <div class="row">
                     <div class="col-md-6">
@@ -468,36 +478,64 @@ $(document).ready(function() {
                     $.each(data, function(i, commune) {
                         communeSelect.append('<option value="' + commune.id_commune + '">' + commune.commune_name + '</option>');
                     });
-                    $('#id_quartier').empty().append('<option value="">Sélectionner d\'abord une commune</option>').prop('disabled', true);
+                    $('#id_zone').empty().append('<option value="">Sélectionner d\'abord une commune</option>').prop('disabled', true);
+                    $('#id_colline').empty().append('<option value="">Sélectionner d\'abord une zone</option>').prop('disabled', true);
                 }
             });
         } else {
             $('#id_commune').empty().append('<option value="">Sélectionner d\'abord une province</option>').prop('disabled', true);
-            $('#id_quartier').empty().append('<option value="">Sélectionner d\'abord une commune</option>').prop('disabled', true);
+            $('#id_zone').empty().append('<option value="">Sélectionner d\'abord une commune</option>').prop('disabled', true);
+            $('#id_colline').empty().append('<option value="">Sélectionner d\'abord une zone</option>').prop('disabled', true);
         }
     });
     
-    // Chargement des quartiers
+    // Chargement des zones
     $('#id_commune').change(function() {
         var communeId = $(this).val();
         if (communeId) {
             $.ajax({
-                url: '<?= base_url("User_dashboard/get_quartiers") ?>',
+                url: '<?= base_url("User_dashboard/get_zones") ?>',
                 type: 'POST',
                 data: { id_commune: communeId },
                 dataType: 'json',
                 success: function(data) {
-                    var quartierSelect = $('#id_quartier');
-                    quartierSelect.empty();
-                    quartierSelect.append('<option value="">Sélectionner un quartier</option>');
-                    quartierSelect.prop('disabled', false);
-                    $.each(data, function(i, quartier) {
-                        quartierSelect.append('<option value="' + quartier.id_quartier + '">' + quartier.quartier_name + '</option>');
+                    var zoneSelect = $('#id_zone');
+                    zoneSelect.empty();
+                    zoneSelect.append('<option value="">Sélectionner une zone</option>');
+                    zoneSelect.prop('disabled', false);
+                    $.each(data, function(i, zone) {
+                        zoneSelect.append('<option value="' + zone.id_zone + '">' + zone.zone_name + '</option>');
+                    });
+                    $('#id_colline').empty().append('<option value="">Sélectionner d\'abord une zone</option>').prop('disabled', true);
+                }
+            });
+        } else {
+            $('#id_zone').empty().append('<option value="">Sélectionner d\'abord une commune</option>').prop('disabled', true);
+            $('#id_colline').empty().append('<option value="">Sélectionner d\'abord une zone</option>').prop('disabled', true);
+        }
+    });
+    
+    // Chargement des collines
+    $('#id_zone').change(function() {
+        var zoneId = $(this).val();
+        if (zoneId) {
+            $.ajax({
+                url: '<?= base_url("User_dashboard/get_collines") ?>',
+                type: 'POST',
+                data: { id_zone: zoneId },
+                dataType: 'json',
+                success: function(data) {
+                    var collineSelect = $('#id_colline');
+                    collineSelect.empty();
+                    collineSelect.append('<option value="">Sélectionner une colline</option>');
+                    collineSelect.prop('disabled', false);
+                    $.each(data, function(i, colline) {
+                        collineSelect.append('<option value="' + colline.id_colline + '">' + colline.colline_name + '</option>');
                     });
                 }
             });
         } else {
-            $('#id_quartier').empty().append('<option value="">Sélectionner d\'abord une commune</option>').prop('disabled', true);
+            $('#id_colline').empty().append('<option value="">Sélectionner d\'abord une zone</option>').prop('disabled', true);
         }
     });
     

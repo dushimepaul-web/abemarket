@@ -819,6 +819,8 @@ $route['User_dashboard/complete_profile'] = 'Home/User_dashboard/complete_profil
 $route['User_dashboard/save_complete_profile'] = 'Home/User_dashboard/save_complete_profile';
 $route['User_dashboard/get_quartiers'] = 'Home/User_dashboard/get_quartiers';
 $route['User_dashboard/get_communes'] = 'Home/User_dashboard/get_communes';
+$route['User_dashboard/get_zones'] = 'Home/User_dashboard/get_zones';
+$route['User_dashboard/get_collines'] = 'Home/User_dashboard/get_collines';
 
 
 

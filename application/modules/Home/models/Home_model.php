@@ -909,17 +909,35 @@ public function getCartItems($userId) {
     /**
      * Récupère les produits avec pagination
      */
-    public function getProductsPaginated($categoryId, $sort, $perPage, $offset) {
+    public function getProductsPaginated($categoryId, $sort, $perPage, $offset, $min_price = null, $max_price = null, $brands = null) {
         $this->db->select('p.id_produit, p.nom_produit, p.slug_produit, p.prix_base, p.prix_promo,
-                           p.note_moyenne, p.nombre_avis, p.quantite_actuelle, p.nombre_ventes,
+                           p.note_moyenne, p.nombre_avis, p.quantite_actuelle, p.nombre_ventes, p.marque,
                            (SELECT url_image FROM images_produit WHERE id_produit = p.id_produit AND est_principale = 1 LIMIT 1) as image_url');
         $this->db->from('produits p');
         if (!empty($categoryId)) {
-            $this->db->where('p.id_categorie', $categoryId);
+            if (is_array($categoryId)) {
+                $this->db->where_in('p.id_categorie', $categoryId);
+            } else {
+                $this->db->where('p.id_categorie', $categoryId);
+            }
         }
         $this->db->where('p.est_actif', 1);
         $this->db->where('p.statut', 'actif');
         $this->db->where('p.quantite_actuelle >', 0);
+        
+        // Filtre prix
+        if ($min_price !== null && $min_price !== '') {
+            $this->db->where('COALESCE(p.prix_promo, p.prix_base) >=', $min_price);
+        }
+        if ($max_price !== null && $max_price !== '') {
+            $this->db->where('COALESCE(p.prix_promo, p.prix_base) <=', $max_price);
+        }
+        
+        // Filtre marques
+        if ($brands !== null && $brands !== '') {
+            $brandList = array_map('trim', explode(',', $brands));
+            $this->db->where_in('p.marque', $brandList);
+        }
         
         switch ($sort) {
             case 'price_asc':
@@ -947,14 +965,30 @@ public function getCartItems($userId) {
     /**
      * Compte le nombre total de produits
      */
-    public function countAllProducts($categoryId = null) {
+    public function countAllProducts($categoryId = null, $min_price = null, $max_price = null, $brands = null) {
         $this->db->from('produits p');
         if (!empty($categoryId)) {
-            $this->db->where('p.id_categorie', $categoryId);
+            if (is_array($categoryId)) {
+                $this->db->where_in('p.id_categorie', $categoryId);
+            } else {
+                $this->db->where('p.id_categorie', $categoryId);
+            }
         }
         $this->db->where('p.est_actif', 1);
         $this->db->where('p.statut', 'actif');
         $this->db->where('p.quantite_actuelle >', 0);
+        
+        if ($min_price !== null && $min_price !== '') {
+            $this->db->where('COALESCE(p.prix_promo, p.prix_base) >=', $min_price);
+        }
+        if ($max_price !== null && $max_price !== '') {
+            $this->db->where('COALESCE(p.prix_promo, p.prix_base) <=', $max_price);
+        }
+        if ($brands !== null && $brands !== '') {
+            $brandList = array_map('trim', explode(',', $brands));
+            $this->db->where_in('p.marque', $brandList);
+        }
+        
         return $this->db->count_all_results();
     }
     

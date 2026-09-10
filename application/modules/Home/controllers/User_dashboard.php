@@ -1086,7 +1086,8 @@ public function save_complete_profile() {
     // Informations de localisation
     $id_province = $this->input->post('id_province') ?: null;
     $id_commune = $this->input->post('id_commune') ?: null;
-    $id_quartier = $this->input->post('id_quartier') ?: null;
+    $id_zone = $this->input->post('id_zone') ?: null;
+    $id_colline = $this->input->post('id_colline') ?: null;
     $latitude = $this->input->post('latitude') ?: null;
     $longitude = $this->input->post('longitude') ?: null;
     
@@ -1141,7 +1142,8 @@ public function save_complete_profile() {
         'numero_rc' => !empty($numero_rc) ? $numero_rc : null,
         'id_province' => $id_province,
         'id_commune' => $id_commune,
-        'id_quartier' => $id_quartier,
+        'id_zone' => $id_zone,
+        'id_colline' => $id_colline,
         'latitude' => !empty($latitude) ? $latitude : null,
         'longitude' => !empty($longitude) ? $longitude : null,
         'telephone' => $user->telephone,
@@ -1285,6 +1287,42 @@ public function upload_image($nom_file, $nom_champ) {
                 ->get('quartiers')
                 ->result_array();
             echo json_encode($quartiers);
+        } else {
+            echo json_encode([]);
+        }
+    }
+
+    // Obtenir les zones par commune (AJAX)
+    public function get_zones()
+    {
+        $this->output->set_content_type('application/json');
+        $id_commune = $this->input->post('id_commune');
+        if ($id_commune) {
+            $zones = $this->db->select('id_zone, zone_name')
+                ->where('id_commune', $id_commune)
+                ->where('est_actif', 1)
+                ->order_by('zone_name')
+                ->get('zones')
+                ->result_array();
+            echo json_encode($zones);
+        } else {
+            echo json_encode([]);
+        }
+    }
+
+    // Obtenir les collines par zone (AJAX)
+    public function get_collines()
+    {
+        $this->output->set_content_type('application/json');
+        $id_zone = $this->input->post('id_zone');
+        if ($id_zone) {
+            $collines = $this->db->select('id_colline, colline_name')
+                ->where('id_zone', $id_zone)
+                ->where('est_actif', 1)
+                ->order_by('colline_name')
+                ->get('collines')
+                ->result_array();
+            echo json_encode($collines);
         } else {
             echo json_encode([]);
         }

@@ -18,7 +18,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="<?= htmlspecialchars($settings['site_name'] ?? 'AbeMarket', ENT_QUOTES, 'UTF-8'); ?>">
-    <meta name="msapplication-TileImage" content="<?= base_url('assets/frontend/images/favicon/1.html'); ?>">
+    <meta name="msapplication-TileImage" content="<?= base_url('assets/frontend/images/favicon/1.svg'); ?>">
     <meta name="msapplication-TileColor" content="#FFFFFF">
     
     <!-- Titre dynamique -->

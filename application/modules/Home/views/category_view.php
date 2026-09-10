@@ -203,11 +203,19 @@
 
                 <!-- Pagination -->
                 <?php if(($totalPages ?? 1) > 1): ?>
+                <?php
+                $filterParams = http_build_query(array_filter([
+                    'sort' => $currentSort,
+                    'min_price' => $min_price ?? null,
+                    'max_price' => $max_price ?? null,
+                    'brands' => $brands ?? null,
+                ]));
+                ?>
                 <nav class="pagination-box mt-4">
                     <ul class="pagination justify-content-center">
                         <?php if($currentPage > 1): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=<?= $currentPage - 1; ?>&sort=<?= $currentSort; ?>">
+                            <a class="page-link" href="?page=<?= $currentPage - 1; ?>&<?= $filterParams; ?>">
                                 <i class="ri-arrow-left-s-line"></i>
                             </a>
                         </li>
@@ -217,24 +225,24 @@
                         $start = max(1, $currentPage - 2);
                         $end = min($totalPages, $currentPage + 2);
                         if($start > 1): ?>
-                        <li class="page-item"><a class="page-link" href="?page=1&sort=<?= $currentSort; ?>">1</a></li>
+                        <li class="page-item"><a class="page-link" href="?page=1&<?= $filterParams; ?>">1</a></li>
                         <?php if($start > 2): ?><li class="page-item disabled"><span class="page-link">...</span></li><?php endif; ?>
                         <?php endif; ?>
                         
                         <?php for($i = $start; $i <= $end; $i++): ?>
                         <li class="page-item <?= $i == $currentPage ? 'active' : ''; ?>">
-                            <a class="page-link" href="?page=<?= $i; ?>&sort=<?= $currentSort; ?>"><?= $i; ?></a>
+                            <a class="page-link" href="?page=<?= $i; ?>&<?= $filterParams; ?>"><?= $i; ?></a>
                         </li>
                         <?php endfor; ?>
                         
                         <?php if($end < $totalPages): ?>
                         <?php if($end < $totalPages - 1): ?><li class="page-item disabled"><span class="page-link">...</span></li><?php endif; ?>
-                        <li class="page-item"><a class="page-link" href="?page=<?= $totalPages; ?>&sort=<?= $currentSort; ?>"><?= $totalPages; ?></a></li>
+                        <li class="page-item"><a class="page-link" href="?page=<?= $totalPages; ?>&<?= $filterParams; ?>"><?= $totalPages; ?></a></li>
                         <?php endif; ?>
                         
                         <?php if($currentPage < $totalPages): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=<?= $currentPage + 1; ?>&sort=<?= $currentSort; ?>">
+                            <a class="page-link" href="?page=<?= $currentPage + 1; ?>&<?= $filterParams; ?>">
                                 <i class="ri-arrow-right-s-line"></i>
                             </a>
                         </li>
