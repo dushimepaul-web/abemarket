@@ -13,6 +13,11 @@ class User_dashboard extends MY_Controller {
         
         // Vérifier si l'utilisateur est connecté
         if (!$this->session->userdata('id_utilisateur')) {
+            if ($this->input->is_ajax_request()) {
+                $this->output->set_content_type('application/json');
+                echo json_encode(['success' => false, 'message' => 'Session expirée. Veuillez vous reconnecter.']);
+                exit;
+            }
             $this->session->set_userdata('redirect_url', current_url());
             $this->session->set_flashdata('error', 'Veuillez vous connecter pour accéder à votre tableau de bord');
             redirect('auth/login');
@@ -1068,108 +1073,118 @@ public function complete_profile() {
 public function save_complete_profile() {
     $this->output->set_content_type('application/json');
     
-    $user_id = $this->session->userdata('id_utilisateur');
-    
-    if (!$user_id) {
-        echo json_encode(['success' => false, 'message' => 'Utilisateur non connecté']);
-        return;
-    }
-    
-    $nom_boutique = trim($this->input->post('nom_boutique'));
-    $description = trim($this->input->post('description'));
-    $type_vendeur = $this->input->post('type_vendeur');
-    $nom_entreprise = trim($this->input->post('nom_entreprise'));
-    $numero_nif = trim($this->input->post('numero_nif'));
-    $numero_rc = trim($this->input->post('numero_rc'));
-    $whatsapp = trim($this->input->post('whatsapp'));
-    
-    // Informations de localisation
-    $id_province = $this->input->post('id_province') ?: null;
-    $id_commune = $this->input->post('id_commune') ?: null;
-    $id_zone = $this->input->post('id_zone') ?: null;
-    $id_colline = $this->input->post('id_colline') ?: null;
-    $latitude = $this->input->post('latitude') ?: null;
-    $longitude = $this->input->post('longitude') ?: null;
-    
-    // Configuration de paiement
-    $methode_paiement = $this->input->post('methode_paiement');
-    $operateur_mobile = $this->input->post('operateur_mobile');
-    $numero_mobile_money = $this->input->post('numero_mobile_money');
-    $nom_abonne_mobile = $this->input->post('nom_abonne_mobile');
-    $nom_banque = $this->input->post('nom_banque');
-    $numero_compte = $this->input->post('numero_compte');
-    $nom_titulaire = $this->input->post('nom_titulaire');
-    
-    if (empty($nom_boutique)) {
-        echo json_encode(['success' => false, 'message' => 'Le nom de la boutique est obligatoire']);
-        return;
-    }
-    
-    $slug = $this->createSlug($nom_boutique);
-    
-    // Vérifier si le slug existe déjà
-    $existing = $this->db->get_where('vendeurs', ['slug_boutique' => $slug])->row();
-    if ($existing) {
-        echo json_encode(['success' => false, 'message' => 'Ce nom de boutique existe déjà']);
-        return;
-    }
-    
-    // Gestion du logo
-    $logo_boutique = null;
-    if (!empty($_FILES['logo_boutique']['name'])) {
-        $upload_logo = $this->upload_image($_FILES['logo_boutique']['tmp_name'], $_FILES['logo_boutique']['name']);
-        if ($upload_logo) {
-            $logo_boutique = 'attachments/Users/' . $upload_logo;
-        }
-    }
-    
-    $user = $this->db->get_where('utilisateurs', ['id_utilisateur' => $user_id])->row();
-    
-    if (!$user) {
-        echo json_encode(['success' => false, 'message' => 'Utilisateur non trouvé']);
-        return;
-    }
-    
-    $vendeur_data = [
-        'id_utilisateur' => $user_id,
-        'nom_boutique' => $nom_boutique,
-        'slug_boutique' => $slug,
-        'logo_boutique' => $logo_boutique,
-        'description' => $description,
-        'type_vendeur' => $type_vendeur,
-        'nom_entreprise' => !empty($nom_entreprise) ? $nom_entreprise : null,
-        'numero_nif' => !empty($numero_nif) ? $numero_nif : null,
-        'numero_rc' => !empty($numero_rc) ? $numero_rc : null,
-        'id_province' => $id_province,
-        'id_commune' => $id_commune,
-        'id_zone' => $id_zone,
-        'id_colline' => $id_colline,
-        'latitude' => !empty($latitude) ? $latitude : null,
-        'longitude' => !empty($longitude) ? $longitude : null,
-        'telephone' => $user->telephone,
-        'whatsapp' => !empty($whatsapp) ? $whatsapp : $user->telephone,
-        'taux_commission' => 10,
-        'delai_paiement_jours' => 7,
-        'est_approuve' => 0,
-        'statut' => 'en_attente',
-        'date_creation' => date('Y-m-d H:i:s')
-    ];
-    
-    // Insertion du vendeur
-    $this->db->insert('vendeurs', $vendeur_data);
-    $vendeur_id = $this->db->insert_id();
-    
-    if ($vendeur_id) {
-        // Créer le solde initial
-        $this->db->insert('soldes_vendeurs', [
-            'id_vendeur' => $vendeur_id,
-            'solde_disponible' => 0,
-            'solde_en_attente' => 0,
-            'total_gagne' => 0,
-            'total_retire' => 0
-        ]);
+    try {
+        $user_id = $this->session->userdata('id_utilisateur');
         
-        // Créer la configuration de paiement
+        if (!$user_id) {
+            echo json_encode(['success' => false, 'message' => 'Session expirée. Veuillez vous reconnecter.']);
+            return;
+        }
+        
+        $nom_boutique = trim($this->input->post('nom_boutique'));
+        $description = trim($this->input->post('description'));
+        $type_vendeur = $this->input->post('type_vendeur');
+        $nom_entreprise = trim($this->input->post('nom_entreprise'));
+        $numero_nif = trim($this->input->post('numero_nif'));
+        $numero_rc = trim($this->input->post('numero_rc'));
+        $whatsapp = trim($this->input->post('whatsapp'));
+        
+        $id_province = $this->input->post('id_province') ?: null;
+        $id_commune = $this->input->post('id_commune') ?: null;
+        $id_zone = $this->input->post('id_zone') ?: null;
+        $id_colline = $this->input->post('id_colline') ?: null;
+        $latitude = $this->input->post('latitude') ?: null;
+        $longitude = $this->input->post('longitude') ?: null;
+        
+        $methode_paiement = $this->input->post('methode_paiement');
+        $operateur_mobile = $this->input->post('operateur_mobile');
+        $numero_mobile_money = $this->input->post('numero_mobile_money');
+        $nom_abonne_mobile = $this->input->post('nom_abonne_mobile');
+        $nom_banque = $this->input->post('nom_banque');
+        $numero_compte = $this->input->post('numero_compte');
+        $nom_titulaire = $this->input->post('nom_titulaire');
+        
+        if (empty($nom_boutique)) {
+            echo json_encode(['success' => false, 'message' => 'Le nom de la boutique est obligatoire']);
+            return;
+        }
+        
+        $slug = $this->createSlug($nom_boutique);
+        
+        $existing = $this->db->get_where('vendeurs', ['slug_boutique' => $slug])->row();
+        if ($existing) {
+            echo json_encode(['success' => false, 'message' => 'Ce nom de boutique existe déjà']);
+            return;
+        }
+        
+        $logo_boutique = null;
+        if (!empty($_FILES['logo_boutique']['name'])) {
+            $upload_logo = $this->upload_image($_FILES['logo_boutique']['tmp_name'], $_FILES['logo_boutique']['name']);
+            if ($upload_logo) {
+                $logo_boutique = 'attachments/Users/' . $upload_logo;
+            }
+        }
+        
+        $user = $this->db->get_where('utilisateurs', ['id_utilisateur' => $user_id])->row();
+        
+        if (!$user) {
+            echo json_encode(['success' => false, 'message' => 'Utilisateur non trouvé']);
+            return;
+        }
+        
+        $vendeur_data = [
+            'id_utilisateur' => $user_id,
+            'nom_boutique' => $nom_boutique,
+            'slug_boutique' => $slug,
+            'logo_boutique' => $logo_boutique,
+            'description' => $description,
+            'type_vendeur' => $type_vendeur,
+            'nom_entreprise' => !empty($nom_entreprise) ? $nom_entreprise : null,
+            'numero_nif' => !empty($numero_nif) ? $numero_nif : null,
+            'numero_rc' => !empty($numero_rc) ? $numero_rc : null,
+            'id_province' => $id_province,
+            'id_commune' => $id_commune,
+            'id_zone' => $id_zone,
+            'id_colline' => $id_colline,
+            'latitude' => !empty($latitude) ? $latitude : null,
+            'longitude' => !empty($longitude) ? $longitude : null,
+            'telephone' => $user->telephone,
+            'whatsapp' => !empty($whatsapp) ? $whatsapp : $user->telephone,
+            'taux_commission' => 10,
+            'delai_paiement_jours' => 7,
+            'est_approuve' => 0,
+            'statut' => 'en_attente',
+            'date_creation' => date('Y-m-d H:i:s')
+        ];
+        
+        $this->db->insert('vendeurs', $vendeur_data);
+        
+        if ($this->db->error()['code'] != 0) {
+            echo json_encode(['success' => false, 'message' => 'Erreur BDD (vendeurs): ' . $this->db->error()['message']]);
+            return;
+        }
+        
+        $vendeur_id = $this->db->insert_id();
+        
+        if (!$vendeur_id) {
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de la création de la boutique (insert_id vide)']);
+            return;
+        }
+        
+        if ($this->db->table_exists('soldes_vendeurs')) {
+            $this->db->insert('soldes_vendeurs', [
+                'id_vendeur' => $vendeur_id,
+                'solde_disponible' => 0,
+                'solde_en_attente' => 0,
+                'total_gagne' => 0,
+                'total_retire' => 0
+            ]);
+            if ($this->db->error()['code'] != 0) {
+                echo json_encode(['success' => false, 'message' => 'Erreur BDD (soldes_vendeurs): ' . $this->db->error()['message']]);
+                return;
+            }
+        }
+        
         $config_paiement = [
             'id_vendeur' => $vendeur_id,
             'methode_principale' => $methode_paiement,
@@ -1188,9 +1203,14 @@ public function save_complete_profile() {
             $config_paiement['nom_titulaire'] = $nom_titulaire;
         }
         
-        $this->db->insert('config_paiement_vendeur', $config_paiement);
+        if ($this->db->table_exists('config_paiement_vendeur')) {
+            $this->db->insert('config_paiement_vendeur', $config_paiement);
+            if ($this->db->error()['code'] != 0) {
+                echo json_encode(['success' => false, 'message' => 'Erreur BDD (config_paiement): ' . $this->db->error()['message']]);
+                return;
+            }
+        }
         
-        // Ajouter le profil vendeur à l'utilisateur
         $existing_profile = $this->db->get_where('utilisateur_profils', [
             'id_utilisateur' => $user_id,
             'id_profil' => 4
@@ -1203,19 +1223,25 @@ public function save_complete_profile() {
                 'attribue_par' => $user_id,
                 'date_attribution' => date('Y-m-d H:i:s')
             ]);
+            if ($this->db->error()['code'] != 0) {
+                echo json_encode(['success' => false, 'message' => 'Erreur BDD (profils): ' . $this->db->error()['message']]);
+                return;
+            }
         }
         
-        // Mettre à jour la session avec le rôle vendeur
         $this->session->set_userdata('role', 'vendeur');
         $this->session->set_userdata('id_profil', 4);
         
         echo json_encode([
-            'success' => true, 
+            'success' => true,
             'message' => 'Boutique créée avec succès ! Votre demande est en attente de validation.',
             'redirect_url' => base_url('User_dashboard')
         ]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Erreur lors de la création de la boutique']);
+        
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Erreur serveur: ' . $e->getMessage()]);
+    } catch (Throwable $e) {
+        echo json_encode(['success' => false, 'message' => 'Erreur PHP: ' . $e->getMessage()]);
     }
 }
 

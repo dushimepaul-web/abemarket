@@ -353,7 +353,15 @@ jQuery(document).ready(function($) {
                 if(r.success){Swal.fire({icon:'success',title:'Félicitations !',text:r.message,confirmButtonColor:'#ff6600',confirmButtonText:'OK'}).then(function(){window.location.href=r.redirect_url;});}
                 else{Swal.fire({icon:'error',title:'Erreur',text:r.message,confirmButtonColor:'#ff6600'});btn.prop('disabled',false).html('<i class="fas fa-check-circle"></i> Créer ma boutique');}
             },
-            error:function(){Swal.fire({icon:'error',title:'Erreur',text:'Une erreur est survenue. Veuillez réessayer.',confirmButtonColor:'#ff6600'});btn.prop('disabled',false).html('<i class="fas fa-check-circle"></i> Créer ma boutique');}
+            error:function(xhr){
+                var msg = 'Une erreur est survenue. Veuillez réessayer.';
+                try { var d = JSON.parse(xhr.responseText); if (d.message) msg = d.message; } catch(e) {}
+                if (xhr.status === 0) msg = 'Pas de connexion internet.';
+                else if (xhr.status === 303) msg = 'Session expirée. Reconnectez-vous.';
+                else if (xhr.status >= 400) msg = 'Erreur serveur (' + xhr.status + ').';
+                Swal.fire({icon:'error',title:'Erreur',text:msg,confirmButtonColor:'#ff6600'});
+                btn.prop('disabled',false).html('<i class="fas fa-check-circle"></i> Créer ma boutique');
+            }
         });
     });
 });
