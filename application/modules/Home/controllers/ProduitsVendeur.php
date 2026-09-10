@@ -39,7 +39,7 @@ class ProduitsVendeur extends MY_Controller
      */
     private function is_vendeur()
     {
-        $user_id = $this->session->userdata('user_id');
+        $user_id = $this->session->userdata('id_utilisateur');
         $vendeur = $this->db->select('*')
             ->from('vendeurs')
             ->where('id_utilisateur', $user_id)
@@ -56,7 +56,7 @@ class ProduitsVendeur extends MY_Controller
      */
     private function get_vendeur_id()
     {
-        $user_id = $this->session->userdata('user_id');
+        $user_id = $this->session->userdata('id_utilisateur');
         $vendeur = $this->db->select('id_vendeur')
             ->from('vendeurs')
             ->where('id_utilisateur', $user_id)

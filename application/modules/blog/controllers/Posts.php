@@ -50,7 +50,7 @@ class Posts extends MX_Controller {
         $slug = $this->Blog_model->generateSlug($this->input->post('title'));
         
         $post_data = [
-            'id_utilisateur' => $this->session->userdata('user_id'),
+            'id_utilisateur' => $this->session->userdata('id_utilisateur'),
             'id_categorie' => $this->input->post('id_categorie'),
             'title' => $this->input->post('title'),
             'slug' => $slug,

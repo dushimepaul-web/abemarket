@@ -417,8 +417,8 @@ public function saveContactMessage($data) {
     ];
     
     // Ajouter l'ID utilisateur si connecté
-    if ($this->session->userdata('user_id')) {
-        $insert_data['id_utilisateur'] = $this->session->userdata('user_id');
+    if ($this->session->userdata('id_utilisateur')) {
+        $insert_data['id_utilisateur'] = $this->session->userdata('id_utilisateur');
     }
     
     // Afficher la requête pour debug

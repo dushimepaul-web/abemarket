@@ -142,7 +142,7 @@
                             <h4>Mon compte</h4>
                         </div>
                         <ul class="footer-list">
-                            <?php if ($this->session->userdata('user_id')): ?>
+                            <?php if ($this->session->userdata('id_utilisateur')): ?>
                             <li><a href="<?= base_url('user/dashboard'); ?>">Mon compte</a></li>
                             <?php else: ?>
                             <li><a href="<?= base_url('auth/login_page'); ?>">Connexion</a></li>
@@ -301,8 +301,8 @@ $cart_items = [];
 $cart_subtotal = 0;
 $cart_total_items = 0;
 
-if ($this->session->userdata('user_id')) {
-    $user_id = $this->session->userdata('user_id');
+if ($this->session->userdata('id_utilisateur')) {
+    $user_id = $this->session->userdata('id_utilisateur');
     try {
         $cart_items = $this->Home_model->getCartItems($user_id);
         if (!empty($cart_items) && is_array($cart_items)) {
@@ -397,7 +397,7 @@ if ($this->session->userdata('user_id')) {
                         <use xlink:href="<?= base_url('assets/frontend/images/inner-page/empty-cart.svg#emptyCart'); ?>"></use>
                     </svg>
                     <h4>Votre panier est vide.</h4>
-                    <?php if(!($this->session->userdata('user_id'))): ?>
+                    <?php if(!($this->session->userdata('id_utilisateur'))): ?>
                     <p class="mt-3 text-muted">
                         <a href="<?= base_url('login'); ?>" class="text-primary">Connectez-vous</a> pour voir vos articles.
                     </p>
@@ -424,7 +424,7 @@ if ($this->session->userdata('user_id')) {
 <script>
 // Mise à jour dynamique du compteur de panier
 function updateCartCount() {
-    <?php if($this->session->userdata('user_id')): ?>
+    <?php if($this->session->userdata('id_utilisateur')): ?>
     $.ajax({
         url: '<?= base_url("cart/get_cart_count"); ?>',
         type: 'GET',
@@ -449,7 +449,7 @@ $(document).on('click', '.update-offcanvas-qty, .remove-offcanvas-item', functio
 
 // Initialiser le compteur au chargement de la page
 $(document).ready(function() {
-    <?php if($this->session->userdata('user_id') && $cart_total_items > 0): ?>
+    <?php if($this->session->userdata('id_utilisateur') && $cart_total_items > 0): ?>
     $('#cartCountBadge').text(<?= $cart_total_items ?>);
     <?php endif; ?>
 });
@@ -971,7 +971,7 @@ $(document).ready(function() {
         <div class="cart-product-box">
             <?php 
             // Récupération directe et sécurisée des données
-            $user_id = $this->session->userdata('user_id');
+            $user_id = $this->session->userdata('id_utilisateur');
             $wishlist_items = [];
             $wishlist_total = 0;
             
@@ -1653,7 +1653,7 @@ document.addEventListener('DOMContentLoaded', attachWishlistEvents);
 <script>
 // Base URL for AJAX calls
 var base_url = '<?= base_url(); ?>';
-var isLoggedIn = <?= $this->session->userdata('user_id') ? 'true' : 'false'; ?>;
+var isLoggedIn = <?= $this->session->userdata('id_utilisateur') ? 'true' : 'false'; ?>;
 
 // CSRF Security variables and functions
 var csrfName = <?= $this->config->item('csrf_protection') ? "'" . $this->security->get_csrf_token_name() . "'" : "null"; ?>;

@@ -24,7 +24,7 @@ class Payment extends MY_Controller {
     public function initialize() {
         $this->output->set_content_type('application/json');
 
-        if (!$this->session->userdata('user_id')) {
+        if (!$this->session->userdata('id_utilisateur')) {
             echo json_encode(['success' => false, 'message' => 'Non autorisé']);
             return;
         }
@@ -42,7 +42,7 @@ class Payment extends MY_Controller {
 
         // Récupérer la commande
         $order = $this->db->where('numero_commande', $numero_commande)
-            ->where('id_utilisateur', $this->session->userdata('user_id'))
+            ->where('id_utilisateur', $this->session->userdata('id_utilisateur'))
             ->get('commandes')->row_array();
 
         if (!$order) {
@@ -77,7 +77,7 @@ class Payment extends MY_Controller {
             'nom_complet'    => $nom_complet,
             'numero_commande' => $numero_commande,
             'payment_method' => $payment_method_code,
-            'id_utilisateur' => $this->session->userdata('user_id'),
+            'id_utilisateur' => $this->session->userdata('id_utilisateur'),
         ]);
 
         if ($result['success']) {
@@ -172,7 +172,7 @@ class Payment extends MY_Controller {
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
         $data['numero_commande'] = $numero_commande;
         
-        $user_id = $this->session->userdata('user_id');
+        $user_id = $this->session->userdata('id_utilisateur');
         
         if ($user_id) {
             $data['cart_count'] = $this->Home_model->getCartCount($user_id);

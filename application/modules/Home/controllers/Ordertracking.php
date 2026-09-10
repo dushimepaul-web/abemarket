@@ -117,7 +117,7 @@ class Ordertracking extends MY_Controller {
             return $this->output->set_output(json_encode(['success' => false, 'message' => 'Permission refusée']));
         }
         
-        $result = $this->Ordertracking_model->updateOrderStatus($id_commande, $nouveau_statut, $commentaire, $this->session->userdata('user_id'));
+        $result = $this->Ordertracking_model->updateOrderStatus($id_commande, $nouveau_statut, $commentaire, $this->session->userdata('id_utilisateur'));
         
         return $this->output->set_output(json_encode($result));
     }
@@ -138,7 +138,7 @@ class Ordertracking extends MY_Controller {
             return $this->output->set_output(json_encode(['success' => false, 'message' => 'Token QR manquant']));
         }
         
-        $result = $this->Ordertracking_model->confirmDeliveryByQR($token, $this->session->userdata('user_id'));
+        $result = $this->Ordertracking_model->confirmDeliveryByQR($token, $this->session->userdata('id_utilisateur'));
         
         return $this->output->set_output(json_encode($result));
     }
@@ -156,7 +156,7 @@ class Ordertracking extends MY_Controller {
      * Vérifie les droits d'accès
      */
     private function userCanViewCommande($id_utilisateur_commande) {
-        $user_id = $this->session->userdata('user_id');
+        $user_id = $this->session->userdata('id_utilisateur');
         if (!$user_id) {
             return false;
         }

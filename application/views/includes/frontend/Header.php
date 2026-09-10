@@ -110,7 +110,7 @@
 
 <body class="base-bg-color">
     <!-- Ajouter après l'ouverture de <body> -->
-<div class="user-logged" data-logged="<?= $this->session->userdata('user_id') ? 'true' : 'false' ?>" style="display:none;"></div>
+<div class="user-logged" data-logged="<?= $this->session->userdata('id_utilisateur') ? 'true' : 'false' ?>" style="display:none;"></div>
     
 
     <!-- Header Start -->
@@ -310,7 +310,7 @@ if ($isLoggedIn) {
 <!-- Panier -->
 <?php
 $hdr_cart_count = 0;
-if ($this->session->userdata('user_id')) {
+if ($this->session->userdata('id_utilisateur')) {
     $hdr_cart_count = $this->session->userdata('cart_count') ?? 0;
 } else {
     $guestCart = $this->session->userdata('guest_cart') ?: [];
@@ -354,7 +354,7 @@ if ($this->session->userdata('user_id')) {
                                 <li class="nav-item"><a class="nav-link" href="<?= base_url('sellers'); ?>">Vendeurs</a></li>
                                 <li class="nav-item"><a class="nav-link" href="<?= base_url('offres'); ?>">Promotions</a></li>
                                 <li class="nav-item"><a class="nav-link" href="<?= base_url('faq'); ?>">FAQ</a></li>
-                                <?php if (!$this->session->userdata('user_id')): ?>
+                                <?php if (!$this->session->userdata('id_utilisateur')): ?>
                                 <li class="nav-item d-xl-none"><a class="nav-link" href="<?= base_url('auth/login_page'); ?>">Connexion / Inscription</a></li>
                                 <?php endif; ?>
                             </ul>

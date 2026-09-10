@@ -40,7 +40,7 @@ class Home extends MY_Controller {
         // ========== VENDEURS ==========
         $data['featuredSellers'] = $this->Home_model->getFeaturedSellers(6);
 
-        $data['wishlist'] = $this->Home_model->getWishlist($this->session->userdata('user_id'));
+        $data['wishlist'] = $this->Home_model->getWishlist($this->session->userdata('id_utilisateur'));
         
         // ========== AVIS / TÉMOIGNAGES ==========
         $data['testimonials'] = $this->Home_model->getHomeTestimonials(6);
@@ -63,8 +63,8 @@ class Home extends MY_Controller {
         $data['cartItems'] = [];
         $data['user_profils'] = [];
         
-        if ($this->session->userdata('user_id')) {
-            $user_id = $this->session->userdata('user_id');
+        if ($this->session->userdata('id_utilisateur')) {
+            $user_id = $this->session->userdata('id_utilisateur');
             $data['cart_count'] = $this->Home_model->getCartCount($user_id);
             $data['wishlist_count'] = $this->Home_model->getWishlistCount($user_id);
             $data['cartItems'] = $this->Home_model->getCartItems($user_id);
@@ -139,10 +139,10 @@ public function category($slug) {
     // Sous-catégories pour le filtre sidebar
     $data['subcategories'] = $this->Home_model->getSubCategories($category['id_categorie']);
     
-    if ($this->session->userdata('user_id')) {
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+    if ($this->session->userdata('id_utilisateur')) {
+        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
     } else {
         $data['cart_count'] = 0;
         $data['wishlist_count'] = 0;
@@ -196,7 +196,7 @@ public function product($slug) {
     $data['seller'] = $this->Home_model->getSellerDetails($product['id_vendeur']);
     
     // Vérifier si l'utilisateur peut laisser un avis
-    $user_id = $this->session->userdata('user_id');
+    $user_id = $this->session->userdata('id_utilisateur');
     $data['hasPurchased'] = $this->Home_model->hasUserPurchasedProduct($user_id, $product['id_produit']);
     $data['hasReviewed'] = $this->Home_model->hasUserReviewedProduct($user_id, $product['id_produit']);
     
@@ -241,12 +241,12 @@ public function product($slug) {
  * Tableau de bord utilisateur
  */
 public function user_dashboard() {
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         redirect('auth/login');
         return;
     }
     
-    $user_id = $this->session->userdata('user_id');
+    $user_id = $this->session->userdata('id_utilisateur');
     
     $data['settings'] = $this->Home_model->getSiteSettings();
     $data['main_categories'] = $this->Home_model->getMainCategories();
@@ -283,13 +283,13 @@ public function user_dashboard() {
  */
 public function ajax_change_email() {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
     }
     
     $new_email = $this->input->post('email', TRUE);
-    $user_id = $this->session->userdata('user_id');
+    $user_id = $this->session->userdata('id_utilisateur');
     
     if (!filter_var($new_email, FILTER_VALIDATE_EMAIL)) {
         echo json_encode(['success' => false, 'message' => 'Email invalide']);
@@ -318,7 +318,7 @@ public function ajax_change_email() {
  */
 public function ajax_change_password() {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
     }
@@ -326,7 +326,7 @@ public function ajax_change_password() {
     $old_password = $this->input->post('old_password', TRUE);
     $new_password = $this->input->post('new_password', TRUE);
     $confirm_password = $this->input->post('confirm_password', TRUE);
-    $user_id = $this->session->userdata('user_id');
+    $user_id = $this->session->userdata('id_utilisateur');
     
     // Vérifier ancien mot de passe
     $user = $this->db->select('mot_de_passe')
@@ -367,12 +367,12 @@ public function ajax_change_password() {
  */
 public function ajax_update_profile() {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
     }
     
-    $user_id = $this->session->userdata('user_id');
+    $user_id = $this->session->userdata('id_utilisateur');
     $data = [
         'prenom' => $this->input->post('prenom', TRUE),
         'nom' => $this->input->post('nom', TRUE),
@@ -389,12 +389,12 @@ public function ajax_update_profile() {
  */
 public function ajax_add_address() {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
     }
     
-    $user_id = $this->session->userdata('user_id');
+    $user_id = $this->session->userdata('id_utilisateur');
     
     $data = [
         'id_utilisateur' => $user_id,
@@ -428,12 +428,12 @@ public function ajax_add_address() {
  */
 public function ajax_delete_address($id) {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
     }
     
-    $user_id = $this->session->userdata('user_id');
+    $user_id = $this->session->userdata('id_utilisateur');
     
     $result = $this->db->where('id_adresse', $id)
                        ->where('id_utilisateur', $user_id)
@@ -547,10 +547,10 @@ public function ajax_delete_address($id) {
     $data['testimonials'] = $this->Home_model->getTestimonials();
     
     // Gestion du panier
-    if ($this->session->userdata('user_id')) {
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+    if ($this->session->userdata('id_utilisateur')) {
+        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
     } else {
         $data['cart_count'] = 0;
         $data['wishlist_count'] = 0;
@@ -570,10 +570,10 @@ public function ajax_delete_address($id) {
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
         $data['articles'] = $this->Home_model->getBlogPosts(10);
         
-        if ($this->session->userdata('user_id')) {
-            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        if ($this->session->userdata('id_utilisateur')) {
+            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         } else {
             $data['cart_count'] = 0;
             $data['wishlist_count'] = 0;
@@ -593,10 +593,10 @@ public function ajax_delete_address($id) {
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
         $data['promotions'] = $this->Home_model->getFlashSaleProducts(20);
         
-        if ($this->session->userdata('user_id')) {
-            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        if ($this->session->userdata('id_utilisateur')) {
+            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         } else {
             $data['cart_count'] = 0;
             $data['wishlist_count'] = 0;
@@ -617,10 +617,10 @@ public function ajax_delete_address($id) {
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
         $data['faqs'] = $this->Home_model->getFaqs();
         
-        if ($this->session->userdata('user_id')) {
-            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        if ($this->session->userdata('id_utilisateur')) {
+            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         } else {
             $data['cart_count'] = 0;
             $data['wishlist_count'] = 0;
@@ -645,10 +645,10 @@ public function ajax_delete_address($id) {
     $data['contact_sujets'] = $this->Home_model->getContactSujets();
     
     // Gestion du panier
-    if ($this->session->userdata('user_id')) {
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+    if ($this->session->userdata('id_utilisateur')) {
+        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
     } else {
         $data['cart_count'] = 0;
         $data['wishlist_count'] = 0;
@@ -723,10 +723,10 @@ public function ajax_delete_address($id) {
             $data['products'] = [];
         }
         
-        if ($this->session->userdata('user_id')) {
-            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        if ($this->session->userdata('id_utilisateur')) {
+            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         } else {
             $data['cart_count'] = 0;
             $data['wishlist_count'] = 0;
@@ -741,7 +741,7 @@ public function ajax_delete_address($id) {
      * Page de suivi de commande
      */
     public function order_tracking() {
-        if (!$this->session->userdata('user_id')) {
+        if (!$this->session->userdata('id_utilisateur')) {
             redirect('auth/login');
             return;
         }
@@ -749,10 +749,10 @@ public function ajax_delete_address($id) {
         $data['settings'] = $this->Home_model->getSiteSettings();
         $data['main_categories'] = $this->Home_model->getMainCategories();
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
-        $data['orders'] = $this->Home_model->getUserOrders($this->session->userdata('user_id'));
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        $data['orders'] = $this->Home_model->getUserOrders($this->session->userdata('id_utilisateur'));
+        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         
         $data['meta_title'] = 'Suivi de commande - ' . ($data['settings']['site_name'] ?? 'AbeMarket');
         $this->render('order_tracking_view', $data);
@@ -828,8 +828,8 @@ public function shop() {
     $data['totalPages'] = ceil($data['totalProducts'] / $perPage);
     
     // Données utilisateur
-    if ($this->session->userdata('user_id')) {
-        $user_id = $this->session->userdata('user_id');
+    if ($this->session->userdata('id_utilisateur')) {
+        $user_id = $this->session->userdata('id_utilisateur');
         $data['cart_count'] = $this->Home_model->getCartCount($user_id);
         $data['wishlist_count'] = $this->Home_model->getWishlistCount($user_id);
         $data['user_profils'] = $this->Home_model->getUserProfils($user_id);
@@ -911,8 +911,8 @@ public function ajax_filter_products() {
  * AJAX - Récupérer le nombre d'articles dans le panier
  */
 public function getCartCount() {
-    if ($this->session->userdata('user_id')) {
-        $count = $this->Home_model->getCartCount($this->session->userdata('user_id'));
+    if ($this->session->userdata('id_utilisateur')) {
+        $count = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
     } else {
         $guestCart = $this->session->userdata('guest_cart') ?: [];
         $count = 0;
@@ -927,8 +927,8 @@ public function getCartCount() {
  * AJAX - Récupérer le nombre d'articles dans la wishlist
  */
 public function getWishlistCount() {
-    if ($this->session->userdata('user_id')) {
-        $count = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
+    if ($this->session->userdata('id_utilisateur')) {
+        $count = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
     } else {
         $count = 0;
     }
@@ -967,10 +967,10 @@ public function getWishlistCount() {
     $data['stats'] = $this->Home_model->getHomeStats();
     
     // Session
-    if ($this->session->userdata('user_id')) {
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+    if ($this->session->userdata('id_utilisateur')) {
+        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
     } else {
         $data['cart_count'] = 0;
         $data['wishlist_count'] = 0;
@@ -1036,12 +1036,12 @@ public function seller($slug) {
     $data['seller'] = $seller;
     
     // Session
-    if ($this->session->userdata('user_id')) {
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+    if ($this->session->userdata('id_utilisateur')) {
+        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         // Récupérer les IDs des produits dans la wishlist
-        $data['wishlist_ids'] = $this->Home_model->getUserWishlistIds($this->session->userdata('user_id'));
+        $data['wishlist_ids'] = $this->Home_model->getUserWishlistIds($this->session->userdata('id_utilisateur'));
     } else {
         $data['cart_count'] = 0;
         $data['wishlist_count'] = 0;
@@ -1089,14 +1089,14 @@ public function seller($slug) {
         }
         
         // Utilisateur connecté → panier en BDD
-        if ($this->session->userdata('user_id')) {
+        if ($this->session->userdata('id_utilisateur')) {
             $result = $this->Home_model->addToCart(
-                $this->session->userdata('user_id'),
+                $this->session->userdata('id_utilisateur'),
                 $productId,
                 $variantId,
                 $quantity
             );
-            $cartCount = $this->Home_model->getCartCount($this->session->userdata('user_id'));
+            $cartCount = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
         } else {
             // Visiteur → panier en session
             $guestCart = $this->session->userdata('guest_cart') ?: [];
@@ -1135,7 +1135,7 @@ public function seller($slug) {
      * Met à jour la quantité dans le panier (AJAX)
      */
     public function updateCart() {
-        if (!$this->session->userdata('user_id')) {
+        if (!$this->session->userdata('id_utilisateur')) {
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode(['success' => false, 'message' => 'Veuillez vous connecter']));
@@ -1159,7 +1159,7 @@ public function seller($slug) {
      * Supprime un produit du panier (AJAX)
      */
     public function removeFromCart() {
-        if (!$this->session->userdata('user_id')) {
+        if (!$this->session->userdata('id_utilisateur')) {
             $this->output
                 ->set_content_type('application/json')
                 ->set_output(json_encode(['success' => false, 'message' => 'Veuillez vous connecter']));
@@ -1169,7 +1169,7 @@ public function seller($slug) {
         $cartId = $this->input->post('cart_id', TRUE);
         $result = $this->Home_model->removeFromCart($cartId);
         
-        $cartCount = $this->Home_model->getCartCount($this->session->userdata('user_id'));
+        $cartCount = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
         
         $this->output
             ->set_content_type('application/json')
@@ -1186,9 +1186,9 @@ public function seller($slug) {
     public function addToWishlist() {
         $productId = $this->input->post('product_id', TRUE);
         
-        if ($this->session->userdata('user_id')) {
-            $result = $this->Home_model->addToWishlist($this->session->userdata('user_id'), $productId);
-            $count = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
+        if ($this->session->userdata('id_utilisateur')) {
+            $result = $this->Home_model->addToWishlist($this->session->userdata('id_utilisateur'), $productId);
+            $count = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
         } else {
             $guestWishlist = $this->session->userdata('guest_wishlist') ?: [];
             if (in_array($productId, $guestWishlist)) {
@@ -1216,9 +1216,9 @@ public function seller($slug) {
     public function removeFromWishlist() {
         $productId = $this->input->post('product_id', TRUE);
         
-        if ($this->session->userdata('user_id')) {
-            $result = $this->Home_model->removeFromWishlist($this->session->userdata('user_id'), $productId);
-            $count = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
+        if ($this->session->userdata('id_utilisateur')) {
+            $result = $this->Home_model->removeFromWishlist($this->session->userdata('id_utilisateur'), $productId);
+            $count = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
         } else {
             $guestWishlist = $this->session->userdata('guest_wishlist') ?: [];
             $guestWishlist = array_values(array_filter($guestWishlist, function($id) use ($productId) {
@@ -1245,10 +1245,10 @@ public function seller($slug) {
         $data['settings'] = $this->Home_model->getSiteSettings();
         $data['main_categories'] = $this->Home_model->getMainCategories();
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
-        $data['wishlist'] = $this->Home_model->getWishlist($this->session->userdata('user_id'));
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        $data['wishlist'] = $this->Home_model->getWishlist($this->session->userdata('id_utilisateur'));
+        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         
         $data['meta_title'] = 'Ma liste de souhaits - ' . ($data['settings']['site_name'] ?? 'AbeMarket');
         $this->render('wishlist_view', $data);
@@ -1263,12 +1263,12 @@ public function seller($slug) {
         $data['main_categories'] = $this->Home_model->getMainCategories();
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
         
-        if ($this->session->userdata('user_id')) {
+        if ($this->session->userdata('id_utilisateur')) {
             // Utilisateur connecté → panier BDD
-            $data['cartItems'] = $this->Home_model->getCartItems($this->session->userdata('user_id'));
-            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+            $data['cartItems'] = $this->Home_model->getCartItems($this->session->userdata('id_utilisateur'));
+            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         } else {
             // Visiteur → panier session
             $guestCart = $this->session->userdata('guest_cart') ?: [];
@@ -1302,7 +1302,7 @@ public function seller($slug) {
             $data['user_profils'] = [];
         }
         
-        $data['is_guest'] = !$this->session->userdata('user_id');
+        $data['is_guest'] = !$this->session->userdata('id_utilisateur');
         
         // Calculer le total
         $data['subtotal'] = 0;
@@ -1320,7 +1320,7 @@ public function seller($slug) {
      * Page de checkout
      */
     public function checkout() {
-        if (!$this->session->userdata('user_id')) {
+        if (!$this->session->userdata('id_utilisateur')) {
             redirect('auth/login');
             return;
         }
@@ -1328,7 +1328,7 @@ public function seller($slug) {
         $data['settings'] = $this->Home_model->getSiteSettings();
         $data['main_categories'] = $this->Home_model->getMainCategories();
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
-        $data['cartItems'] = $this->Home_model->getCartItems($this->session->userdata('user_id'));
+        $data['cartItems'] = $this->Home_model->getCartItems($this->session->userdata('id_utilisateur'));
         
         if (empty($data['cartItems'])) {
             redirect('home/cart');
@@ -1349,9 +1349,9 @@ public function seller($slug) {
         // Récupérer les provinces pour l'adresse
         $data['provinces'] = $this->Home_model->getProvinces();
         
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         
         $data['meta_title'] = 'Validation de commande - ' . ($data['settings']['site_name'] ?? 'AbeMarket');
         $this->render('checkout_view', $data);
@@ -1361,7 +1361,7 @@ public function seller($slug) {
      * Traite la commande
      */
     public function processOrder() {
-        if (!$this->session->userdata('user_id')) {
+        if (!$this->session->userdata('id_utilisateur')) {
             redirect('auth/login');
             return;
         }
@@ -1385,7 +1385,7 @@ public function seller($slug) {
         }
         
         // Récupérer les articles du panier
-        $cartItems = $this->Home_model->getCartItems($this->session->userdata('user_id'));
+        $cartItems = $this->Home_model->getCartItems($this->session->userdata('id_utilisateur'));
         
         if (empty($cartItems)) {
             $this->session->set_flashdata('error', 'Votre panier est vide');
@@ -1415,7 +1415,7 @@ public function seller($slug) {
         // Préparer les données de la commande
         $orderData = [
             'numero_commande' => $numero_commande,
-            'id_utilisateur' => $this->session->userdata('user_id'),
+            'id_utilisateur' => $this->session->userdata('id_utilisateur'),
             'sous_total' => $subtotal,
             'frais_livraison' => $frais_livraison,
             'montant_total' => $total,
@@ -1428,7 +1428,7 @@ public function seller($slug) {
         
         // Insérer la commande
         $addressData = [
-            'id_utilisateur' => $this->session->userdata('user_id'),
+            'id_utilisateur' => $this->session->userdata('id_utilisateur'),
             'type_adresse' => 'domicile',
             'nom_complet' => $this->input->post('nom_complet', TRUE),
             'telephone' => $this->input->post('telephone', TRUE),
@@ -1445,7 +1445,7 @@ public function seller($slug) {
         ];
         $paymentData = [
             'reference_interne' => $reference_transaction,
-            'id_utilisateur' => $this->session->userdata('user_id'),
+            'id_utilisateur' => $this->session->userdata('id_utilisateur'),
             'id_mode_payement' => $paymentMethod['id_mode_payement'],
             'type_transaction' => 'paiement',
             'montant' => $total,
@@ -1471,7 +1471,7 @@ public function seller($slug) {
         }
         
         // Vider le panier
-        $this->Home_model->clearCart($this->session->userdata('user_id'));
+        $this->Home_model->clearCart($this->session->userdata('id_utilisateur'));
         
         // Rediriger vers la page de succès
         $this->session->set_flashdata('success', 'Votre commande a été enregistrée avec succès. Numéro: ' . $numero_commande);
@@ -1482,7 +1482,7 @@ public function seller($slug) {
      * Page de succès de commande
      */
     public function payment_pending($reference) {
-        if (!$this->session->userdata('user_id')) {
+        if (!$this->session->userdata('id_utilisateur')) {
             redirect('auth/login');
             return;
         }
@@ -1491,7 +1491,7 @@ public function seller($slug) {
             ->join('commandes c', 'c.id_commande = t.id_commande')
             ->join('mode_payement mp', 'mp.id_mode_payement = t.id_mode_payement')
             ->where('t.reference_interne', $reference)
-            ->where('t.id_utilisateur', $this->session->userdata('user_id'))
+            ->where('t.id_utilisateur', $this->session->userdata('id_utilisateur'))
             ->get()->row_array();
         if (!$data['payment']) {
             show_404();
@@ -1502,7 +1502,7 @@ public function seller($slug) {
     }
 
     public function submit_payment_reference() {
-        if (!$this->session->userdata('user_id')) {
+        if (!$this->session->userdata('id_utilisateur')) {
             redirect('auth/login');
             return;
         }
@@ -1510,7 +1510,7 @@ public function seller($slug) {
         $operatorReference = trim($this->input->post('reference_operateur', TRUE));
         $updated = !empty($reference) && !empty($operatorReference) && $this->db
             ->where('reference_interne', $reference)
-            ->where('id_utilisateur', $this->session->userdata('user_id'))
+            ->where('id_utilisateur', $this->session->userdata('id_utilisateur'))
             ->where_in('statut', ['initie', 'en_attente'])
             ->update('transactions_paiement', [
                 'reference_operateur' => $operatorReference,
@@ -1527,10 +1527,10 @@ public function seller($slug) {
         $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
         $data['numero_commande'] = $numero_commande;
         
-        if ($this->session->userdata('user_id')) {
-            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        if ($this->session->userdata('id_utilisateur')) {
+            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         } else {
             $data['cart_count'] = 0;
             $data['wishlist_count'] = 0;
@@ -1590,10 +1590,10 @@ public function privacy_policy() {
     $data['main_categories'] = $this->Home_model->getMainCategories();
     $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
     
-    if ($this->session->userdata('user_id')) {
-        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
-        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
-        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+    if ($this->session->userdata('id_utilisateur')) {
+        $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
+        $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
+        $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
     } else {
         $data['cart_count'] = 0;
         $data['wishlist_count'] = 0;
@@ -1622,20 +1622,20 @@ public function privacy_policy() {
             $data['categories_with_sub'] = $this->Home_model->getCategoriesWithSub();
         }
         
-        if (!isset($data['cart_count']) && $this->session->userdata('user_id')) {
-            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('user_id'));
+        if (!isset($data['cart_count']) && $this->session->userdata('id_utilisateur')) {
+            $data['cart_count'] = $this->Home_model->getCartCount($this->session->userdata('id_utilisateur'));
         } elseif (!isset($data['cart_count'])) {
             $data['cart_count'] = 0;
         }
         
-        if (!isset($data['wishlist_count']) && $this->session->userdata('user_id')) {
-            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('user_id'));
+        if (!isset($data['wishlist_count']) && $this->session->userdata('id_utilisateur')) {
+            $data['wishlist_count'] = $this->Home_model->getWishlistCount($this->session->userdata('id_utilisateur'));
         } elseif (!isset($data['wishlist_count'])) {
             $data['wishlist_count'] = 0;
         }
         
-        if (!isset($data['user_profils']) && $this->session->userdata('user_id')) {
-            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('user_id'));
+        if (!isset($data['user_profils']) && $this->session->userdata('id_utilisateur')) {
+            $data['user_profils'] = $this->Home_model->getUserProfils($this->session->userdata('id_utilisateur'));
         } elseif (!isset($data['user_profils'])) {
             $data['user_profils'] = [];
         }
@@ -1696,12 +1696,12 @@ public function privacy_policy() {
  */
 public function getWishlistOffcanvas() {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         echo json_encode(['success' => false, 'message' => 'Non connecté']);
         return;
     }
     
-    $userId = $this->session->userdata('user_id');
+    $userId = $this->session->userdata('id_utilisateur');
     $wishlist = $this->Home_model->getWishlistWithDetails($userId);
     $count = $this->Home_model->getWishlistCount($userId);
     
@@ -1777,13 +1777,13 @@ private function generateStarRating($rating) {
  */
 public function moveToCartFromWishlist() {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         echo json_encode(['success' => false, 'message' => 'Veuillez vous connecter']);
         return;
     }
     
     $productId = $this->input->post('product_id', TRUE);
-    $userId = $this->session->userdata('user_id');
+    $userId = $this->session->userdata('id_utilisateur');
     
     $cartResult = $this->Home_model->addToCart($userId, $productId, null, 1);
     $this->Home_model->removeFromWishlist($userId, $productId);
@@ -1801,13 +1801,13 @@ public function moveToCartFromWishlist() {
  */
 public function removeFromWishlistAjax() {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         echo json_encode(['success' => false, 'message' => 'Veuillez vous connecter']);
         return;
     }
     
     $productId = $this->input->post('product_id', TRUE);
-    $userId = $this->session->userdata('user_id');
+    $userId = $this->session->userdata('id_utilisateur');
     
     $result = $this->Home_model->removeFromWishlist($userId, $productId);
     
@@ -1823,12 +1823,12 @@ public function removeFromWishlistAjax() {
  */
 public function getUserWishlistIds() {
     $this->output->set_content_type('application/json');
-    if (!$this->session->userdata('user_id')) {
+    if (!$this->session->userdata('id_utilisateur')) {
         echo json_encode(['success' => false, 'wishlist_ids' => []]);
         return;
     }
     
-    $userId = $this->session->userdata('user_id');
+    $userId = $this->session->userdata('id_utilisateur');
     $wishlist = $this->Home_model->getWishlistWithDetails($userId);
     $ids = array_column($wishlist, 'id_produit');
     
@@ -1850,8 +1850,8 @@ public function applyCoupon() {
     }
     
     $subtotal = 0;
-    if ($this->session->userdata('user_id')) {
-        $cartItems = $this->Home_model->getCartItems($this->session->userdata('user_id'));
+    if ($this->session->userdata('id_utilisateur')) {
+        $cartItems = $this->Home_model->getCartItems($this->session->userdata('id_utilisateur'));
         foreach ($cartItems as $item) {
             $subtotal += $item['sous_total'];
         }
@@ -1874,8 +1874,8 @@ public function refreshCartOffcanvas() {
     $cart_subtotal = 0;
     $cart_total_items = 0;
 
-    if ($this->session->userdata('user_id')) {
-        $user_id = $this->session->userdata('user_id');
+    if ($this->session->userdata('id_utilisateur')) {
+        $user_id = $this->session->userdata('id_utilisateur');
         $cart_items = $this->Home_model->getCartItems($user_id);
         if (!empty($cart_items)) {
             foreach ($cart_items as $item) {
