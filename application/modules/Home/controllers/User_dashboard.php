@@ -1168,6 +1168,236 @@ public function ajax_update_boutique() {
              ->set_output(json_encode(['success' => true, 'data' => $stats]));
     }
     
+    // ═══════════════════════════════════════════════
+    // GESTION DES IMAGES (VENDEUR)
+    // ═══════════════════════════════════════════════
+    
+    public function ajax_get_images() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        $product_id = $this->input->get('product_id');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $vendeur_id = $this->UserModel->get_vendeur_id($user_id);
+        $produit = $this->db->where('id_produit', $product_id)->where('id_vendeur', $vendeur_id)->get('produits')->row_array();
+        if (!$produit) { echo json_encode(['success' => false, 'message' => 'Produit non trouvé']); return; }
+        
+        $images = $this->db->where('id_produit', $product_id)->order_by('est_principale', 'DESC')->order_by('ordre_affichage', 'ASC')->get('images_produit')->result_array();
+        
+        echo json_encode(['success' => true, 'images' => $images, 'product' => ['id' => $produit['id_produit'], 'name' => $produit['nom_produit']]]);
+    }
+    
+    public function ajax_upload_image() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $product_id = $this->input->post('product_id');
+        $vendeur_id = $this->UserModel->get_vendeur_id($user_id);
+        $produit = $this->db->where('id_produit', $product_id)->where('id_vendeur', $vendeur_id)->get('produits')->row_array();
+        if (!$produit) { echo json_encode(['success' => false, 'message' => 'Produit non trouvé']); return; }
+        
+        $config['upload_path'] = './uploads/produits/';
+        $config['allowed_types'] = 'gif|jpg|png|jpeg|webp';
+        $config['max_size'] = 4096;
+        $config['encrypt_name'] = true;
+        if (!is_dir($config['upload_path'])) mkdir($config['upload_path'], 0777, true);
+        $this->load->library('upload', $config);
+        
+        $existing_count = $this->db->where('id_produit', $product_id)->count_all_results('images_produit');
+        $uploaded = 0;
+        
+        if (!empty($_FILES['images']['name'][0])) {
+            $file_count = count($_FILES['images']['name']);
+            for ($i = 0; $i < $file_count; $i++) {
+                $_FILES['image_file']['name'] = $_FILES['images']['name'][$i];
+                $_FILES['image_file']['type'] = $_FILES['images']['type'][$i];
+                $_FILES['image_file']['tmp_name'] = $_FILES['images']['tmp_name'][$i];
+                $_FILES['image_file']['error'] = $_FILES['images']['error'][$i];
+                $_FILES['image_file']['size'] = $_FILES['images']['size'][$i];
+                
+                if ($this->upload->do_upload('image_file')) {
+                    $upload_data = $this->upload->data();
+                    $this->db->insert('images_produit', [
+                        'id_produit' => $product_id,
+                        'url_image' => 'uploads/produits/' . $upload_data['file_name'],
+                        'est_principale' => ($existing_count === 0 && $uploaded === 0) ? 1 : 0,
+                        'ordre_affichage' => $existing_count + $uploaded + 1
+                    ]);
+                    $uploaded++;
+                }
+            }
+        }
+        
+        echo json_encode(['success' => $uploaded > 0, 'message' => "$uploaded image(s) uploadée(s)", 'uploaded' => $uploaded]);
+    }
+    
+    public function ajax_delete_image() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        $image_id = $this->input->post('image_id');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $image = $this->db->where('id_image', $image_id)->get('images_produit')->row_array();
+        if (!$image) { echo json_encode(['success' => false, 'message' => 'Image non trouvée']); return; }
+        
+        $produit = $this->db->where('id_produit', $image['id_produit'])->where('id_vendeur', $this->UserModel->get_vendeur_id($user_id))->get('produits')->row_array();
+        if (!$produit) { echo json_encode(['success' => false, 'message' => 'Accès non autorisé']); return; }
+        
+        $file_path = FCPATH . $image['url_image'];
+        if (!empty($image['url_image']) && file_exists($file_path)) unlink($file_path);
+        
+        $was_main = $image['est_principale'];
+        $this->db->where('id_image', $image_id)->delete('images_produit');
+        
+        if ($was_main) {
+            $first = $this->db->where('id_produit', $image['id_produit'])->order_by('ordre_affichage', 'ASC')->limit(1)->get('images_produit')->row_array();
+            if ($first) $this->db->where('id_image', $first['id_image'])->update('images_produit', ['est_principale' => 1]);
+        }
+        
+        echo json_encode(['success' => true, 'message' => 'Image supprimée']);
+    }
+    
+    public function ajax_set_main_image() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        $image_id = $this->input->post('image_id');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $image = $this->db->where('id_image', $image_id)->get('images_produit')->row_array();
+        if (!$image) { echo json_encode(['success' => false, 'message' => 'Image non trouvée']); return; }
+        
+        $produit = $this->db->where('id_produit', $image['id_produit'])->where('id_vendeur', $this->UserModel->get_vendeur_id($user_id))->get('produits')->row_array();
+        if (!$produit) { echo json_encode(['success' => false, 'message' => 'Accès non autorisé']); return; }
+        
+        $this->db->where('id_produit', $image['id_produit'])->update('images_produit', ['est_principale' => 0]);
+        $this->db->where('id_image', $image_id)->update('images_produit', ['est_principale' => 1]);
+        
+        echo json_encode(['success' => true, 'message' => 'Image principale définie']);
+    }
+    
+    // ═══════════════════════════════════════════════
+    // GESTION DES VARIANTES (VENDEUR)
+    // ═══════════════════════════════════════════════
+    
+    public function ajax_get_variantes() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        $product_id = $this->input->get('product_id');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $vendeur_id = $this->UserModel->get_vendeur_id($user_id);
+        $produit = $this->db->where('id_produit', $product_id)->where('id_vendeur', $vendeur_id)->get('produits')->row_array();
+        if (!$produit) { echo json_encode(['success' => false, 'message' => 'Produit non trouvé']); return; }
+        
+        $variantes = $this->db->where('id_produit', $product_id)->get('variantes_produit')->result_array();
+        foreach ($variantes as &$v) {
+            $v['attributs'] = json_decode($v['attributs_variante'], true) ?: [];
+        }
+        
+        echo json_encode(['success' => true, 'variantes' => $variantes, 'product' => ['id' => $produit['id_produit'], 'name' => $produit['nom_produit']]]);
+    }
+    
+    public function ajax_add_variante() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $product_id = $this->input->post('product_id');
+        $vendeur_id = $this->UserModel->get_vendeur_id($user_id);
+        $produit = $this->db->where('id_produit', $product_id)->where('id_vendeur', $vendeur_id)->get('produits')->row_array();
+        if (!$produit) { echo json_encode(['success' => false, 'message' => 'Produit non trouvé']); return; }
+        
+        $attributs = $this->input->post('attributs');
+        $sku = $this->input->post('sku') ?: 'VAR' . time() . rand(100, 999);
+        
+        $this->db->insert('variantes_produit', [
+            'id_produit' => $product_id,
+            'sku' => $sku,
+            'attributs_variante' => is_array($attributs) ? json_encode($attributs) : $attributs,
+            'prix' => $this->input->post('prix') ?: null,
+            'quantite_actuelle' => $this->input->post('quantite_actuelle') ?: 0,
+            'est_actif' => 1
+        ]);
+        
+        $variante_id = $this->db->insert_id();
+        echo json_encode(['success' => (bool)$variante_id, 'message' => $variante_id ? 'Variante ajoutée' : 'Erreur']);
+    }
+    
+    public function ajax_edit_variante() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $variante_id = $this->input->post('variante_id');
+        $vendeur_id = $this->UserModel->get_vendeur_id($user_id);
+        
+        $variante = $this->db->where('id_variante', $variante_id)->get('variantes_produit')->row_array();
+        if (!$variante) { echo json_encode(['success' => false, 'message' => 'Variante non trouvée']); return; }
+        
+        $produit = $this->db->where('id_produit', $variante['id_produit'])->where('id_vendeur', $vendeur_id)->get('produits')->row_array();
+        if (!$produit) { echo json_encode(['success' => false, 'message' => 'Accès non autorisé']); return; }
+        
+        $attributs = $this->input->post('attributs');
+        $update = [
+            'sku' => $this->input->post('sku') ?: $variante['sku'],
+            'prix' => $this->input->post('prix') ?: $variante['prix'],
+            'quantite_actuelle' => $this->input->post('quantite_actuelle') !== null ? $this->input->post('quantite_actuelle') : $variante['quantite_actuelle'],
+        ];
+        if ($attributs) $update['attributs_variante'] = is_array($attributs) ? json_encode($attributs) : $attributs;
+        
+        $this->db->where('id_variante', $variante_id)->update('variantes_produit', $update);
+        echo json_encode(['success' => true, 'message' => 'Variante modifiée']);
+    }
+    
+    public function ajax_delete_variante() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        $variante_id = $this->input->post('variante_id');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $variante = $this->db->where('id_variante', $variante_id)->get('variantes_produit')->row_array();
+        if (!$variante) { echo json_encode(['success' => false, 'message' => 'Variante non trouvée']); return; }
+        
+        $produit = $this->db->where('id_produit', $variante['id_produit'])->where('id_vendeur', $this->UserModel->get_vendeur_id($user_id))->get('produits')->row_array();
+        if (!$produit) { echo json_encode(['success' => false, 'message' => 'Accès non autorisé']); return; }
+        
+        $this->db->where('id_variante', $variante_id)->delete('variantes_produit');
+        echo json_encode(['success' => true, 'message' => 'Variante supprimée']);
+    }
+    
     /**
      * Déconnexion
      */

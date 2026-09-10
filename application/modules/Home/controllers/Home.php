@@ -1373,7 +1373,6 @@ public function seller($slug) {
         $this->form_validation->set_rules('telephone', 'Téléphone', 'required');
         $this->form_validation->set_rules('province', 'Province', 'required');
         $this->form_validation->set_rules('commune', 'Commune', 'required');
-        $this->form_validation->set_rules('quartier', 'Quartier', 'required');
         $this->form_validation->set_rules('zone', 'Zone', 'required');
         $this->form_validation->set_rules('colline', 'Colline', 'required');
         $this->form_validation->set_rules('adresse', 'Adresse', 'required');
@@ -1434,7 +1433,6 @@ public function seller($slug) {
             'telephone' => $this->input->post('telephone', TRUE),
             'id_province' => $this->input->post('province', TRUE),
             'id_commune' => $this->input->post('commune', TRUE),
-            'id_quartier' => $this->input->post('quartier', TRUE),
             'id_zone' => $this->input->post('zone', TRUE),
             'id_colline' => $this->input->post('colline', TRUE),
             'adresse_ligne' => $this->input->post('adresse', TRUE),

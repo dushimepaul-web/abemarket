@@ -961,6 +961,12 @@
                 <button class="abe-nav-btn" data-tab="tab-add-product">
                     <i class="ri-add-circle-line"></i> Ajouter Produit
                 </button>
+                <button class="abe-nav-btn" id="nav-images" onclick="openImagesManager()">
+                    <i class="ri-image-line"></i> Mes Images
+                </button>
+                <button class="abe-nav-btn" id="nav-variantes" onclick="openVariantesManager()">
+                    <i class="ri-stack-line"></i> Mes Variantes
+                </button>
                 <button class="abe-nav-btn" data-tab="tab-seller-orders">
                     <i class="ri-receipt-line"></i> Commandes reçues
                     <?php if (!empty($stats['commandes_recues'])): ?>
@@ -1976,6 +1982,62 @@
     </div>
 </div>
 
+<!-- Modal: Gestion Images -->
+<div class="modal fade" id="imagesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border:none;border-radius:var(--radius);box-shadow:var(--shadow-md);">
+            <div class="modal-header" style="border-bottom:1px solid var(--border);padding:18px 24px;">
+                <h5 class="modal-title" style="font-family:'Syne',sans-serif;font-weight:700;color:var(--primary);"><i class="ri-image-line"></i> Gestion des images — <span id="imagesProductName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding:20px 24px;">
+                <div style="margin-bottom:16px;">
+                    <label class="abe-btn abe-btn-accent" style="cursor:pointer;">
+                        <i class="ri-upload-cloud-line"></i> Ajouter des images
+                        <input type="file" id="imagesUploadInput" multiple accept="image/*" style="display:none;" onchange="uploadImages()">
+                    </label>
+                    <small style="color:var(--muted);margin-left:10px;">JPG, PNG, WEBP — max 4MB</small>
+                </div>
+                <div id="imagesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">
+                    <div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1;">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Gestion Variantes -->
+<div class="modal fade" id="variantesModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border:none;border-radius:var(--radius);box-shadow:var(--shadow-md);">
+            <div class="modal-header" style="border-bottom:1px solid var(--border);padding:18px 24px;">
+                <h5 class="modal-title" style="font-family:'Syne',sans-serif;font-weight:700;color:var(--primary);"><i class="ri-stack-line"></i> Gestion des variantes — <span id="variantesProductName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding:20px 24px;">
+                <div style="margin-bottom:16px;">
+                    <button class="abe-btn abe-btn-accent" onclick="showAddVarianteForm()">
+                        <i class="ri-add-line"></i> Ajouter une variante
+                    </button>
+                </div>
+                <div id="addVarianteForm" style="display:none;background:var(--surface);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div class="abe-form-group"><label>SKU</label><input type="text" id="var_sku" class="abe-input" placeholder="Auto-généré si vide"></div>
+                        <div class="abe-form-group"><label>Prix (FBu)</label><input type="number" id="var_prix" class="abe-input" min="0"></div>
+                        <div class="abe-form-group"><label>Stock</label><input type="number" id="var_stock" class="abe-input" min="0" value="0"></div>
+                        <div class="abe-form-group"><label>Attributs (JSON)</label><input type="text" id="var_attributs" class="abe-input" placeholder='{"taille":"L","couleur":"Noir"}'></div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:8px;">
+                        <button class="abe-btn abe-btn-primary abe-btn-sm" onclick="saveVariante()"><i class="ri-check-line"></i> Enregistrer</button>
+                        <button class="abe-btn abe-btn-outline abe-btn-sm" onclick="document.getElementById('addVarianteForm').style.display='none'">Annuler</button>
+                    </div>
+                </div>
+                <div id="variantesList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Ajout adresse -->
 <div class="modal fade" id="addAddressModal" tabindex="-1">
     <div class="modal-dialog">
@@ -2476,6 +2538,161 @@ document.getElementById('boutiqueForm')?.addEventListener('submit', async functi
     } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     finally { setLoading(btn, false, orig); }
 });
+
+// ═══════════════════════════════════════════════
+// GESTION IMAGES
+// ═══════════════════════════════════════════════
+var currentImagesProductId = null;
+
+function openImagesManager() {
+    var products = <?= json_encode($mes_produits ?? []) ?>;
+    if (!products.length) { showAlert('info', 'Info', 'Ajoutez d\'abord un produit.'); return; }
+    var list = products.map(p => '<button class="abe-btn abe-btn-outline abe-btn-sm" style="margin:4px;" onclick="loadImages(' + p.id_produit + ')">' + p.nom_produit + '</button>').join('');
+    Swal.fire({ title:'Choisir un produit', html:'<div style="text-align:left;">' + list + '</div>', showCancelButton:true, showConfirmButton:false, cancelButtonText:'Fermer' });
+}
+
+async function loadImages(productId) {
+    Swal.close();
+    currentImagesProductId = productId;
+    var grid = document.getElementById('imagesGrid');
+    grid.innerHTML = '<div style="text-align:center;padding:40px;grid-column:1/-1;"><i class="ri-loader-4-line" style="font-size:24px;animation:spin 1s linear infinite;"></i></div>';
+    new bootstrap.Modal(document.getElementById('imagesModal')).show();
+    
+    try {
+        const resp = await fetch(BASE_URL + 'user_dashboard/ajax_get_images?product_id=' + productId);
+        const r = await resp.json();
+        if (!r.success) { grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1;">' + r.message + '</div>'; return; }
+        document.getElementById('imagesProductName').textContent = r.product.name;
+        
+        if (!r.images.length) {
+            grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1;"><i class="ri-image-line" style="font-size:48px;"></i><br>Aucune image. Cliquez sur "Ajouter des images" ci-dessus.</div>';
+            return;
+        }
+        
+        grid.innerHTML = r.images.map(img => '<div style="position:relative;border-radius:8px;overflow:hidden;border:2px solid ' + (img.est_principale ? 'var(--accent)' : 'var(--border)') + ';">' +
+            '<img src="' + BASE_URL + img.url_image + '" style="width:100%;height:120px;object-fit:cover;display:block;">' +
+            '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);padding:6px;display:flex;justify-content:space-between;align-items:center;">' +
+            (img.est_principale ? '<span style="color:#f59e0b;font-size:.7rem;"><i class="ri-star-fill"></i> Principale</span>' : '<button onclick="setMainImage(' + img.id_image + ')" style="background:none;border:none;color:#fff;font-size:.7rem;cursor:pointer;"><i class="ri-star-line"></i> Principale</button>') +
+            '<button onclick="deleteImage(' + img.id_image + ')" style="background:none;border:none;color:#ef4444;font-size:.7rem;cursor:pointer;"><i class="ri-delete-bin-line"></i></button>' +
+            '</div></div>').join('');
+    } catch { grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1;">Erreur de chargement</div>'; }
+}
+
+async function uploadImages() {
+    var input = document.getElementById('imagesUploadInput');
+    if (!input.files.length || !currentImagesProductId) return;
+    var fd = new FormData();
+    fd.append('product_id', currentImagesProductId);
+    for (var i = 0; i < input.files.length; i++) fd.append('images[]', input.files[i]);
+    
+    try {
+        const r = await apiPost('user_dashboard/ajax_upload_image', fd);
+        r.success ? (showAlert('success', 'Succès', r.message), loadImages(currentImagesProductId), input.value = '') : showAlert('error', 'Erreur', r.message);
+    } catch { showAlert('error', 'Erreur', 'Erreur upload'); }
+}
+
+async function deleteImage(imageId) {
+    var conf = await Swal.fire({ title:'Supprimer ?', text:'Image irrécupérable.', icon:'warning', showCancelButton:true, confirmButtonColor:'#ef4444', confirmButtonText:'Supprimer' });
+    if (!conf.isConfirmed) return;
+    var fd = new FormData(); fd.append('image_id', imageId);
+    try {
+        const r = await apiPost('user_dashboard/ajax_delete_image', fd);
+        r.success ? loadImages(currentImagesProductId) : showAlert('error', 'Erreur', r.message);
+    } catch { showAlert('error', 'Erreur', 'Erreur réseau'); }
+}
+
+async function setMainImage(imageId) {
+    var fd = new FormData(); fd.append('image_id', imageId);
+    try {
+        const r = await apiPost('user_dashboard/ajax_set_main_image', fd);
+        r.success ? loadImages(currentImagesProductId) : showAlert('error', 'Erreur', r.message);
+    } catch { showAlert('error', 'Erreur', 'Erreur réseau'); }
+}
+
+// ═══════════════════════════════════════════════
+// GESTION VARIANTES
+// ═══════════════════════════════════════════════
+var currentVariantesProductId = null;
+
+function openVariantesManager() {
+    var products = <?= json_encode($mes_produits ?? []) ?>;
+    if (!products.length) { showAlert('info', 'Info', 'Ajoutez d\'abord un produit.'); return; }
+    var list = products.map(p => '<button class="abe-btn abe-btn-outline abe-btn-sm" style="margin:4px;" onclick="loadVariantes(' + p.id_produit + ')">' + p.nom_produit + '</button>').join('');
+    Swal.fire({ title:'Choisir un produit', html:'<div style="text-align:left;">' + list + '</div>', showCancelButton:true, showConfirmButton:false, cancelButtonText:'Fermer' });
+}
+
+async function loadVariantes(productId) {
+    Swal.close();
+    currentVariantesProductId = productId;
+    document.getElementById('addVarianteForm').style.display = 'none';
+    var list = document.getElementById('variantesList');
+    list.innerHTML = '<div style="text-align:center;padding:40px;"><i class="ri-loader-4-line" style="font-size:24px;animation:spin 1s linear infinite;"></i></div>';
+    new bootstrap.Modal(document.getElementById('variantesModal')).show();
+    
+    try {
+        const resp = await fetch(BASE_URL + 'user_dashboard/ajax_get_variantes?product_id=' + productId);
+        const r = await resp.json();
+        if (!r.success) { list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">' + r.message + '</div>'; return; }
+        document.getElementById('variantesProductName').textContent = r.product.name;
+        
+        if (!r.variantes.length) {
+            list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);"><i class="ri-stack-line" style="font-size:48px;"></i><br>Aucune variante. Ajoutez-en une.</div>';
+            return;
+        }
+        
+        var html = '<table class="abe-table" style="width:100%;"><thead><tr><th>SKU</th><th>Prix</th><th>Stock</th><th>Attributs</th><th>Actions</th></tr></thead><tbody>';
+        r.variantes.forEach(v => {
+            var attrs = Object.entries(v.attributs).map(([k,val]) => k + ': ' + val).join(', ') || '—';
+            html += '<tr><td><code style="font-size:.78rem;">' + v.sku + '</code></td>' +
+                '<td><strong>' + (v.prix ? Number(v.prix).toLocaleString() + ' FBu' : '—') + '</strong></td>' +
+                '<td>' + v.quantite_actuelle + '</td>' +
+                '<td><small>' + attrs + '</small></td>' +
+                '<td><button class="abe-btn abe-btn-outline abe-btn-xs" onclick="editVariante(' + v.id_variante + ')" style="margin-right:4px;"><i class="ri-edit-line"></i></button>' +
+                '<button class="abe-btn abe-btn-danger abe-btn-xs" onclick="deleteVariante(' + v.id_variante + ')"><i class="ri-delete-bin-line"></i></button></td></tr>';
+        });
+        html += '</tbody></table>';
+        list.innerHTML = html;
+    } catch { list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Erreur de chargement</div>'; }
+}
+
+function showAddVarianteForm() {
+    document.getElementById('addVarianteForm').style.display = 'block';
+    document.getElementById('var_sku').value = '';
+    document.getElementById('var_prix').value = '';
+    document.getElementById('var_stock').value = '0';
+    document.getElementById('var_attributs').value = '';
+}
+
+async function saveVariante() {
+    var sku = document.getElementById('var_sku').value;
+    var prix = document.getElementById('var_prix').value;
+    var stock = document.getElementById('var_stock').value;
+    var attributsStr = document.getElementById('var_attributs').value;
+    var attributs = {};
+    try { if (attributsStr) attributs = JSON.parse(attributsStr); } catch { showAlert('error', 'Erreur', 'JSON invalide dans les attributs'); return; }
+    
+    var fd = new FormData();
+    fd.append('product_id', currentVariantesProductId);
+    if (sku) fd.append('sku', sku);
+    if (prix) fd.append('prix', prix);
+    fd.append('quantite_actuelle', stock);
+    fd.append('attributs', JSON.stringify(attributs));
+    
+    try {
+        const r = await apiPost('user_dashboard/ajax_add_variante', fd);
+        r.success ? (showAlert('success', 'Ajouté', r.message), loadVariantes(currentVariantesProductId)) : showAlert('error', 'Erreur', r.message);
+    } catch { showAlert('error', 'Erreur', 'Erreur réseau'); }
+}
+
+async function deleteVariante(varianteId) {
+    var conf = await Swal.fire({ title:'Supprimer cette variante ?', icon:'warning', showCancelButton:true, confirmButtonColor:'#ef4444', confirmButtonText:'Supprimer' });
+    if (!conf.isConfirmed) return;
+    var fd = new FormData(); fd.append('variante_id', varianteId);
+    try {
+        const r = await apiPost('user_dashboard/ajax_delete_variante', fd);
+        r.success ? loadVariantes(currentVariantesProductId) : showAlert('error', 'Erreur', r.message);
+    } catch { showAlert('error', 'Erreur', 'Erreur réseau'); }
+}
 <?php endif; ?>
 
 // ── Animation spin CSS ────────────────────────────
