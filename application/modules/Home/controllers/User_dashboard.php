@@ -982,6 +982,123 @@ public function ajax_update_boutique() {
     }
     
     /**
+     * AJAX - Récupérer les détails d'un produit pour modification
+     */
+    public function ajax_get_product() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        $product_id = $this->input->get('product_id');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $vendeur_id = $this->UserModel->get_vendeur_id($user_id);
+        
+        $product = $this->db->select('p.*, c.nom_categorie')
+            ->from('produits p')
+            ->join('categories c', 'p.id_categorie = c.id_categorie', 'left')
+            ->where('p.id_produit', $product_id)
+            ->where('p.id_vendeur', $vendeur_id)
+            ->get()
+            ->row_array();
+        
+        if (!$product) {
+            echo json_encode(['success' => false, 'message' => 'Produit non trouvé']);
+            return;
+        }
+        
+        $product['image_url'] = $this->db->select('url_image')
+            ->from('images_produit')
+            ->where('id_produit', $product_id)
+            ->where('est_principale', 1)
+            ->get()
+            ->row_array()['url_image'] ?? null;
+        
+        echo json_encode(['success' => true, 'product' => $product]);
+    }
+    
+    /**
+     * AJAX - Modifier un produit (vendeur)
+     */
+    public function ajax_edit_product() {
+        $this->output->set_content_type('application/json');
+        $user_id = $this->session->userdata('id_utilisateur');
+        
+        if (!$this->UserModel->is_vendeur($user_id)) {
+            echo json_encode(['success' => false, 'message' => 'Accès non autorisé']);
+            return;
+        }
+        
+        $product_id = $this->input->post('product_id');
+        
+        $this->form_validation->set_rules('nom_produit', 'Nom du produit', 'required');
+        $this->form_validation->set_rules('prix_base', 'Prix', 'required|numeric');
+        $this->form_validation->set_rules('id_categorie', 'Catégorie', 'required');
+        
+        if ($this->form_validation->run() == FALSE) {
+            echo json_encode(['success' => false, 'message' => validation_errors()]);
+            return;
+        }
+        
+        $data = [
+            'nom_produit' => trim($this->input->post('nom_produit')),
+            'description_courte' => trim($this->input->post('description_courte')),
+            'description' => trim($this->input->post('description')),
+            'marque' => trim($this->input->post('marque')),
+            'id_categorie' => $this->input->post('id_categorie'),
+            'prix_base' => $this->input->post('prix_base'),
+            'prix_promo' => $this->input->post('prix_promo') ?: null,
+            'quantite_actuelle' => $this->input->post('quantite_actuelle'),
+            'seuil_stock_bas' => $this->input->post('seuil_stock_bas') ?: 5,
+            'statut' => $this->input->post('statut') ?: 'actif',
+        ];
+        
+        if ($data['quantite_actuelle'] > 10) {
+            $data['statut_stock'] = 'en_stock';
+        } elseif ($data['quantite_actuelle'] > 0) {
+            $data['statut_stock'] = 'stock_bas';
+        } else {
+            $data['statut_stock'] = 'rupture_stock';
+        }
+        
+        $result = $this->UserModel->update_product($product_id, $user_id, $data);
+        
+        if ($result) {
+            if (!empty($_FILES['main_image']['name'])) {
+                $config['upload_path'] = './uploads/produits/';
+                $config['allowed_types'] = 'gif|jpg|png|jpeg|webp';
+                $config['max_size'] = 2048;
+                $config['encrypt_name'] = true;
+                
+                if (!is_dir($config['upload_path'])) {
+                    mkdir($config['upload_path'], 0777, true);
+                }
+                
+                $this->load->library('upload', $config);
+                if ($this->upload->do_upload('main_image')) {
+                    $upload_data = $this->upload->data();
+                    $new_image = 'uploads/produits/' . $upload_data['file_name'];
+                    
+                    $this->db->where('id_produit', $product_id)->update('images_produit', ['est_principale' => 0]);
+                    
+                    $this->db->insert('images_produit', [
+                        'id_produit' => $product_id,
+                        'url_image' => $new_image,
+                        'est_principale' => 1,
+                        'ordre_affichage' => 1
+                    ]);
+                }
+            }
+            
+            echo json_encode(['success' => true, 'message' => 'Produit modifié avec succès']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de la modification']);
+        }
+    }
+    
+    /**
      * AJAX - Récupérer les statistiques du vendeur
      */
     public function ajax_get_seller_stats() {

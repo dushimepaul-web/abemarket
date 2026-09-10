@@ -798,7 +798,8 @@ $route['user_dashboard/ajax_mark_notification_read'] = 'Home/User_dashboard/ajax
 
 // Routes vendeur
 $route['user_dashboard/ajax_add_product'] = 'Home/User_dashboard/ajax_add_product';
-$route['user_dashboard/ajax_update_order_status'] = 'Home/User_dashboard/ajax_update_order_status';
+$route['user_dashboard/ajax_get_product'] = 'Home/User_dashboard/ajax_get_product';
+$route['user_dashboard/ajax_edit_product'] = 'Home/User_dashboard/ajax_edit_product';
 $route['user_dashboard/ajax_update_stock'] = 'Home/User_dashboard/ajax_update_stock';
 $route['user_dashboard/ajax_delete_product'] = 'Home/User_dashboard/ajax_delete_product';
 $route['user_dashboard/ajax_get_seller_stats'] = 'Home/User_dashboard/ajax_get_seller_stats';

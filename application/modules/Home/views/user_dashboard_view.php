@@ -1885,6 +1885,84 @@
 
 <!-- ══════════ MODALS ══════════ -->
 
+<!-- Modal: Modifier produit -->
+<div class="modal fade" id="editProductModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border:none;border-radius:var(--radius);box-shadow:var(--shadow-md);">
+            <div class="modal-header" style="border-bottom:1px solid var(--border);padding:18px 24px;">
+                <h5 class="modal-title" style="font-family:'Syne',sans-serif;font-weight:700;color:var(--primary);"><i class="ri-edit-line"></i> Modifier le produit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editProductForm" enctype="multipart/form-data">
+                <input type="hidden" name="product_id" id="edit_product_id">
+                <div class="modal-body" style="padding:20px 24px;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                        <div class="abe-form-group" style="grid-column:1/-1;">
+                            <label>Nom du produit <span style="color:var(--accent);">*</span></label>
+                            <input type="text" name="nom_produit" id="edit_nom_produit" class="abe-input" required>
+                        </div>
+                        <div class="abe-form-group">
+                            <label>Catégorie <span style="color:var(--accent);">*</span></label>
+                            <select name="id_categorie" id="edit_id_categorie" class="abe-select" required>
+                                <option value="">Sélectionner</option>
+                                <?php if (!empty($categories)): foreach ($categories as $cat): ?>
+                                    <option value="<?= $cat['id_categorie'] ?>"><?= htmlspecialchars($cat['nom_categorie']) ?></option>
+                                <?php endforeach; endif; ?>
+                            </select>
+                        </div>
+                        <div class="abe-form-group">
+                            <label>Marque</label>
+                            <input type="text" name="marque" id="edit_marque" class="abe-input" placeholder="Ex: Apple, Samsung...">
+                        </div>
+                        <div class="abe-form-group">
+                            <label>Prix (FBu) <span style="color:var(--accent);">*</span></label>
+                            <input type="number" name="prix_base" id="edit_prix_base" class="abe-input" min="0" required>
+                        </div>
+                        <div class="abe-form-group">
+                            <label>Prix promo (FBu)</label>
+                            <input type="number" name="prix_promo" id="edit_prix_promo" class="abe-input" min="0" placeholder="Laisser vide si pas de promo">
+                        </div>
+                        <div class="abe-form-group">
+                            <label>Quantité en stock <span style="color:var(--accent);">*</span></label>
+                            <input type="number" name="quantite_actuelle" id="edit_quantite" class="abe-input" min="0" required>
+                        </div>
+                        <div class="abe-form-group">
+                            <label>Seuil stock bas</label>
+                            <input type="number" name="seuil_stock_bas" id="edit_seuil_stock" class="abe-input" min="0" value="5">
+                        </div>
+                        <div class="abe-form-group">
+                            <label>Statut</label>
+                            <select name="statut" id="edit_statut" class="abe-select">
+                                <option value="actif">Actif</option>
+                                <option value="inactif">Inactif</option>
+                            </select>
+                        </div>
+                        <div class="abe-form-group" style="grid-column:1/-1;">
+                            <label>Description courte</label>
+                            <input type="text" name="description_courte" id="edit_description_courte" class="abe-input" placeholder="Résumé court du produit">
+                        </div>
+                        <div class="abe-form-group" style="grid-column:1/-1;">
+                            <label>Description détaillée</label>
+                            <textarea name="description" id="edit_description" class="abe-textarea" rows="4" placeholder="Description complète..."></textarea>
+                        </div>
+                        <div class="abe-form-group" style="grid-column:1/-1;">
+                            <label>Image principale</label>
+                            <input type="file" name="main_image" class="abe-input" accept="image/*" onchange="document.getElementById('edit_img_preview').src=this.files[0]?URL.createObjectURL(this.files[0]):''">
+                            <div style="margin-top:8px;">
+                                <img id="edit_img_preview" src="" style="max-height:80px;border-radius:8px;display:none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid var(--border);padding:14px 24px;gap:10px;">
+                    <button type="button" class="abe-btn abe-btn-outline" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="abe-btn abe-btn-primary" id="editProductBtn"><i class="ri-check-line"></i> Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Ajout adresse -->
 <div class="modal fade" id="addAddressModal" tabindex="-1">
     <div class="modal-dialog">
@@ -2302,6 +2380,51 @@ document.querySelectorAll('.delete-product').forEach(btn => {
                       : showAlert('error', 'Erreur', r.message);
         } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     });
+});
+
+// ── Vendeur: Modifier produit ──────────────────
+document.querySelectorAll('.edit-product').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const id = this.dataset.id;
+        try {
+            const resp = await fetch(BASE_URL + 'user_dashboard/ajax_get_product?product_id=' + id);
+            const r = await resp.json();
+            if (!r.success) { showAlert('error', 'Erreur', r.message); return; }
+            const p = r.product;
+            document.getElementById('edit_product_id').value = p.id_produit;
+            document.getElementById('edit_nom_produit').value = p.nom_produit;
+            document.getElementById('edit_id_categorie').value = p.id_categorie;
+            document.getElementById('edit_marque').value = p.marque || '';
+            document.getElementById('edit_prix_base').value = p.prix_base;
+            document.getElementById('edit_prix_promo').value = p.prix_promo || '';
+            document.getElementById('edit_quantite').value = p.quantite_actuelle;
+            document.getElementById('edit_seuil_stock').value = p.seuil_stock_bas || 5;
+            document.getElementById('edit_statut').value = p.statut || 'actif';
+            document.getElementById('edit_description_courte').value = p.description_courte || '';
+            document.getElementById('edit_description').value = p.description || '';
+            var preview = document.getElementById('edit_img_preview');
+            if (p.image_url) { preview.src = BASE_URL + p.image_url; preview.style.display = 'block'; }
+            else { preview.style.display = 'none'; }
+            new bootstrap.Modal(document.getElementById('editProductModal')).show();
+        } catch { showAlert('error', 'Erreur', 'Erreur de chargement'); }
+    });
+});
+
+// ── Vendeur: Sauvegarder modification produit ──
+document.getElementById('editProductForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('editProductBtn'), orig = btn.innerHTML;
+    setLoading(btn, true, orig);
+    try {
+        const r = await apiPost('user_dashboard/ajax_edit_product', new FormData(this));
+        if (r.success) {
+            bootstrap.Modal.getInstance(document.getElementById('editProductModal'))?.hide();
+            showAlert('success', 'Modifié !', r.message, () => location.reload());
+        } else {
+            showAlert('error', 'Erreur', r.message);
+        }
+    } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
+    finally { setLoading(btn, false, orig); }
 });
 
 // ── Vendeur: Mise à jour statut commande ──────────

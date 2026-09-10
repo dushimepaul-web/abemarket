@@ -9,25 +9,31 @@ class ProduitsVendeur extends MY_Controller
     {
         parent::__construct();
         
-        // Vérifier si l'utilisateur est connecté
-        if ($this->session->userdata('logged_in') !== TRUE) {
-            redirect('Admin');
+        $this->load->library('session');
+        $user_id = $this->session->userdata('id_utilisateur');
+        
+        if (!$user_id) {
+            $this->session->set_flashdata('error', 'Veuillez vous connecter.');
+            redirect('auth/login');
+            return;
         }
         
-        // Vérifier si l'utilisateur est un vendeur
-        if (!$this->is_vendeur()) {
-            $this->session->set_flashdata('error', 'Vous n\'avez pas les droits d\'accès à cette section.');
-            redirect('Dashboard');
+        // Accepter admin OU vendeur
+        $role = $this->session->userdata('role');
+        $is_admin = ($role === 'super_admin' || $role === 'admin' || $this->session->userdata('logged_in') === TRUE);
+        
+        if (!$is_admin && !$this->is_vendeur()) {
+            $this->session->set_flashdata('error', 'Vous n\'avez pas les droits d\'accès.');
+            redirect('Home/User_dashboard');
+            return;
         }
         
-        // Récupérer l'ID du vendeur connecté
         $this->vendeur_id = $this->get_vendeur_id();
         
-        // Charger le modèle
         $this->load->model('Produit_model');
         $this->load->model('Model');
+        $this->load->model('Home_model');
         
-        // Créer le dossier d'upload s'il n'existe pas (spécifique au vendeur)
         $upload_path = FCPATH . 'uploads/produits/' . $this->vendeur_id . '/';
         if (!is_dir($upload_path)) {
             mkdir($upload_path, 0777, TRUE);
