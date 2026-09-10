@@ -18,12 +18,18 @@ class ProduitsVendeur extends MY_Controller
             return;
         }
         
-        // Accepter admin OU vendeur
         $role = $this->session->userdata('role');
-        $is_admin = ($role === 'super_admin' || $role === 'admin' || $this->session->userdata('logged_in') === TRUE);
         
-        if (!$is_admin && !$this->is_vendeur()) {
-            $this->session->set_flashdata('error', 'Vous n\'avez pas les droits d\'accès.');
+        // Les vendeurs utilisent User_dashboard
+        if ($role === 'vendeur') {
+            redirect('Home/User_dashboard');
+            return;
+        }
+        
+        // Accepter admin/super_admin uniquement
+        $is_admin = ($role === 'super_admin' || $role === 'admin');
+        if (!$is_admin) {
+            $this->session->set_flashdata('error', 'Accès réservé aux administrateurs.');
             redirect('Home/User_dashboard');
             return;
         }
