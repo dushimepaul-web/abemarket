@@ -1428,6 +1428,19 @@
                                                 data-id="<?= $p['id_produit'] ?>">
                                                 <i class="ri-delete-bin-line"></i>
                                             </button>
+                                            <a href="<?= base_url('ProduitsVendeur/images/' . $p['slug_produit']) ?>"
+                                               class="abe-btn abe-btn-outline abe-btn-xs" title="Gérer les images"
+                                               style="margin-right:4px;background:#f0f0f0;">
+                                                <i class="ri-image-line"></i>
+                                                <?php if (!empty($p['image_count']) && $p['image_count'] > 0): ?>
+                                                    <span style="font-size:.7rem;background:var(--accent);color:#fff;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;margin-left:2px;"><?= $p['image_count'] ?></span>
+                                                <?php endif; ?>
+                                            </a>
+                                            <a href="<?= base_url('ProduitsVendeur/variantes/' . $p['slug_produit']) ?>"
+                                               class="abe-btn abe-btn-outline abe-btn-xs" title="Gérer les variantes"
+                                               style="background:#f0f0f0;">
+                                                <i class="ri-stack-line"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>

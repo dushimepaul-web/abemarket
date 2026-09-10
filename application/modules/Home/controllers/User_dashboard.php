@@ -48,6 +48,17 @@ class User_dashboard extends MY_Controller {
         // Si l'utilisateur est vendeur, charger ses données spécifiques
         if ($data['is_vendeur']) {
             $data['mes_produits'] = $this->UserModel->get_seller_products($user_id);
+            // Charger l'image principale pour chaque produit
+            foreach ($data['mes_produits'] as &$p) {
+                $img = $this->db->select('url_image')
+                    ->from('images_produit')
+                    ->where('id_produit', $p['id_produit'])
+                    ->where('est_principale', 1)
+                    ->get()
+                    ->row_array();
+                $p['image_url'] = $img ? $img['url_image'] : null;
+                $p['image_count'] = $this->db->where('id_produit', $p['id_produit'])->count_all_results('images_produit');
+            }
             $data['commandes_recues'] = $this->UserModel->get_seller_orders($user_id);
             $data['stats']['total_produits'] = count($data['mes_produits']);
             $data['stats']['commandes_recues'] = count($data['commandes_recues']);
@@ -837,12 +848,12 @@ public function ajax_update_boutique() {
             return;
         }
         
-        // Upload de l'image
-        $main_image = 'default-product.png';
-        if (!empty($_FILES['main_image']['name'])) {
+        // Upload des images
+        $main_image_path = null;
+        if (!empty($_FILES['images']['name'][0])) {
             $config['upload_path'] = './uploads/produits/';
             $config['allowed_types'] = 'gif|jpg|png|jpeg|webp';
-            $config['max_size'] = 2048;
+            $config['max_size'] = 4096;
             $config['encrypt_name'] = true;
             
             if (!is_dir($config['upload_path'])) {
@@ -850,9 +861,23 @@ public function ajax_update_boutique() {
             }
             
             $this->load->library('upload', $config);
-            if ($this->upload->do_upload('main_image')) {
-                $upload_data = $this->upload->data();
-                $main_image = $upload_data['file_name'];
+            
+            $uploaded_count = 0;
+            $file_count = count($_FILES['images']['name']);
+            for ($i = 0; $i < $file_count; $i++) {
+                $_FILES['image_file']['name'] = $_FILES['images']['name'][$i];
+                $_FILES['image_file']['type'] = $_FILES['images']['type'][$i];
+                $_FILES['image_file']['tmp_name'] = $_FILES['images']['tmp_name'][$i];
+                $_FILES['image_file']['error'] = $_FILES['images']['error'][$i];
+                $_FILES['image_file']['size'] = $_FILES['images']['size'][$i];
+                
+                if ($this->upload->do_upload('image_file')) {
+                    $upload_data = $this->upload->data();
+                    $uploaded_count++;
+                    if ($uploaded_count === 1) {
+                        $main_image_path = 'uploads/produits/' . $upload_data['file_name'];
+                    }
+                }
             }
         }
         
@@ -869,14 +894,29 @@ public function ajax_update_boutique() {
         
         $product_id = $this->UserModel->add_product($user_id, $data);
         
-        // Sauvegarder l'image principale dans images_produit
-        if ($product_id && $main_image !== 'default-product.png') {
-            $this->db->insert('images_produit', [
-                'id_produit' => $product_id,
-                'url_image' => 'uploads/produits/' . $main_image,
-                'est_principale' => 1,
-                'ordre_affichage' => 1
-            ]);
+        // Sauvegarder les images dans images_produit
+        if ($product_id && !empty($_FILES['images']['name'][0])) {
+            $this->load->library('upload', $config);
+            $ordre = 1;
+            $file_count = count($_FILES['images']['name']);
+            for ($i = 0; $i < $file_count; $i++) {
+                $_FILES['image_file']['name'] = $_FILES['images']['name'][$i];
+                $_FILES['image_file']['type'] = $_FILES['images']['type'][$i];
+                $_FILES['image_file']['tmp_name'] = $_FILES['images']['tmp_name'][$i];
+                $_FILES['image_file']['error'] = $_FILES['images']['error'][$i];
+                $_FILES['image_file']['size'] = $_FILES['images']['size'][$i];
+                
+                if ($this->upload->do_upload('image_file')) {
+                    $upload_data = $this->upload->data();
+                    $this->db->insert('images_produit', [
+                        'id_produit' => $product_id,
+                        'url_image' => 'uploads/produits/' . $upload_data['file_name'],
+                        'est_principale' => ($ordre === 1) ? 1 : 0,
+                        'ordre_affichage' => $ordre
+                    ]);
+                    $ordre++;
+                }
+            }
         }
         
         $this->output
