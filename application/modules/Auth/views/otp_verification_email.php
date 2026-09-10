@@ -181,9 +181,9 @@
     // Afficher l'email
     const emailDisplay = document.getElementById('emailDisplay');
     if (currentEmail) {
-        emailDisplay.innerHTML = `<i class="fas fa-envelope"></i> ${currentEmail}`;
+        emailDisplay.textContent = currentEmail;
     } else {
-        emailDisplay.innerHTML = 'Email non disponible';
+        emailDisplay.textContent = 'Email non disponible';
     }
 
     // Focus sur le champ OTP
@@ -232,7 +232,7 @@
         const code = otpInput.value.trim();
         
         if (code.length !== 6) {
-            document.getElementById('errorMessage').innerHTML = 'Veuillez saisir un code à 6 chiffres';
+            document.getElementById('errorMessage').textContent = 'Veuillez saisir un code à 6 chiffres';
             document.getElementById('errorMessage').style.display = 'block';
             otpInput.classList.add('error');
             return;
@@ -254,14 +254,14 @@
             
             if (data.success) {
                 clearInterval(timerInterval);
-                document.getElementById('successMessage').innerHTML = 'Compte vérifié avec succès ! Redirection...';
+                document.getElementById('successMessage').textContent = 'Compte vérifié avec succès ! Redirection...';
                 document.getElementById('successMessage').style.display = 'block';
                 
                 setTimeout(() => {
-                    window.location.href = '<?= base_url("Auth/choose_profile_page") ?>';
+                    window.location.href = '<?= base_url("auth/choose_profile_page") ?>';
                 }, 2000);
             } else {
-                document.getElementById('errorMessage').innerHTML = data.message;
+                document.getElementById('errorMessage').textContent = data.message;
                 document.getElementById('errorMessage').style.display = 'block';
                 otpInput.classList.add('error');
                 otpInput.value = '';
@@ -270,7 +270,7 @@
                 verifyBtn.disabled = false;
             }
         } catch (error) {
-            document.getElementById('errorMessage').innerHTML = 'Une erreur est survenue. Veuillez réessayer.';
+            document.getElementById('errorMessage').textContent = 'Une erreur est survenue. Veuillez réessayer.';
             document.getElementById('errorMessage').style.display = 'block';
             verifyBtn.innerHTML = originalText;
             verifyBtn.disabled = false;

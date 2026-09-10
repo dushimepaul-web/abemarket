@@ -904,7 +904,7 @@
             <!-- Profil -->
             <div class="abe-profile-box">
                 <?php
-                $avatar_url = base_url('assets/images/review/1.jpg');
+                $avatar_url = base_url('assets/images/users/avatar-1.jpg');
                 if (!empty($user['avatar_url'])) {
                     $avatar_path = FCPATH . $user['avatar_url'];
                     if (file_exists($avatar_path)) {
@@ -2048,13 +2048,13 @@ if (hash && document.getElementById(hash)) {
 }
 
 // ── Helpers ───────────────────────────────────────
-function swal(icon, title, text, cb) {
+function showAlert(icon, title, text, cb) {
     if (typeof Swal !== 'undefined') {
-        Swal.fire({ icon, title, text, confirmButtonColor: '#f59e0b', timer: icon==='success'?3000:null, showConfirmButton:true })
-            .then(() => cb && cb());
+        Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#f59e0b', timer: icon==='success'?3000:null, showConfirmButton:true })
+            .then(function() { if (cb) cb(); });
     } else {
-        alert(`[${title}] ${text}`);
-        cb && cb();
+        alert('[' + title + '] ' + text);
+        if (cb) cb();
     }
 }
 
@@ -2089,9 +2089,9 @@ document.getElementById('profileForm')?.addEventListener('submit', async functio
     setLoading(btn, true, orig);
     try {
         const r = await apiPost('user_dashboard/ajax_update_profile', new FormData(this));
-        r.success ? swal('success', 'Succès !', r.message, () => location.reload())
-                  : swal('error', 'Erreur', r.message || r.errors || 'Une erreur est survenue');
-    } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+        r.success ? showAlert('success', 'Succès !', r.message, () => location.reload())
+                  : showAlert('error', 'Erreur', r.message || r.errors || 'Une erreur est survenue');
+    } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     finally { setLoading(btn, false, orig); }
 });
 
@@ -2099,9 +2099,9 @@ document.getElementById('profileForm')?.addEventListener('submit', async functio
 document.getElementById('avatar_input')?.addEventListener('change', async function() {
     const file = this.files[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { swal('error', 'Erreur', 'Max 2 MB'); return; }
+    if (file.size > 2 * 1024 * 1024) { showAlert('error', 'Erreur', 'Max 2 MB'); return; }
     if (!['image/jpeg','image/jpg','image/png','image/gif','image/webp'].includes(file.type)) {
-        swal('error', 'Erreur', 'Format non supporté (JPG, PNG, WEBP, GIF)'); return;
+        showAlert('error', 'Erreur', 'Format non supporté (JPG, PNG, WEBP, GIF)'); return;
     }
     const fd = new FormData(); fd.append('avatar', file);
     try {
@@ -2110,9 +2110,9 @@ document.getElementById('avatar_input')?.addEventListener('change', async functi
             document.getElementById('profile_img').src = r.avatar_url;
             document.querySelector('#sidebarAvatar').src = r.avatar_url;
             document.querySelector('.abe-welcome-avatar').src = r.avatar_url;
-            swal('success', 'Succès', 'Photo mise à jour');
-        } else { swal('error', 'Erreur', r.message); }
-    } catch { swal('error', 'Erreur', 'Erreur de chargement'); }
+            showAlert('success', 'Succès', 'Photo mise à jour');
+        } else { showAlert('error', 'Erreur', r.message); }
+    } catch { showAlert('error', 'Erreur', 'Erreur de chargement'); }
 });
 
 // ── Mot de passe ──────────────────────────────────
@@ -2120,15 +2120,15 @@ document.getElementById('passwordForm')?.addEventListener('submit', async functi
     e.preventDefault();
     const np = this.querySelector('[name=new_password]').value;
     const cp = this.querySelector('[name=confirm_password]').value;
-    if (np !== cp) { swal('error', 'Erreur', 'Les mots de passe ne correspondent pas'); return; }
-    if (np.length < 6) { swal('error', 'Erreur', 'Minimum 6 caractères'); return; }
+    if (np !== cp) { showAlert('error', 'Erreur', 'Les mots de passe ne correspondent pas'); return; }
+    if (np.length < 6) { showAlert('error', 'Erreur', 'Minimum 6 caractères'); return; }
     const btn = this.querySelector('[type=submit]'), orig = btn.innerHTML;
     setLoading(btn, true, orig);
     try {
         const r = await apiPost('user_dashboard/ajax_change_password', new FormData(this));
-        r.success ? swal('success', 'Succès !', r.message, () => this.reset())
-                  : swal('error', 'Erreur', r.message);
-    } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+        r.success ? showAlert('success', 'Succès !', r.message, () => this.reset())
+                  : showAlert('error', 'Erreur', r.message);
+    } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     finally { setLoading(btn, false, orig); }
 });
 
@@ -2140,9 +2140,9 @@ document.getElementById('emailForm')?.addEventListener('submit', async function(
     try {
         // URL CORRIGÉE (suppression du préfixe Home/)
         const r = await apiPost('user_dashboard/ajax_change_email', new FormData(this));
-        r.success ? swal('success', 'Succès !', r.message, () => location.reload())
-                  : swal('error', 'Erreur', r.message || r.errors || 'Erreur');
-    } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+        r.success ? showAlert('success', 'Succès !', r.message, () => location.reload())
+                  : showAlert('error', 'Erreur', r.message || r.errors || 'Erreur');
+    } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     finally { setLoading(btn, false, orig); }
 });
 
@@ -2155,9 +2155,9 @@ document.getElementById('addAddressForm')?.addEventListener('submit', async func
         const r = await apiPost('user_dashboard/ajax_add_address', new FormData(this));
         if (r.success) {
             bootstrap.Modal.getInstance(document.getElementById('addAddressModal'))?.hide();
-            swal('success', 'Succès !', r.message, () => location.reload());
-        } else { swal('error', 'Erreur', r.message); }
-    } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+            showAlert('success', 'Succès !', r.message, () => location.reload());
+        } else { showAlert('error', 'Erreur', r.message); }
+    } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     finally { setLoading(btn, false, orig); }
 });
 
@@ -2179,8 +2179,8 @@ document.querySelectorAll('.edit-address').forEach(btn => {
                 document.getElementById('edit_point_repere').value = a.point_repere || '';
                 document.getElementById('edit_est_par_defaut').checked = a.est_par_defaut == 1;
                 new bootstrap.Modal(document.getElementById('editAddressModal')).show();
-            } else { swal('error', 'Erreur', r.message); }
-        } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+            } else { showAlert('error', 'Erreur', r.message); }
+        } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     });
 });
 
@@ -2193,9 +2193,9 @@ document.getElementById('editAddressForm')?.addEventListener('submit', async fun
         const r = await apiPost('user_dashboard/ajax_update_address', new FormData(this));
         if (r.success) {
             bootstrap.Modal.getInstance(document.getElementById('editAddressModal'))?.hide();
-            swal('success', 'Succès !', r.message, () => location.reload());
-        } else { swal('error', 'Erreur', r.message); }
-    } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+            showAlert('success', 'Succès !', r.message, () => location.reload());
+        } else { showAlert('error', 'Erreur', r.message); }
+    } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     finally { setLoading(btn, false, orig); }
 });
 
@@ -2207,9 +2207,9 @@ document.querySelectorAll('.delete-address').forEach(btn => {
         if (!conf.isConfirmed) return;
         try {
             const r = await apiPost('user_dashboard/ajax_delete_address/' + id, {});
-            r.success ? swal('success', 'Supprimée', r.message, () => location.reload())
-                      : swal('error', 'Erreur', r.message);
-        } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+            r.success ? showAlert('success', 'Supprimée', r.message, () => location.reload())
+                      : showAlert('error', 'Erreur', r.message);
+        } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     });
 });
 
@@ -2219,8 +2219,8 @@ document.querySelectorAll('.remove-wishlist-btn').forEach(btn => {
         const id = this.dataset.productId;
         try {
             const r = await apiPost('user_dashboard/ajax_remove_wishlist', { product_id: id });
-            r.success ? location.reload() : swal('error', 'Erreur', r.message);
-        } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+            r.success ? location.reload() : showAlert('error', 'Erreur', r.message);
+        } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     });
 });
 
@@ -2270,8 +2270,8 @@ document.querySelectorAll('.view-order-btn').forEach(btn => {
                     </div>`,
                     confirmButtonColor: '#f59e0b', width: '480px'
                 });
-            } else { swal('error', 'Erreur', r.message); }
-        } catch { swal('error', 'Erreur', 'Erreur de chargement'); }
+            } else { showAlert('error', 'Erreur', r.message); }
+        } catch { showAlert('error', 'Erreur', 'Erreur de chargement'); }
     });
 });
 
@@ -2283,9 +2283,9 @@ document.getElementById('addProductForm')?.addEventListener('submit', async func
     setLoading(btn, true, orig);
     try {
         const r = await apiPost('user_dashboard/ajax_add_product', new FormData(this));
-        r.success ? swal('success', 'Soumis !', r.message, () => location.reload())
-                  : swal('error', 'Erreur', r.message);
-    } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+        r.success ? showAlert('success', 'Soumis !', r.message, () => location.reload())
+                  : showAlert('error', 'Erreur', r.message);
+    } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     finally { setLoading(btn, false, orig); }
 });
 
@@ -2298,9 +2298,9 @@ document.querySelectorAll('.delete-product').forEach(btn => {
         const fd = new FormData(); fd.append('product_id', id);
         try {
             const r = await apiPost('user_dashboard/ajax_delete_product', fd);
-            r.success ? swal('success', 'Supprimé', r.message, () => location.reload())
-                      : swal('error', 'Erreur', r.message);
-        } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+            r.success ? showAlert('success', 'Supprimé', r.message, () => location.reload())
+                      : showAlert('error', 'Erreur', r.message);
+        } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     });
 });
 
@@ -2309,9 +2309,9 @@ document.querySelectorAll('.update-order-status').forEach(sel => {
     sel.addEventListener('change', async function() {
         try {
             const r = await apiPost('user_dashboard/ajax_update_order_status', { order_id: this.dataset.orderId, status: this.value }, true);
-            r.success ? swal('success', 'Mis à jour', r.message)
-                      : swal('error', 'Erreur', r.message);
-        } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+            r.success ? showAlert('success', 'Mis à jour', r.message)
+                      : showAlert('error', 'Erreur', r.message);
+        } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     });
 });
 
@@ -2320,12 +2320,12 @@ document.querySelectorAll('.update-stock').forEach(btn => {
     btn.addEventListener('click', async function() {
         const id = this.dataset.id;
         const qty = document.querySelector(`.new-stock-${id}`)?.value;
-        if (!qty || qty < 0) { swal('error', 'Erreur', 'Veuillez entrer une quantité valide'); return; }
+        if (!qty || qty < 0) { showAlert('error', 'Erreur', 'Veuillez entrer une quantité valide'); return; }
         try {
             const r = await apiPost('user_dashboard/ajax_update_stock', { product_id: id, quantity: qty }, true);
-            r.success ? swal('success', 'Stock mis à jour', r.message, () => location.reload())
-                      : swal('error', 'Erreur', r.message);
-        } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+            r.success ? showAlert('success', 'Stock mis à jour', r.message, () => location.reload())
+                      : showAlert('error', 'Erreur', r.message);
+        } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     });
 });
 
@@ -2336,8 +2336,8 @@ document.getElementById('boutiqueForm')?.addEventListener('submit', async functi
     setLoading(btn, true, orig);
     try {
         const r = await apiPost('user_dashboard/ajax_update_boutique', new FormData(this));
-        r.success ? swal('success', 'Succès !', r.message) : swal('error', 'Erreur', r.message);
-    } catch { swal('error', 'Erreur', 'Erreur de connexion'); }
+        r.success ? showAlert('success', 'Succès !', r.message) : showAlert('error', 'Erreur', r.message);
+    } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
     finally { setLoading(btn, false, orig); }
 });
 <?php endif; ?>

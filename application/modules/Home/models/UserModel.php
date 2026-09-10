@@ -110,15 +110,17 @@ class UserModel extends CI_Model {
      * Met à jour le statut d'une commande (vendeur)
      */
     public function update_order_status($commande_id, $status) {
+        $order = $this->db->where('id_commande', $commande_id)->get('commandes')->row();
+        if (!$order) return false;
+        
         $this->db->where('id_commande', $commande_id)
                  ->update('commandes', ['statut_commande' => $status]);
         
-        // Ajouter à l'historique
         $this->db->insert('historique_statut_commande', [
             'id_commande' => $commande_id,
             'statut' => $status,
             'commentaire' => 'Statut mis à jour par le vendeur',
-            'date_creation' => date('Y-m-d H:i:s')
+            'modifie_par' => $this->session->userdata('id_utilisateur')
         ]);
         
         return true;
@@ -368,7 +370,7 @@ class UserModel extends CI_Model {
         }
         
         $this->db->where('id_utilisateur', $user_id)
-                 ->update('utilisateurs', ['mot_de_passe' => password_hash($new_password, PASSWORD_BCRYPT)]);
+                 ->update('utilisateurs', ['mot_de_passe' => md5($new_password)]);
         
         return true;
     }

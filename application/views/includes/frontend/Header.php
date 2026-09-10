@@ -182,8 +182,8 @@
             <!-- Utilisateur connecté -->
             <li><a href="<?= base_url('user/dashboard'); ?>">Mon Compte</a></li>
         <?php else: ?>
-            <!-- Utilisateur non connecté - Ouvre la modale -->
-            <li><a href="javascript:void(0);" onclick="openAuthModal('login')">Mon Compte</a></li>
+            <!-- Utilisateur non connecté - Redirige vers la page de connexion -->
+            <li><a href="<?= base_url('auth/login_page'); ?>">Mon Compte</a></li>
         <?php endif; ?>
         
         <li><a href="<?= base_url('Home/contact'); ?>">Contactez-nous</a></li>
@@ -193,8 +193,8 @@
         <li><a href="<?= base_url('cart'); ?>">Panier</a></li>
         
         <?php if (!$this->session->userdata('id_utilisateur')): ?>
-            <!-- Utilisateur non connecté - Affiche Connexion -->
-            <li><a href="javascript:void(0);" onclick="openAuthModal('login')" class="login-btn">Connexion</a></li>
+            <!-- Utilisateur non connecté - Redirige vers la page de connexion -->
+            <li><a href="<?= base_url('auth/login_page'); ?>" class="login-btn">Connexion</a></li>
         <?php else: ?>
             <!-- Utilisateur connecté - Affiche Déconnexion -->
             <li><a href="<?= base_url('auth/logout'); ?>">Déconnexion</a></li>
@@ -273,14 +273,14 @@
             </li>
         <?php else: ?>
             <li>
-                <button class="btn login-btn" onclick="openAuthModal('login')" style="width: 100%; text-align: left;">
+                <a href="<?= base_url('auth/login_page'); ?>" class="dropdown-item">
                     <i class="ri-login-circle-line"></i> Connexion
-                </button>
+                </a>
             </li>
             <li>
-                <button class="btn signup-btn" onclick="openAuthModal('signup')" style="width: 100%; text-align: left;">
+                <a href="<?= base_url('auth/register_page'); ?>" class="dropdown-item">
                     <i class="ri-user-add-line"></i> Inscription
-                </button>
+                </a>
             </li>
         <?php endif; ?>
     </ul>
@@ -355,7 +355,7 @@ if ($this->session->userdata('user_id')) {
                                 <li class="nav-item"><a class="nav-link" href="<?= base_url('offres'); ?>">Promotions</a></li>
                                 <li class="nav-item"><a class="nav-link" href="<?= base_url('faq'); ?>">FAQ</a></li>
                                 <?php if (!$this->session->userdata('user_id')): ?>
-                                <li class="nav-item d-xl-none"><a class="nav-link" href="#authenticationModal" data-bs-toggle="modal">Connexion / Inscription</a></li>
+                                <li class="nav-item d-xl-none"><a class="nav-link" href="<?= base_url('auth/login_page'); ?>">Connexion / Inscription</a></li>
                                 <?php endif; ?>
                             </ul>
                         </div>

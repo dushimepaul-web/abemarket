@@ -535,6 +535,29 @@ document.addEventListener("DOMContentLoaded", function () {
         border-bottom: none;
     }
     
+    .abm-subs-card h4 a {
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .abm-subs-list li a {
+        color: inherit;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .abm-level3-list li a {
+        color: inherit;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    }
+    
     /* ========== COLONNE 3 - PROMO ========== */
     .abm-promo-panel {
         background: linear-gradient(135deg, #fff 0%, #fefaf5 100%);
@@ -971,6 +994,18 @@ document.addEventListener("DOMContentLoaded", function () {
         color: #555;
         border-bottom: 1px solid #eee;
     }
+    
+    .abm-mobile-subgroup h6 a {
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .abm-mobile-subgroup ul li a {
+        color: inherit;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+    }
 </style>
 <!-- ========== VERSION DESKTOP ========== -->
 <div class="abm-desktop-only">
@@ -1111,23 +1146,26 @@ function renderDesktopSubs(categoryId) {
     
     let html = '<div class="abm-subs-grid">';
     selectedCat.children.forEach(lvl1 => {
+        const lvl1Url = lvl1.slug_categorie ? 'category/' + lvl1.slug_categorie : '#';
         html += `<div class="abm-subs-card">
-                    <h4><i class="bi bi-folder2-open me-2"></i>${escapeHtml(lvl1.nom_categorie)}</h4>
+                    <h4><a href="${lvl1Url}"><i class="bi bi-folder2-open me-2"></i>${escapeHtml(lvl1.nom_categorie)}</a></h4>
                     <ul class="abm-subs-list">`;
         if (lvl1.children && lvl1.children.length > 0) {
             lvl1.children.forEach(lvl2 => {
-                html += `<li><i class="bi bi-chevron-right"></i><strong>${escapeHtml(lvl2.nom_categorie)}</strong>`;
+                const lvl2Url = lvl2.slug_categorie ? 'category/' + lvl2.slug_categorie : '#';
+                html += `<li><a href="${lvl2Url}"><i class="bi bi-chevron-right"></i><strong>${escapeHtml(lvl2.nom_categorie)}</strong></a>`;
                 if (lvl2.children && lvl2.children.length > 0) {
                     html += `<ul class="abm-level3-list">`;
                     lvl2.children.forEach(lvl3 => {
-                        html += `<li><i class="bi bi-dot"></i>${escapeHtml(lvl3.nom_categorie)}</li>`;
+                        const lvl3Url = lvl3.slug_categorie ? 'category/' + lvl3.slug_categorie : '#';
+                        html += `<li><a href="${lvl3Url}"><i class="bi bi-dot"></i>${escapeHtml(lvl3.nom_categorie)}</a></li>`;
                     });
                     html += `</ul>`;
                 }
                 html += `</li>`;
             });
         } else {
-            html += `<li><i class="bi bi-chevron-right"></i>${escapeHtml(lvl1.nom_categorie)}</li>`;
+            html += `<li><a href="${lvl1Url}"><i class="bi bi-chevron-right"></i>${escapeHtml(lvl1.nom_categorie)}</a></li>`;
         }
         html += `</ul></div>`;
     });
@@ -1272,23 +1310,26 @@ function generateMobileMenu() {
                     <div class="abm-mobile-subs">`;
         if (cat.children?.length) {
             cat.children.forEach(lvl1 => {
+                const lvl1Url = lvl1.slug_categorie ? 'category/' + lvl1.slug_categorie : '#';
                 html += `<div class="abm-mobile-subgroup">
-                            <h6>${escapeHtml(lvl1.nom_categorie)}</h6>
+                            <h6><a href="${lvl1Url}">${escapeHtml(lvl1.nom_categorie)}</a></h6>
                             <ul>`;
                 if (lvl1.children?.length) {
                     lvl1.children.forEach(lvl2 => {
-                        html += `<li><strong>${escapeHtml(lvl2.nom_categorie)}</strong>`;
+                        const lvl2Url = lvl2.slug_categorie ? 'category/' + lvl2.slug_categorie : '#';
+                        html += `<li><a href="${lvl2Url}"><strong>${escapeHtml(lvl2.nom_categorie)}</strong></a>`;
                         if (lvl2.children?.length) {
                             html += `<ul style="margin-left:15px; margin-top:5px;">`;
                             lvl2.children.forEach(lvl3 => {
-                                html += `<li>• ${escapeHtml(lvl3.nom_categorie)}</li>`;
+                                const lvl3Url = lvl3.slug_categorie ? 'category/' + lvl3.slug_categorie : '#';
+                                html += `<li><a href="${lvl3Url}">• ${escapeHtml(lvl3.nom_categorie)}</a></li>`;
                             });
                             html += `</ul>`;
                         }
                         html += `</li>`;
                     });
                 } else {
-                    html += `<li>${escapeHtml(lvl1.nom_categorie)}</li>`;
+                    html += `<li><a href="${lvl1Url}">${escapeHtml(lvl1.nom_categorie)}</a></li>`;
                 }
                 html += `</ul></div>`;
             });

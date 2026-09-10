@@ -806,9 +806,14 @@ $route['user_dashboard/logout'] = 'Home/User_dashboard/logout';
 $route['user_dashboard'] = 'Home/User_dashboard/index';
 $route['User_dashboard'] = 'Home/User_dashboard/index';
 $route['home/User_dashboard/ajax_get_addresses'] = 'Home/User_dashboard/ajax_get_addresses';
+$route['user_dashboard/ajax_get_addresses'] = 'Home/User_dashboard/ajax_get_addresses';
+$route['user_dashboard/ajax_get_address/(:num)'] = 'Home/User_dashboard/ajax_get_address/$1';
 $route['home/User_dashboard/ajax_update_address'] = 'Home/User_dashboard/ajax_update_address';
+$route['user_dashboard/ajax_update_address'] = 'Home/User_dashboard/ajax_update_address';
 $route['home/User_dashboard/ajax_change_avatar'] = 'Home/User_dashboard/ajax_change_avatar';
+$route['user_dashboard/ajax_change_avatar'] = 'Home/User_dashboard/ajax_change_avatar';
 $route['home/User_dashboard/ajax_update_boutique'] = 'Home/User_dashboard/ajax_update_boutique';
+$route['user_dashboard/ajax_update_boutique'] = 'Home/User_dashboard/ajax_update_boutique';
 
 $route['User_dashboard/complete_profile'] = 'Home/User_dashboard/complete_profile';
 $route['User_dashboard/save_complete_profile'] = 'Home/User_dashboard/save_complete_profile';
@@ -818,13 +823,22 @@ $route['User_dashboard/get_communes'] = 'Home/User_dashboard/get_communes';
 
 
 
-$route['auth/login'] = 'Auth/login_page';
-$route['auth/register'] = 'Auth/register_page';
+$route['auth/login_page'] = 'Auth/login_page';
+$route['auth/login'] = 'Auth/login';
+$route['auth/register_page'] = 'Auth/register_page';
+$route['auth/register'] = 'Auth/register';
 $route['auth/verify_code_page'] = 'Auth/verify_code_page';
 $route['auth/verify_code'] = 'Auth/verify_code';
 $route['auth/resend_reset_code'] = 'Auth/resend_reset_code';
 $route['auth/forgot_password'] = 'Auth/forgot_password';
 $route['auth/otp_verification_page'] = 'Auth/otp_verification_page';
+$route['auth/verify_otp'] = 'Auth/verify_otp';
+$route['auth/resend_otp'] = 'Auth/resend_otp';
+$route['auth/logout'] = 'Auth/logout';
+$route['auth/logout_ajax'] = 'Auth/logout_ajax';
+$route['auth/choose_profile_page'] = 'Auth/choose_profile_page';
+$route['auth/save_profile_choice'] = 'Auth/save_profile_choice';
+$route['auth/after_verification'] = 'Auth/after_verification';
 
 // Order tracking
 $route['order-tracking'] = 'Home/Ordertracking/index';

@@ -1493,10 +1493,15 @@ public function getHomeStats() {
                               ->where('statut', 'actif')
                               ->count_all_results('produits');
     
-    // Nombre de vendeurs approuvés
-    $totalSellers = $this->db->where('statut', 'actif')
-                             ->where('est_approuve', 1)
-                             ->count_all_results('vendeurs');
+    // Nombre de vendeurs approuvés (profil vendeur uniquement)
+    $totalSellers = $this->db->select('COUNT(*) as count')
+                             ->from('vendeurs v')
+                             ->join('utilisateur_profils up', 'up.id_utilisateur = v.id_utilisateur AND up.id_profil = 4')
+                             ->where('v.statut', 'actif')
+                             ->where('v.est_approuve', 1)
+                             ->get()
+                             ->row_array();
+    $totalSellers = $totalSellers ? (int)$totalSellers['count'] : 0;
     
     // Nombre de clients (utilisateurs avec profil client)
     $totalCustomers = $this->db->where('est_actif', 1)
@@ -2219,6 +2224,7 @@ public function getAllSellersPaginated($limit = 12, $offset = 0) {
                        u.prenom, u.nom, u.email');
     $this->db->from('vendeurs v');
     $this->db->join('utilisateurs u', 'v.id_utilisateur = u.id_utilisateur');
+    $this->db->join('utilisateur_profils up', 'up.id_utilisateur = u.id_utilisateur AND up.id_profil = 4');
     $this->db->where('v.statut', 'actif');
     $this->db->where('v.est_approuve', 1);
     $this->db->order_by('v.total_commandes', 'DESC');
@@ -2245,6 +2251,7 @@ public function getAllSellersPaginated($limit = 12, $offset = 0) {
  */
 public function countAllSellers() {
     $this->db->from('vendeurs v');
+    $this->db->join('utilisateur_profils up', 'up.id_utilisateur = v.id_utilisateur AND up.id_profil = 4');
     $this->db->where('v.statut', 'actif');
     $this->db->where('v.est_approuve', 1);
     return $this->db->count_all_results();
@@ -2419,6 +2426,7 @@ public function getFeaturedSellersWithProducts($limit = 6) {
                        u.prenom, u.nom');
     $this->db->from('vendeurs v');
     $this->db->join('utilisateurs u', 'v.id_utilisateur = u.id_utilisateur');
+    $this->db->join('utilisateur_profils up', 'up.id_utilisateur = u.id_utilisateur AND up.id_profil = 4');
     $this->db->where('v.statut', 'actif');
     $this->db->where('v.est_approuve', 1);
     $this->db->order_by('v.note_moyenne', 'DESC');

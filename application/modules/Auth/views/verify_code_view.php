@@ -304,7 +304,7 @@
                     <div class="strength-meter">
                         <div class="strength-meter-fill" id="strengthFill"></div>
                     </div>
-                    <div class="strength-text" id="strengthText">Minimum 6 caractères</div>
+                    <div class="strength-text" id="strengthText">Minimum 8 caractères</div>
                     
                     <div class="input-group-custom">
                         <i class="ri-lock-line"></i>
@@ -373,11 +373,11 @@
             
             if (password.length === 0) {
                 strength = 0;
-                message = 'Minimum 6 caractères';
+                message = 'Minimum 8 caractères';
                 color = '#e0e0e0';
-            } else if (password.length < 6) {
+            } else if (password.length < 8) {
                 strength = 25;
-                message = 'Trop court - minimum 6 caractères';
+                message = 'Trop court - minimum 8 caractères';
                 color = '#ff4444';
             } else {
                 strength = 50;
@@ -388,7 +388,7 @@
                     strength = 100;
                     message = 'Fort';
                     color = '#00cc66';
-                } else if (password.length >= 6 && /[0-9]/.test(password)) {
+                } else if (password.length >= 8 && /[0-9]/.test(password)) {
                     strength = 75;
                     message = 'Bon';
                     color = '#ff6600';
@@ -446,7 +446,8 @@
                         icon: 'error',
                         title: 'Code invalide',
                         text: data.message,
-                        confirmButtonColor: '#ff6600'
+                        confirmButtonColor: '#ff6600',
+                        html: false
                     });
                     btn.innerHTML = originalText;
                     btn.disabled = false;
@@ -456,7 +457,8 @@
                     icon: 'error',
                     title: 'Erreur',
                     text: 'Une erreur est survenue',
-                    confirmButtonColor: '#ff6600'
+                    confirmButtonColor: '#ff6600',
+                    html: false
                 });
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -469,12 +471,13 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             
             if (password.length < 6) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erreur',
-                    text: 'Le mot de passe doit contenir au moins 6 caractères',
-                    confirmButtonColor: '#ff6600'
-                });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: 'Le mot de passe doit contenir au moins 8 caractères',
+                        confirmButtonColor: '#ff6600',
+                        html: false
+                    });
                 return;
             }
             
@@ -483,7 +486,8 @@
                     icon: 'error',
                     title: 'Erreur',
                     text: 'Les mots de passe ne correspondent pas',
-                    confirmButtonColor: '#ff6600'
+                    confirmButtonColor: '#ff6600',
+                    html: false
                 });
                 return;
             }
@@ -509,7 +513,8 @@
                         title: 'Mot de passe modifié !',
                         text: data.message,
                         confirmButtonColor: '#ff6600',
-                        confirmButtonText: 'Se connecter'
+                        confirmButtonText: 'Se connecter',
+                        html: false
                     }).then(() => {
                         window.location.href = '<?= base_url(); ?>';
                     });
@@ -518,7 +523,8 @@
                         icon: 'error',
                         title: 'Erreur',
                         text: data.message,
-                        confirmButtonColor: '#ff6600'
+                        confirmButtonColor: '#ff6600',
+                        html: false
                     });
                     btn.innerHTML = originalText;
                     btn.disabled = false;
@@ -528,7 +534,8 @@
                     icon: 'error',
                     title: 'Erreur',
                     text: 'Une erreur est survenue',
-                    confirmButtonColor: '#ff6600'
+                    confirmButtonColor: '#ff6600',
+                    html: false
                 });
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -558,7 +565,7 @@
                         const response = await fetch('<?= base_url("auth/resend_otp"); ?>', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: 'email=' + encodeURIComponent('<?= $email; ?>')
+                            body: 'email=' + encodeURIComponent('<?= addslashes(htmlspecialchars($email, ENT_QUOTES, 'UTF-8')); ?>')
                         });
                         
                         const data = await response.json();
@@ -568,7 +575,8 @@
                                 icon: 'success',
                                 title: 'Code renvoyé !',
                                 text: data.message,
-                                confirmButtonColor: '#ff6600'
+                                confirmButtonColor: '#ff6600',
+                                html: false
                             });
                             // Réinitialiser le timer
                             timeLeft = 900;
@@ -578,7 +586,8 @@
                                 icon: 'error',
                                 title: 'Erreur',
                                 text: data.message,
-                                confirmButtonColor: '#ff6600'
+                                confirmButtonColor: '#ff6600',
+                                html: false
                             });
                         }
                     } catch (error) {
@@ -586,7 +595,8 @@
                             icon: 'error',
                             title: 'Erreur',
                             text: 'Une erreur est survenue',
-                            confirmButtonColor: '#ff6600'
+                            confirmButtonColor: '#ff6600',
+                            html: false
                         });
                     }
                     

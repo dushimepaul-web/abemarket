@@ -533,7 +533,7 @@ class ProduitsVendeur extends MY_Controller
      */
     private function upload_images($produit_id, $files)
     {
-        $ref_folder = FCPATH . 'uploads/produits' . $this->vendeur_id . '/';
+        $ref_folder = FCPATH . 'uploads/produits/' . $this->vendeur_id . '/';
         
         if (!is_dir($ref_folder)) {
             mkdir($ref_folder, 0777, TRUE);
@@ -852,7 +852,7 @@ class ProduitsVendeur extends MY_Controller
             return;
         }
         
-        $ref_folder = FCPATH . 'uploads/produits' . $this->vendeur_id . '/';
+        $ref_folder = FCPATH . 'uploads/produits/' . $this->vendeur_id . '/';
         
         if (!is_dir($ref_folder)) {
             mkdir($ref_folder, 0777, TRUE);
@@ -889,8 +889,8 @@ class ProduitsVendeur extends MY_Controller
             
             $insert_data = [
                 'id_produit' => $produit_id,
-                'url_image' => 'uploads/produits' . $this->vendeur_id . '/' . $filename,
-                'url_miniature' => 'uploads/produits' . $this->vendeur_id . '/' . $thumb_name,
+                'url_image' => 'uploads/produits/' . $this->vendeur_id . '/' . $filename,
+                'url_miniature' => 'uploads/produits/' . $this->vendeur_id . '/' . $thumb_name,
                 'texte_alt' => $produit['nom_produit'] ?? 'Image produit',
                 'est_principale' => $est_principale,
                 'ordre_affichage' => $ordre_affichage,

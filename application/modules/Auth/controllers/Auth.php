@@ -25,89 +25,96 @@ class Auth extends MY_Controller {
     // ============================================
     
     public function login() {
+        // Si accès GET (navigateur), rediriger vers l'accueil
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            redirect(base_url());
+            return;
+        }
+
         $this->output->set_content_type('application/json');
-        // Vérification IP Blacklist avant toute vérification utilisateur
         $ip_address = $this->input->ip_address();
+
+        // Rate limiting: max 5 tentatives échouées en 15 minutes
+        $recent_attempts = $this->Auth_model->checkRecentAttempts($ip_address, 15);
+        if ($recent_attempts >= 5) {
+            echo json_encode(['success' => false, 'message' => 'Trop de tentatives. Veuillez réessayer dans 15 minutes.']);
+            return;
+        }
+
+        // IP Blacklist
         $blacklisted = $this->db->where('adresse_ip', $ip_address)
             ->where('(date_fin IS NULL OR date_fin > NOW())')
             ->get('blacklist_ips')
             ->row();
 
-        // Keep IP blacklisting enabled in production, but do not block local
-        // development sessions running through XAMPP/localhost.
         $is_development = defined('ENVIRONMENT') && ENVIRONMENT === 'development';
         if ($blacklisted && !$is_development) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Accès refusé.'
-            ]);
+            echo json_encode(['success' => false, 'message' => 'Accès refusé.']);
             return;
         }
 
-        // Vérifier si déjà connecté
         if ($this->session->userdata('logged_in')) {
             $redirect_url = $this->getDashboardRedirect($this->session->userdata('role'));
-            echo json_encode([
-                'success' => true, 
-                'message' => 'Vous êtes déjà connecté',
-                'redirect' => $redirect_url
-            ]);
+            echo json_encode(['success' => true, 'message' => 'Vous êtes déjà connecté', 'redirect' => $redirect_url]);
             return;
         }
-        
+
         $email = trim($this->input->post('email'));
         $password = $this->input->post('password');
-        $remember = $this->input->post('remember');
-        
-        // Validation
+
         if (empty($email) || empty($password)) {
             echo json_encode(['success' => false, 'message' => 'Veuillez remplir tous les champs']);
             return;
         }
-        
+
         if (!valid_email($email)) {
             echo json_encode(['success' => false, 'message' => 'Email invalide']);
             return;
         }
-        
+
         $user = $this->Auth_model->getUserByEmail($email);
-        
+
+        // Message générique pour éviter la user enumeration
         if (!$user) {
             $this->Auth_model->logConnexionAttempt(null, $email, $ip_address, false, 'Email non trouvé');
-            echo json_encode(['success' => false, 'message' => 'Aucun compte trouvé avec cet email']);
+            echo json_encode(['success' => false, 'message' => 'Email ou mot de passe incorrect']);
             return;
-        }
-        
-        if ($user['est_actif'] == 0) {
-            echo json_encode(['success' => false, 'message' => 'Votre compte est désactivé. Contactez l\'administrateur.']);
-            return;
-        }
-        
-        if ($user['est_banni'] == 1) {
-            echo json_encode(['success' => false, 'message' => 'Votre compte a été banni. Motif: ' . $user['motif_bannissement']]);
-            return;
-        }
-        
-        $password_correct = false;
-        if (password_verify($password, $user['mot_de_passe'])) {
-            $password_correct = true;
         }
 
-        if (!$password_correct) {
-            $this->Auth_model->logConnexionAttempt($user['id_utilisateur'], $email, $ip_address, false, 'Mot de passe incorrect');
-            echo json_encode(['success' => false, 'message' => 'Mot de passe incorrect']);
+        if ($user['est_actif'] == 0) {
+            echo json_encode(['success' => false, 'message' => 'Compte désactivé. Contactez l\'administrateur.']);
             return;
         }
-        
+
+        if ($user['est_banni'] == 1) {
+            echo json_encode(['success' => false, 'message' => 'Votre compte a été suspendu.']);
+            $this->Auth_model->logConnexionAttempt($user['id_utilisateur'], $email, $ip_address, false, 'Compte banni');
+            return;
+        }
+
+        // Vérifier le profil - rejeter admin/super_admin (login admin séparé)
         $profiles = $this->Auth_model->getUserProfiles($user['id_utilisateur']);
-        $role = 'client';
-        $permissions = [];
-        
         if (!empty($profiles)) {
             $role = $profiles[0]['description'];
-            $permissions = json_decode($profiles[0]['permissions'], true);
+            if (in_array($role, ['super_admin', 'admin'])) {
+                echo json_encode(['success' => false, 'message' => 'Utilisez le portail administrateur pour vous connecter.']);
+                return;
+            }
         }
-        
+
+        // Vérifier le mot de passe (MD5)
+        if (md5($password) !== $user['mot_de_passe']) {
+            $this->Auth_model->logConnexionAttempt($user['id_utilisateur'], $email, $ip_address, false, 'Mot de passe incorrect');
+            echo json_encode(['success' => false, 'message' => 'Email ou mot de passe incorrect']);
+            return;
+        }
+
+        // Régénérer la session pour éviter la session fixation
+        $this->session->sess_regenerate(TRUE);
+
+        $role = !empty($profiles) ? $profiles[0]['description'] : 'client';
+        $permissions = !empty($profiles) ? json_decode($profiles[0]['permissions'], true) : [];
+
         $session_data = array(
             'user_id' => $user['id_utilisateur'],
             'id_utilisateur' => $user['id_utilisateur'],
@@ -121,16 +128,16 @@ class Auth extends MY_Controller {
             'permissions' => $permissions,
             'logged_in' => true
         );
-        
+
         $this->session->set_userdata($session_data);
         $this->Auth_model->updateLastLogin($user['id_utilisateur']);
         $this->Auth_model->logConnexionAttempt($user['id_utilisateur'], $email, $ip_address, true);
-        
+
         $redirect_url = $this->getDashboardRedirect($role);
-        
+
         echo json_encode([
-            'success' => true, 
-            'message' => 'Connexion réussie ! Bienvenue ' . $user['prenom'],
+            'success' => true,
+            'message' => 'Connexion réussie !',
             'redirect' => $redirect_url
         ]);
     }
@@ -155,6 +162,12 @@ class Auth extends MY_Controller {
     // ============================================
     
     public function register() {
+    // Si accès GET (navigateur), rediriger vers l'accueil
+    if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+        redirect(base_url());
+        return;
+    }
+
     $this->output->set_content_type('application/json');
     $prenom = trim($this->input->post('prenom'));
     $nom = trim($this->input->post('nom'));
@@ -163,48 +176,46 @@ class Auth extends MY_Controller {
     $password = $this->input->post('password');
     $confirm_password = $this->input->post('confirm_password');
     $agree_terms = $this->input->post('agree_terms');
-    
+
     if (empty($prenom) || empty($nom) || empty($email) || empty($telephone) || empty($password)) {
         echo json_encode(['success' => false, 'message' => 'Tous les champs sont obligatoires']);
         return;
     }
-    
+
     if (!valid_email($email)) {
         echo json_encode(['success' => false, 'message' => 'Email invalide']);
         return;
     }
-    
-    if (strlen($password) < 6) {
-        echo json_encode(['success' => false, 'message' => 'Le mot de passe doit contenir au moins 6 caractères']);
+
+    if (strlen($password) < 8) {
+        echo json_encode(['success' => false, 'message' => 'Le mot de passe doit contenir au moins 8 caractères']);
         return;
     }
-    
+
     if ($password !== $confirm_password) {
         echo json_encode(['success' => false, 'message' => 'Les mots de passe ne correspondent pas']);
         return;
     }
-    
+
     if (!$agree_terms) {
         echo json_encode(['success' => false, 'message' => 'Vous devez accepter les conditions d\'utilisation']);
         return;
     }
-    
-    // Vérifier si l'email existe déjà
+
+    // Messages génériques pour éviter la user enumeration
     if ($this->Auth_model->getUserByEmail($email)) {
-        echo json_encode(['success' => false, 'message' => 'Cet email est déjà utilisé']);
+        echo json_encode(['success' => false, 'message' => 'Email ou téléphone déjà utilisé']);
         return;
     }
-    
-    // Vérifier si le téléphone existe déjà
+
     if ($this->Auth_model->getUserByPhone($telephone)) {
-        echo json_encode(['success' => false, 'message' => 'Ce numéro de téléphone est déjà utilisé']);
+        echo json_encode(['success' => false, 'message' => 'Email ou téléphone déjà utilisé']);
         return;
     }
-    
-    // Créer l'utilisateur
+
     $user_data = array(
         'email' => $email,
-        'mot_de_passe' => password_hash($password, PASSWORD_BCRYPT),
+        'mot_de_passe' => md5($password),
         'prenom' => $prenom,
         'nom' => $nom,
         'telephone' => $telephone,
@@ -214,16 +225,12 @@ class Auth extends MY_Controller {
         'est_banni' => 0,
         'date_creation' => date('Y-m-d H:i:s')
     );
-    
+
     $id_utilisateur = $this->Auth_model->createUser($user_data);
-    
+
     if ($id_utilisateur) {
-        // Assigner le profil client (id_profil = 5)
         $this->Auth_model->assignUserProfile($id_utilisateur, 5);
-        
-        // ============================================
-        // SAUVEGARDER L'UTILISATEUR DANS LA SESSION
-        // ============================================
+
         $session_data = array(
             'logged_in' => true,
             'id_utilisateur' => $id_utilisateur,
@@ -236,12 +243,16 @@ class Auth extends MY_Controller {
             'email_verifie' => 0
         );
         $this->session->set_userdata($session_data);
-        
-        // Générer un code OTP à 6 chiffres
-        $otp_code = sprintf("%06d", mt_rand(1, 999999));
+
+        // Générer un code OTP cryptographiquement sûr
+        $otp_code = sprintf("%06d", random_int(100000, 999999));
         $expiration = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-        
-        // Sauvegarder le code OTP
+
+        // Invalider les anciens OTPs non utilisés de cet utilisateur
+        $this->db->where('id_utilisateur', $id_utilisateur)
+            ->where('utilise', 0)
+            ->update('codes_otp', ['utilise' => 1]);
+
         $otp_data = array(
             'id_utilisateur' => $id_utilisateur,
             'code' => $otp_code,
@@ -252,30 +263,29 @@ class Auth extends MY_Controller {
             'utilise' => 0,
             'date_creation' => date('Y-m-d H:i:s')
         );
-        
+
         $this->db->insert('codes_otp', $otp_data);
-        
-        // Récupérer le logo du site depuis les settings
+
         $logo_setting = $this->db->where('KeyValue', 'site_logo')->get('settings')->row();
         $logo_filename = ($logo_setting && !empty($logo_setting->Value)) ? $logo_setting->Value : 'logo.png';
         $logo_url = base_url('attachments/Settings/' . $logo_filename);
 
-        // Envoyer l'email avec le code OTP via Cpanel_email_lib
         $this->load->library('Cpanel_email_lib');
         $subject = "Code de vérification - ABEMARKET";
+        $safeprenom = htmlspecialchars($prenom, ENT_QUOTES, 'UTF-8');
+        $safenom = htmlspecialchars($nom, ENT_QUOTES, 'UTF-8');
         $message = "<div style='font-family:Arial,sans-serif;padding:25px;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #eaeaea;'>
             <div style='text-align:center;margin-bottom:20px;'>
-                <img src='$logo_url' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
+                <img src='" . htmlspecialchars($logo_url, ENT_QUOTES, 'UTF-8') . "' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
             </div>
-            <h2>Bonjour $prenom $nom,</h2>
+            <h2>Bonjour {$safeprenom} {$safenom},</h2>
             <p>Voici votre code de vérification pour votre compte ABEMARKET :</p>
-            <h1 style='color:#ff6600;background:#f8f9fa;padding:12px;text-align:center;letter-spacing:5px;border-radius:8px;'>$otp_code</h1>
-            <p>Ce code expirera dans 15 minutes.</p>
+            <h1 style='color:#ff6600;background:#f8f9fa;padding:12px;text-align:center;letter-spacing:5px;border-radius:8px;'>{$otp_code}</h1>
+            <p>Ce code expirera dans 10 minutes.</p>
             <p>Cordialement,<br><strong>L'équipe ABEMARKET</strong></p>
         </div>";
-        $result = $this->cpanel_email_lib->send_email($email, $subject, $message);
-        $email_sent = isset($result['success']) && $result['success'];
-        
+        @$this->cpanel_email_lib->send_email($email, $subject, $message);
+
         echo json_encode([
             'success' => true,
             'message' => 'Un code de vérification a été envoyé à votre adresse email.',
@@ -323,7 +333,7 @@ public function choose_profile_page() {
     $user_id = $this->session->userdata('id_utilisateur');
     
     if (!$user_id) {
-        redirect(base_url('auth/login'));
+        redirect(base_url('auth/login_page'));
     }
     
     // Récupérer les informations de l'utilisateur
@@ -419,7 +429,7 @@ public function after_verification() {
     $user_id = $this->session->userdata('id_utilisateur');
     
     if (!$user_id) {
-        redirect(base_url('auth/login'));
+        redirect(base_url('auth/login_page'));
     }
     
     // Vérifier les profils existants
@@ -435,7 +445,7 @@ public function after_verification() {
     if (in_array(4, $profile_ids)) {
         $seller_info = $this->db->get_where('vendeurs', ['id_utilisateur' => $user_id])->row();
         if (!$seller_info) {
-            redirect(base_url('Auth/complete_profile'));
+            redirect(base_url('auth/complete_profile'));
         } else {
             redirect(base_url('User_dashboard'));
         }
@@ -446,7 +456,7 @@ public function after_verification() {
     }
     // Sinon, proposer le choix du profil
     else {
-        redirect(base_url('Auth/choose_profile_page'));
+        redirect(base_url('auth/choose_profile_page'));
     }
 }
 
@@ -460,17 +470,16 @@ public function after_verification() {
 
 
     
-public function verify_otp() {
+    public function verify_otp() {
     $this->output->set_content_type('application/json');
     $user_id = $this->input->post('user_id');
     $code = trim($this->input->post('code'));
-    
+
     if (empty($user_id) || empty($code)) {
         echo json_encode(['success' => false, 'message' => 'Code invalide']);
         return;
     }
-    
-    // Récupérer le dernier OTP actif pour cet utilisateur
+
     $otp = $this->db->select('*')
         ->from('codes_otp')
         ->where('id_utilisateur', $user_id)
@@ -480,85 +489,74 @@ public function verify_otp() {
         ->limit(1)
         ->get()
         ->row();
-    
+
     if (!$otp) {
-        echo json_encode(['success' => false, 'message' => 'Aucun code de vérification actif trouvé. Veuillez en demander un nouveau.']);
+        echo json_encode(['success' => false, 'message' => 'Aucun code actif. Veuillez en demander un nouveau.']);
         return;
     }
-    
-    // Vérifier l'expiration
+
     if (strtotime($otp->date_expiration) < time()) {
         echo json_encode(['success' => false, 'message' => 'Code expiré. Veuillez demander un nouveau code.']);
         return;
     }
-    
-    // Vérifier tentatives
+
     if ($otp->tentatives >= 5) {
         $this->db->where('id_otp', $otp->id_otp)->update('codes_otp', ['utilise' => 1]);
-        echo json_encode(['success' => false, 'message' => 'Code bloqué pour cause de trop nombreuses tentatives. Veuillez en demander un nouveau.']);
+        echo json_encode(['success' => false, 'message' => 'Trop de tentatives. Veuillez en demander un nouveau.']);
         return;
     }
-    
-    // Vérifier la correspondance
+
     if ($otp->code !== $code) {
-        // Incrémenter les tentatives
         $this->db->set('tentatives', 'tentatives+1', FALSE)
             ->where('id_otp', $otp->id_otp)
             ->update('codes_otp');
-            
+
         $new_tentatives = $otp->tentatives + 1;
         if ($new_tentatives >= 5) {
             $this->db->where('id_otp', $otp->id_otp)->update('codes_otp', ['utilise' => 1]);
-            echo json_encode(['success' => false, 'message' => 'Trop de tentatives infructueuses. Code annulé. Veuillez en demander un nouveau.']);
+            echo json_encode(['success' => false, 'message' => 'Trop de tentatives. Code annulé. Veuillez en demander un nouveau.']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Code invalide. Veuillez réessayer.']);
         }
         return;
     }
-    
-    // Marquer le code comme utilisé
+
+    // Code correct - marquer comme utilisé
     $this->db->where('id_otp', $otp->id_otp)
         ->update('codes_otp', ['utilise' => 1]);
-    
-    // Mettre à jour l'utilisateur
+
     $this->db->where('id_utilisateur', $user_id)
         ->update('utilisateurs', [
             'email_verifie' => 1,
             'est_actif' => 1
         ]);
-    
-    // Mettre à jour la session
+
     $this->session->set_userdata('email_verifie', 1);
-    
-    // Récupérer l'utilisateur pour envoyer l'email de bienvenue
+
     $user = $this->db->get_where('utilisateurs', ['id_utilisateur' => $user_id])->row();
-    
+
     $logo_setting = $this->db->where('KeyValue', 'site_logo')->get('settings')->row();
     $logo_filename = ($logo_setting && !empty($logo_setting->Value)) ? $logo_setting->Value : 'logo.png';
     $logo_url = base_url('attachments/Settings/' . $logo_filename);
 
     $this->load->library('Cpanel_email_lib');
     $subject = "Bienvenue sur ABEMARKET";
+    $safeprenom = htmlspecialchars($user->prenom, ENT_QUOTES, 'UTF-8');
+    $safenom = htmlspecialchars($user->nom, ENT_QUOTES, 'UTF-8');
     $message = "<div style='font-family:Arial,sans-serif;padding:25px;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #eaeaea;'>
         <div style='text-align:center;margin-bottom:20px;'>
-            <img src='$logo_url' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
+            <img src='" . htmlspecialchars($logo_url, ENT_QUOTES, 'UTF-8') . "' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
         </div>
-        <h2>Bienvenue {$user->prenom} {$user->nom} !</h2>
+        <h2>Bienvenue {$safeprenom} {$safenom} !</h2>
         <p>Votre compte a été vérifié et activé avec succès sur ABEMARKET.</p>
         <p>Vous pouvez dès à présent profiter de notre plateforme.</p>
         <p>Cordialement,<br><strong>L'équipe ABEMARKET</strong></p>
     </div>";
-    $this->cpanel_email_lib->send_email($user->email, $subject, $message);
-    
+    @$this->cpanel_email_lib->send_email($user->email, $subject, $message);
+
     echo json_encode([
-        'success' => true, 
+        'success' => true,
         'message' => 'Compte vérifié avec succès !',
-        'user' => [
-            'id_utilisateur' => $user_id,
-            'email' => $otp->email,
-            'prenom' => $user->prenom,
-            'nom' => $user->nom
-        ],
         'redirect_url' => base_url('auth/choose_profile_page')
     ]);
 }
@@ -576,29 +574,32 @@ public function verify_otp() {
         $this->output->set_content_type('application/json');
         $user_id = $this->input->post('user_id');
         $email = $this->input->post('email');
-        
+
         if (empty($user_id) && empty($email)) {
             echo json_encode(['success' => false, 'message' => 'Informations manquantes']);
             return;
         }
-        
-        // Récupérer l'utilisateur
+
         if ($user_id) {
             $user = $this->db->get_where('utilisateurs', ['id_utilisateur' => $user_id])->row();
         } else {
             $user = $this->db->get_where('utilisateurs', ['email' => $email])->row();
         }
-        
+
         if (!$user) {
             echo json_encode(['success' => false, 'message' => 'Utilisateur non trouvé']);
             return;
         }
-        
-        // Générer un nouveau code
-        $otp_code = sprintf("%06d", mt_rand(1, 999999));
+
+        // Invalider les anciens OTPs non utilisés
+        $this->db->where('id_utilisateur', $user->id_utilisateur)
+            ->where('type_otp', 'verification_email')
+            ->where('utilise', 0)
+            ->update('codes_otp', ['utilise' => 1]);
+
+        $otp_code = sprintf("%06d", random_int(100000, 999999));
         $expiration = date('Y-m-d H:i:s', strtotime('+10 minutes'));
-        
-        // Sauvegarder le code
+
         $otp_data = array(
             'id_utilisateur' => $user->id_utilisateur,
             'code' => $otp_code,
@@ -609,30 +610,30 @@ public function verify_otp() {
             'utilise' => 0,
             'date_creation' => date('Y-m-d H:i:s')
         );
-        
+
         $this->db->insert('codes_otp', $otp_data);
-        
-        // Récupérer le logo du site depuis les settings
+
         $logo_setting = $this->db->where('KeyValue', 'site_logo')->get('settings')->row();
         $logo_filename = ($logo_setting && !empty($logo_setting->Value)) ? $logo_setting->Value : 'logo.png';
         $logo_url = base_url('attachments/Settings/' . $logo_filename);
 
-        // Envoyer l'email via Cpanel_email_lib
         $this->load->library('Cpanel_email_lib');
         $subject = "Nouveau code de vérification - ABEMARKET";
+        $safeprenom = htmlspecialchars($user->prenom, ENT_QUOTES, 'UTF-8');
+        $safenom = htmlspecialchars($user->nom, ENT_QUOTES, 'UTF-8');
         $message = "<div style='font-family:Arial,sans-serif;padding:25px;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #eaeaea;'>
             <div style='text-align:center;margin-bottom:20px;'>
-                <img src='$logo_url' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
+                <img src='" . htmlspecialchars($logo_url, ENT_QUOTES, 'UTF-8') . "' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
             </div>
-            <h2>Bonjour {$user->prenom} {$user->nom},</h2>
+            <h2>Bonjour {$safeprenom} {$safenom},</h2>
             <p>Voici votre nouveau code de vérification :</p>
-            <h1 style='color:#ff6600;background:#f8f9fa;padding:12px;text-align:center;letter-spacing:5px;border-radius:8px;'>$otp_code</h1>
-            <p>Ce code expirera dans 15 minutes.</p>
+            <h1 style='color:#ff6600;background:#f8f9fa;padding:12px;text-align:center;letter-spacing:5px;border-radius:8px;'>{$otp_code}</h1>
+            <p>Ce code expirera dans 10 minutes.</p>
             <p>Cordialement,<br><strong>L'équipe ABEMARKET</strong></p>
         </div>";
-        $result = $this->cpanel_email_lib->send_email($user->email, $subject, $message);
+        $result = @$this->cpanel_email_lib->send_email($user->email, $subject, $message);
         $email_sent = isset($result['success']) && $result['success'];
-        
+
         if ($email_sent) {
             echo json_encode(['success' => true, 'message' => 'Un nouveau code a été envoyé à votre email']);
         } else {
@@ -645,31 +646,49 @@ public function verify_otp() {
 // ============================================
 
 public function forgot_password() {
+    // Si accès GET (navigateur), rediriger vers l'accueil
+    if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+        redirect(base_url());
+        return;
+    }
+
     $this->output->set_content_type('application/json');
-    
+    $ip_address = $this->input->ip_address();
+
     $email = trim($this->input->post('email'));
-    
+
     if (empty($email) || !valid_email($email)) {
         echo json_encode(['success' => false, 'message' => 'Email invalide']);
         return;
     }
-    
-    $user = $this->Auth_model->getUserByEmail($email);
-    
-    if (!$user) {
-        echo json_encode(['success' => false, 'message' => 'Aucun compte trouvé avec cet email']);
+
+    // Rate limiting: max 3 OTP requests per 5 minutes (per-email)
+    $recent_otp = $this->db->where('email', $email)
+        ->where('type_otp', 'reinitialisation_mdp')
+        ->where('date_creation >', date('Y-m-d H:i:s', strtotime('-5 minutes')))
+        ->count_all_results('codes_otp');
+    if ($recent_otp >= 3) {
+        echo json_encode(['success' => false, 'message' => 'Trop de demandes. Veuillez réessayer dans 5 minutes.']);
         return;
     }
-    
-    $otp_code = sprintf("%06d", mt_rand(1, 999999));
+
+    $user = $this->Auth_model->getUserByEmail($email);
+
+    // Message générique pour éviter la user enumeration
+    if (!$user) {
+        echo json_encode(['success' => true, 'message' => 'Si cet email existe, un code a été envoyé.']);
+        return;
+    }
+
+    $otp_code = sprintf("%06d", random_int(100000, 999999));
     $expiration = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-    
-    // Supprimer les anciens codes
-    $this->db->where('id_utilisateur', $user['id_utilisateur']);
-    $this->db->where('type_otp', 'reinitialisation_mdp');
-    $this->db->where('utilise', 0);
-    $this->db->delete('codes_otp');
-    
+
+    // Invalider les anciens codes de réinitialisation
+    $this->db->where('id_utilisateur', $user['id_utilisateur'])
+        ->where('type_otp', 'reinitialisation_mdp')
+        ->where('utilise', 0)
+        ->update('codes_otp', ['utilise' => 1]);
+
     $otp_data = array(
         'id_utilisateur' => $user['id_utilisateur'],
         'code' => $otp_code,
@@ -680,36 +699,36 @@ public function forgot_password() {
         'utilise' => 0,
         'date_creation' => date('Y-m-d H:i:s')
     );
-    
+
     $this->db->insert('codes_otp', $otp_data);
-    
-    // Récupérer le logo du site depuis les settings
+
     $logo_setting = $this->db->where('KeyValue', 'site_logo')->get('settings')->row();
     $logo_filename = ($logo_setting && !empty($logo_setting->Value)) ? $logo_setting->Value : 'logo.png';
     $logo_url = base_url('attachments/Settings/' . $logo_filename);
 
-    // Envoyer le code via Cpanel_email_lib
     $this->load->library('Cpanel_email_lib');
     $subject = "Réinitialisation de mot de passe - ABEMARKET";
+    $safeprenom = htmlspecialchars($user['prenom'], ENT_QUOTES, 'UTF-8');
+    $safenom = htmlspecialchars($user['nom'], ENT_QUOTES, 'UTF-8');
     $message = "<div style='font-family:Arial,sans-serif;padding:25px;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;border:1px solid #eaeaea;'>
         <div style='text-align:center;margin-bottom:20px;'>
-            <img src='$logo_url' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
+            <img src='" . htmlspecialchars($logo_url, ENT_QUOTES, 'UTF-8') . "' alt='ABEMARKET' style='max-height:50px;object-fit:contain;'>
         </div>
-        <h2>Bonjour {$user['prenom']} {$user['nom']},</h2>
+        <h2>Bonjour {$safeprenom} {$safenom},</h2>
         <p>Vous avez demandé la réinitialisation de votre mot de passe sur ABEMARKET.</p>
         <p>Voici votre code de réinitialisation :</p>
-        <h1 style='color:#ff6600;background:#f8f9fa;padding:12px;text-align:center;letter-spacing:5px;border-radius:8px;'>$otp_code</h1>
+        <h1 style='color:#ff6600;background:#f8f9fa;padding:12px;text-align:center;letter-spacing:5px;border-radius:8px;'>{$otp_code}</h1>
         <p>Ce code expirera dans 15 minutes.</p>
+        <p>Si vous n'avez pas fait cette demande, ignorez cet email.</p>
         <p>Cordialement,<br><strong>L'équipe ABEMARKET</strong></p>
     </div>";
-    $this->cpanel_email_lib->send_email($email, $subject, $message);
-    
-    // Stocker l'email en session (toujours, même si l'email échoue, pour permettre la vérification)
+    @$this->cpanel_email_lib->send_email($email, $subject, $message);
+
     $this->session->set_userdata('reset_email', $email);
-    
+
     echo json_encode([
-        'success' => true, 
-        'message' => 'Un code de réinitialisation a été envoyé à votre adresse email.',
+        'success' => true,
+        'message' => 'Si cet email existe, un code de réinitialisation a été envoyé.',
         'redirect_url' => base_url('auth/verify_code_page')
     ]);
 }
@@ -736,86 +755,82 @@ public function forgot_password() {
     // ============================================
     
     public function verify_code() {
-        $this->output->set_content_type('application/json');
-        $email = $this->session->userdata('reset_email');
-        $code = trim($this->input->post('code'));
-        $password = $this->input->post('password');
-        $confirm_password = $this->input->post('confirm_password');
-        
-        if (!$email) {
-            echo json_encode(['success' => false, 'message' => 'Session expirée. Veuillez recommencer.']);
+    $this->output->set_content_type('application/json');
+    $email = $this->session->userdata('reset_email');
+    $code = trim($this->input->post('code'));
+    $password = $this->input->post('password');
+    $confirm_password = $this->input->post('confirm_password');
+
+    if (!$email) {
+        echo json_encode(['success' => false, 'message' => 'Session expirée. Veuillez recommencer.']);
+        return;
+    }
+
+    // Étape 1: Vérification du code seulement
+    if ($password === null) {
+        if (empty($code)) {
+            echo json_encode(['success' => false, 'message' => 'Veuillez entrer le code reçu par email']);
             return;
         }
-        
-        // Étape 1: Vérification du code seulement
-        if ($password === null) {
-            if (empty($code)) {
-                echo json_encode(['success' => false, 'message' => 'Veuillez entrer le code reçu par email']);
-                return;
-            }
-            
-            $user = $this->Auth_model->getUserByEmail($email);
-            
-            if (!$user) {
-                echo json_encode(['success' => false, 'message' => 'Utilisateur non trouvé']);
-                return;
-            }
-            
-            // Récupérer le dernier OTP actif pour la réinitialisation
-            $otp = $this->db->select('*')
-                ->from('codes_otp')
-                ->where('id_utilisateur', $user['id_utilisateur'])
-                ->where('type_otp', 'reinitialisation_mdp')
-                ->where('utilise', 0)
-                ->order_by('id_otp', 'DESC')
-                ->limit(1)
-                ->get()
-                ->row();
-            
-            if (!$otp) {
-                echo json_encode(['success' => false, 'message' => 'Aucun code de réinitialisation actif. Veuillez recommencer la demande.']);
-                return;
-            }
-            
-            // Vérifier expiration
-            if (strtotime($otp->date_expiration) < time()) {
-                echo json_encode(['success' => false, 'message' => 'Le code a expiré. Veuillez demander un nouveau code.']);
-                return;
-            }
-            
-            // Vérifier tentatives
-            if ($otp->tentatives >= 5) {
+
+        $user = $this->Auth_model->getUserByEmail($email);
+
+        if (!$user) {
+            echo json_encode(['success' => false, 'message' => 'Session invalide. Veuillez recommencer.']);
+            return;
+        }
+
+        $otp = $this->db->select('*')
+            ->from('codes_otp')
+            ->where('id_utilisateur', $user['id_utilisateur'])
+            ->where('type_otp', 'reinitialisation_mdp')
+            ->where('utilise', 0)
+            ->order_by('id_otp', 'DESC')
+            ->limit(1)
+            ->get()
+            ->row();
+
+        if (!$otp) {
+            echo json_encode(['success' => false, 'message' => 'Aucun code actif. Veuillez recommencer la demande.']);
+            return;
+        }
+
+        if (strtotime($otp->date_expiration) < time()) {
+            echo json_encode(['success' => false, 'message' => 'Code expiré. Veuillez demander un nouveau code.']);
+            return;
+        }
+
+        if ($otp->tentatives >= 5) {
+            $this->db->where('id_otp', $otp->id_otp)->update('codes_otp', ['utilise' => 1]);
+            echo json_encode(['success' => false, 'message' => 'Trop de tentatives. Veuillez en demander un nouveau.']);
+            return;
+        }
+
+        if ($otp->code !== $code) {
+            $this->db->set('tentatives', 'tentatives+1', FALSE)
+                ->where('id_otp', $otp->id_otp)
+                ->update('codes_otp');
+
+            $new_tentatives = $otp->tentatives + 1;
+            if ($new_tentatives >= 5) {
                 $this->db->where('id_otp', $otp->id_otp)->update('codes_otp', ['utilise' => 1]);
-                echo json_encode(['success' => false, 'message' => 'Code bloqué pour cause de trop nombreuses tentatives. Veuillez en demander un nouveau.']);
-                return;
+                echo json_encode(['success' => false, 'message' => 'Trop de tentatives. Code annulé. Veuillez en demander un nouveau.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Code invalide ou expiré']);
             }
-            
-            // Vérifier correspondance du code
-            if ($otp->code !== $code) {
-                $this->db->set('tentatives', 'tentatives+1', FALSE)
-                    ->where('id_otp', $otp->id_otp)
-                    ->update('codes_otp');
-                
-                $new_tentatives = $otp->tentatives + 1;
-                if ($new_tentatives >= 5) {
-                    $this->db->where('id_otp', $otp->id_otp)->update('codes_otp', ['utilise' => 1]);
-                    echo json_encode(['success' => false, 'message' => 'Trop de tentatives infructueuses. Code annulé. Veuillez en demander un nouveau.']);
-                } else {
-                    echo json_encode(['success' => false, 'message' => 'Code invalide ou expiré']);
-                }
-                return;
-            }
-            
-            // Si code correct, marquer immédiatement comme utilisé (usage unique !)
-            $this->db->where('id_otp', $otp->id_otp);
-            $this->db->update('codes_otp', ['utilise' => 1]);
-            
-            $this->session->set_userdata('code_validated', true);
-            $this->session->set_userdata('validated_user_id', $user['id_utilisateur']);
-            
-            echo json_encode(['success' => true, 'message' => 'Code valide', 'action' => 'set_password']);
             return;
         }
+
+        // Code correct - marquer comme utilisé
+        $this->db->where('id_otp', $otp->id_otp);
+        $this->db->update('codes_otp', ['utilise' => 1]);
+
+        $this->session->set_userdata('code_validated', true);
+        $this->session->set_userdata('validated_user_id', $user['id_utilisateur']);
+
+        echo json_encode(['success' => true, 'message' => 'Code valide', 'action' => 'set_password']);
+        return;
+    }
         
         // Étape 2: Réinitialisation du mot de passe
         if (!$this->session->userdata('code_validated')) {
@@ -823,8 +838,8 @@ public function forgot_password() {
             return;
         }
         
-        if (strlen($password) < 6) {
-            echo json_encode(['success' => false, 'message' => 'Le mot de passe doit contenir au moins 6 caractères']);
+        if (strlen($password) < 8) {
+            echo json_encode(['success' => false, 'message' => 'Le mot de passe doit contenir au moins 8 caractères']);
             return;
         }
         
@@ -867,26 +882,28 @@ public function forgot_password() {
     public function resend_reset_code() {
         $this->output->set_content_type('application/json');
         $email = trim($this->input->post('email'));
-        
+
         if (empty($email) || !valid_email($email)) {
             echo json_encode(['success' => false, 'message' => 'Email invalide']);
             return;
         }
-        
+
         $user = $this->Auth_model->getUserByEmail($email);
-        
+
         if (!$user) {
-            echo json_encode(['success' => false, 'message' => 'Aucun compte trouvé avec cet email']);
+            echo json_encode(['success' => true, 'message' => 'Si cet email existe, un code a été envoyé.']);
             return;
         }
-        
-        $otp_code = sprintf("%06d", mt_rand(1, 999999));
+
+        // Invalider les anciens codes
+        $this->db->where('id_utilisateur', $user['id_utilisateur'])
+            ->where('type_otp', 'reinitialisation_mdp')
+            ->where('utilise', 0)
+            ->update('codes_otp', ['utilise' => 1]);
+
+        $otp_code = sprintf("%06d", random_int(100000, 999999));
         $expiration = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-        
-        $this->db->where('id_utilisateur', $user['id_utilisateur']);
-        $this->db->where('type_otp', 'reinitialisation_mdp');
-        $this->db->delete('codes_otp');
-        
+
         $otp_data = array(
             'id_utilisateur' => $user['id_utilisateur'],
             'code' => $otp_code,
@@ -897,22 +914,24 @@ public function forgot_password() {
             'utilise' => 0,
             'date_creation' => date('Y-m-d H:i:s')
         );
-        
+
         $this->db->insert('codes_otp', $otp_data);
-        
-        // Envoyer un nouveau code de réinitialisation
+
         $this->load->library('Cpanel_email_lib');
         $subject = "Nouveau code de réinitialisation - ABEMARKET";
+        $safeprenom = htmlspecialchars($user['prenom'], ENT_QUOTES, 'UTF-8');
+        $safenom = htmlspecialchars($user['nom'], ENT_QUOTES, 'UTF-8');
         $message = "<div style='font-family:Arial,sans-serif;padding:20px;'>
-            <h2>Bonjour {$user['prenom']} {$user['nom']},</h2>
+            <h2>Bonjour {$safeprenom} {$safenom},</h2>
             <p>Voici votre nouveau code de réinitialisation de mot de passe :</p>
-            <h1 style='color:#ff6600;background:#f8f9fa;padding:10px;text-align:center;letter-spacing:5px;'>$otp_code</h1>
+            <h1 style='color:#ff6600;background:#f8f9fa;padding:10px;text-align:center;letter-spacing:5px;'>{$otp_code}</h1>
             <p>Ce code expirera dans 15 minutes.</p>
+            <p>Si vous n'avez pas fait cette demande, ignorez cet email.</p>
             <p>Cordialement,<br>L'équipe ABEMARKET</p>
         </div>";
-        $this->cpanel_email_lib->send_email($email, $subject, $message);
-        
-        echo json_encode(['success' => true, 'message' => 'Un nouveau code a été envoyé à votre adresse email.']);
+        @$this->cpanel_email_lib->send_email($email, $subject, $message);
+
+        echo json_encode(['success' => true, 'message' => 'Si cet email existe, un nouveau code a été envoyé.']);
     }
     
     // ============================================

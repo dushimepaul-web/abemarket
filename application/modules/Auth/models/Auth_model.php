@@ -57,10 +57,10 @@ class Auth_model extends CI_Model {
         return $this->db->affected_rows();
     }
     
-    // Mettre à jour le mot de passe (Hachage BCRYPT)
+    // Mettre à jour le mot de passe (MD5)
     public function updatePassword($id_utilisateur, $new_password) {
         $this->db->where('id_utilisateur', $id_utilisateur);
-        $this->db->update('utilisateurs', array('mot_de_passe' => password_hash($new_password, PASSWORD_BCRYPT)));
+        $this->db->update('utilisateurs', array('mot_de_passe' => md5($new_password)));
         return $this->db->affected_rows();
     }
     
@@ -105,7 +105,7 @@ public function checkResetToken($token) {
         return $this->db->insert_id();
     }
     
-    // Vérifier les tentatives de connexion récentes
+    // Vérifier les tentatives de connexion récentes par IP
     public function checkRecentAttempts($adresse_ip, $minutes = 15) {
         $this->db->where('adresse_ip', $adresse_ip);
         $this->db->where('date_tentative >', date('Y-m-d H:i:s', strtotime("-$minutes minutes")));
@@ -113,5 +113,13 @@ public function checkResetToken($token) {
         $query = $this->db->get('tentatives_connexion');
         return $query->num_rows();
     }
+    
+    // Vérifier les tentatives de connexion récentes par email
+    public function checkRecentEmailAttempts($email, $minutes = 5) {
+        $this->db->where('email_tente', $email);
+        $this->db->where('date_tentative >', date('Y-m-d H:i:s', strtotime("-$minutes minutes")));
+        $this->db->where('reussie', 0);
+        $query = $this->db->get('tentatives_connexion');
+        return $query->num_rows();
+    }
 }
-?>

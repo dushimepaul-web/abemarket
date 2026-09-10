@@ -198,7 +198,7 @@ class User_dashboard extends MY_Controller {
              ->set_output(json_encode([
                  'success' => $result,
                  'message' => $result ? 'Avatar mis à jour avec succès' : 'Erreur lors de la mise à jour',
-                 'avatar_url' => $avatar_url
+                 'avatar_url' => base_url($avatar_url)
              ]));
         return;
     }
@@ -387,6 +387,29 @@ class User_dashboard extends MY_Controller {
     }
     
     /**
+     * AJAX - Récupère une adresse par son ID
+     */
+    public function ajax_get_address($address_id) {
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
+        
+        $user_id = $this->session->userdata('id_utilisateur');
+        
+        $address = $this->db->where('id_adresse', $address_id)
+                            ->where('id_utilisateur', $user_id)
+                            ->get('adresses')
+                            ->row_array();
+        
+        $this->output
+             ->set_content_type('application/json')
+             ->set_output(json_encode([
+                 'success' => (bool)$address,
+                 'data' => $address
+             ]));
+    }
+    
+    /**
      * AJAX - Ajoute à la wishlist
      */
     public function ajax_add_wishlist() {
@@ -506,7 +529,7 @@ public function ajax_change_avatar() {
          ->set_output(json_encode([
              'success' => $result,
              'message' => $result ? 'Avatar mis à jour avec succès' : 'Erreur lors de la mise à jour',
-             'avatar_url' => $avatar_url
+             'avatar_url' => base_url($avatar_url)
          ]));
 }
 
@@ -697,6 +720,29 @@ public function ajax_update_boutique() {
                 // Gestion des images
                 if (!empty($_FILES['images']['name'][0])) {
                     $this->upload_images($produit_id, $_FILES['images']);
+                }
+
+                $this->session->set_flashdata('success', 'Produit créé avec succès.');
+                redirect(base_url('User_dashboard'));
+            } else {
+                $this->session->set_flashdata('error', 'Erreur lors de la création du produit.');
+                redirect(base_url('User_dashboard'));
+            }
+        }
+        
+        // Récupérer les catégories et vendeurs pour les selects
+        $data['categories'] = $this->Model->read('categories', ['est_actif' => 1], 'nom_categorie', 'ASC');
+        $data['vendeurs'] = $this->db->select('v.id_vendeur, v.nom_boutique, u.prenom, u.nom')
+            ->from('vendeurs v')
+            ->join('utilisateurs u', 'u.id_utilisateur = v.id_utilisateur')
+            ->where('v.est_approuve', 1)
+            ->where('v.statut', 'actif')
+            ->get()
+            ->result_array();
+        
+        $this->load->view('produits_add_edit', $data);
+    }
+
     /**
      * Générer SKU
      */
@@ -747,35 +793,12 @@ public function ajax_update_boutique() {
                         'id_produit' => $produit_id,
                         'url_image' => 'uploads/produits/' . $vendeur_id . '/' . $filename,
                         'est_principale' => $est_principale,
-                        'ordre' => $ordre_actuel + $i + 1
+                        'ordre_affichage' => $ordre_actuel + $i + 1
                     ];
                     $this->db->insert('images_produit', $img_data);
                 }
             }
         }
-    }
-
-}
-                
-                $this->session->set_flashdata('success', 'Produit créé avec succès.');
-                redirect(base_url('Produits'));
-            } else {
-                $this->session->set_flashdata('error', 'Erreur lors de la création du produit.');
-                redirect(base_url('Produits/add'));
-            }
-        }
-        
-        // Récupérer les catégories et vendeurs pour les selects
-        $data['categories'] = $this->Model->read('categories', ['est_actif' => 1], 'nom_categorie', 'ASC');
-        $data['vendeurs'] = $this->db->select('v.id_vendeur, v.nom_boutique, u.prenom, u.nom')
-            ->from('vendeurs v')
-            ->join('utilisateurs u', 'u.id_utilisateur = v.id_utilisateur')
-            ->where('v.est_approuve', 1)
-            ->where('v.statut', 'actif')
-            ->get()
-            ->result_array();
-        
-        $this->load->view('produits_add_edit', $data);
     }
 
 
@@ -836,11 +859,20 @@ public function ajax_update_boutique() {
             'marque' => $this->input->post('marque'),
             'prix_base' => $this->input->post('prix_base'),
             'prix_promo' => $this->input->post('prix_promo') ?: null,
-            'quantite_actuelle' => $this->input->post('quantite_actuelle'),
-            'main_image' => $main_image
+            'quantite_actuelle' => $this->input->post('quantite_actuelle')
         ];
         
         $product_id = $this->UserModel->add_product($user_id, $data);
+        
+        // Sauvegarder l'image principale dans images_produit
+        if ($product_id && $main_image !== 'default-product.png') {
+            $this->db->insert('images_produit', [
+                'id_produit' => $product_id,
+                'url_image' => 'uploads/produits/' . $main_image,
+                'est_principale' => 1,
+                'ordre_affichage' => 1
+            ]);
+        }
         
         $this->output
              ->set_content_type('application/json')
