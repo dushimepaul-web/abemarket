@@ -7,7 +7,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     
     // Base URL pour les appels AJAX
-    const BASE_URL = window.location.origin + '/abemarket/';
+    const BASE_URL = (typeof base_url !== 'undefined' ? base_url : window.location.origin + '/abemarket/');
     
     // État de la wishlist depuis localStorage (fallback)
     let wishlistStates = JSON.parse(localStorage.getItem('wishlistStates')) || {};

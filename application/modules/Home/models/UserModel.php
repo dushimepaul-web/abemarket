@@ -129,8 +129,9 @@ class UserModel extends CI_Model {
     }
 
     private function send_order_status_email($order, $status) {
-        $user = $this->db->where('id_utilisateur', $order->id_utilisateur)->get('utilisateurs')->row();
-        if (!$user || empty($user->email)) return;
+        try {
+            $user = $this->db->where('id_utilisateur', $order->id_utilisateur)->get('utilisateurs')->row();
+            if (!$user || empty($user->email)) return;
 
         $labels = [
             'en_attente' => 'En attente de paiement',
@@ -165,6 +166,9 @@ class UserModel extends CI_Model {
 
         $this->load->library('Cpanel_email_lib');
         $this->Cpanel_email_lib->send_email($user->email, $subject, $message);
+        } catch (\Exception $e) {
+            log_message('error', 'Email order status error: ' . $e->getMessage());
+        }
     }
 
     // ==================== PRODUITS (VENDEUR) ====================
