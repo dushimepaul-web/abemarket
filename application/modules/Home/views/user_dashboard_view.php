@@ -1439,26 +1439,26 @@
                                         </td>
                                         <td>
                                             <button class="abe-btn abe-btn-outline abe-btn-xs edit-product"
-                                                data-id="<?= $p['id_produit'] ?>" style="margin-right:4px;">
+                                                data-id="<?= $p['id_produit'] ?>" style="margin-right:4px;" title="Modifier">
                                                 <i class="ri-edit-line"></i>
                                             </button>
                                             <button class="abe-btn abe-btn-danger abe-btn-xs delete-product"
-                                                data-id="<?= $p['id_produit'] ?>">
+                                                data-id="<?= $p['id_produit'] ?>" title="Supprimer">
                                                 <i class="ri-delete-bin-line"></i>
                                             </button>
-                                            <a href="<?= base_url('ProduitsVendeur/images/' . $p['slug_produit']) ?>"
-                                               class="abe-btn abe-btn-outline abe-btn-xs" title="Gérer les images"
-                                                style="margin-right:4px;background:var(--surface);">
+                                            <button class="abe-btn abe-btn-outline abe-btn-xs open-images-modal"
+                                                data-id="<?= $p['id_produit'] ?>" data-name="<?= htmlspecialchars($p['nom_produit']) ?>"
+                                                style="margin-right:4px;background:var(--surface);" title="Gérer les images">
                                                 <i class="ri-image-line"></i>
                                                 <?php if (!empty($p['image_count']) && $p['image_count'] > 0): ?>
                                                     <span style="font-size:.7rem;background:var(--accent);color:#fff;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;margin-left:2px;"><?= $p['image_count'] ?></span>
                                                 <?php endif; ?>
-                                            </a>
-                                            <a href="<?= base_url('ProduitsVendeur/variantes/' . $p['slug_produit']) ?>"
-                                               class="abe-btn abe-btn-outline abe-btn-xs" title="Gérer les variantes"
-                                               style="background:var(--surface);">
+                                            </button>
+                                            <button class="abe-btn abe-btn-outline abe-btn-xs open-variantes-modal"
+                                                data-id="<?= $p['id_produit'] ?>" data-name="<?= htmlspecialchars($p['nom_produit']) ?>"
+                                                style="background:var(--surface);" title="Gérer les variantes">
                                                 <i class="ri-stack-line"></i>
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
@@ -2473,6 +2473,26 @@ document.querySelectorAll('.delete-product').forEach(btn => {
             r.success ? showAlert('success', 'Supprimé', r.message, () => location.reload())
                       : showAlert('error', 'Erreur', r.message);
         } catch { showAlert('error', 'Erreur', 'Erreur de connexion'); }
+    });
+});
+
+// ── Vendeur: Ouvrir modal images depuis le tableau ──
+document.querySelectorAll('.open-images-modal').forEach(btn => {
+    btn.addEventListener('click', function() {
+        currentImagesProductId = this.dataset.id;
+        document.getElementById('imagesProductName').textContent = this.dataset.name;
+        new bootstrap.Modal(document.getElementById('imagesModal')).show();
+        loadImages(currentImagesProductId);
+    });
+});
+
+// ── Vendeur: Ouvrir modal variantes depuis le tableau ──
+document.querySelectorAll('.open-variantes-modal').forEach(btn => {
+    btn.addEventListener('click', function() {
+        currentVariantesProductId = this.dataset.id;
+        document.getElementById('variantesProductName').textContent = this.dataset.name;
+        new bootstrap.Modal(document.getElementById('variantesModal')).show();
+        loadVariantes(currentVariantesProductId);
     });
 });
 
