@@ -376,3 +376,5 @@ $('#latitude, #longitude').on('change',function(){
     if(!isNaN(lat)&&!isNaN(lng))updateMapPosition(lat,lng);
 });
 </script>
+
+<?php include VIEWPATH . 'includes/frontend/Footer.php'; ?>

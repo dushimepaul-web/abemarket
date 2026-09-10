@@ -345,4 +345,6 @@
     });
 })(jQuery);
 </script>
+
+
 <?php include VIEWPATH . 'includes/frontend/Footer.php'; ?>
