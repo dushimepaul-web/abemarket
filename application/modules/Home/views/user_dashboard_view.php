@@ -6,12 +6,24 @@
 :root {
     --primary:    #1e1b4b;
     --primary-md: #312e81;
-    --accent:     #f59e0b;
-    --accent-lt:  #fef3c7;
+    --accent:     #ff9900;
+    --accent-lt:  #fff3e0;
+    --accent-dk:  #e68a00;
     --success:    #10b981;
+    --success-lt: #d1fae5;
+    --success-dk: #065f46;
     --danger:     #ef4444;
+    --danger-lt:  #fee2e2;
+    --danger-dk:  #991b1b;
     --warning:    #f59e0b;
+    --warning-lt: #fef3c7;
+    --warning-dk: #92400e;
     --info:       #3b82f6;
+    --info-lt:    #dbeafe;
+    --info-dk:    #1e40af;
+    --purple:     #7c3aed;
+    --purple-lt:  #ede9fe;
+    --purple-dk:  #5b21b6;
     --surface:    #f8f7ff;
     --card:       #ffffff;
     --border:     #e5e3f3;
@@ -37,7 +49,7 @@
 .abe-breadcrumb::after {
     content: ''; position: absolute; right: -60px; top: -40px;
     width: 260px; height: 260px; border-radius: 50%;
-    background: rgba(245,158,11,.12);
+    background: rgba(255,153,0,.12);
 }
 .abe-breadcrumb h2 {
     font-family: 'Syne', sans-serif; font-weight: 800;
@@ -234,7 +246,7 @@
     position: fixed;
     top: 25px;
     height: 20px;
-    width:20px      /* Changé de bottom à top */
+    width:20px;
     left: 20px;
     z-index: 1001;
     background: var(--primary);
@@ -369,7 +381,7 @@
 
 /* ── Welcome Banner ──────────────────────────── */
 .abe-welcome {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-md) 60%, #4338ca 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-md) 60%, var(--accent) 100%);
     border-radius: var(--radius); 
     padding: 32px 36px; 
     color: #fff;
@@ -389,7 +401,7 @@
     width: 200px; 
     height: 200px; 
     border-radius: 50%;
-    background: rgba(245,158,11,.15);
+    background: rgba(255,153,0,.15);
 }
 .abe-welcome-text h3 {
     font-family: 'Syne', sans-serif; 
@@ -457,12 +469,12 @@
     font-size: .75rem; 
     font-weight: 600;
 }
-.abe-badge-success { background: #d1fae5; color: #065f46; }
-.abe-badge-warning { background: #fef3c7; color: #92400e; }
-.abe-badge-danger  { background: #fee2e2; color: #991b1b; }
-.abe-badge-info    { background: #dbeafe; color: #1e40af; }
-.abe-badge-muted   { background: #f3f4f6; color: #374151; }
-.abe-badge-purple  { background: #ede9fe; color: #5b21b6; }
+.abe-badge-success { background: var(--success-lt); color: var(--success-dk); }
+.abe-badge-warning { background: var(--warning-lt); color: var(--warning-dk); }
+.abe-badge-danger  { background: var(--danger-lt); color: var(--danger-dk); }
+.abe-badge-info    { background: var(--info-lt); color: var(--info-dk); }
+.abe-badge-muted   { background: var(--surface); color: var(--muted); }
+.abe-badge-purple  { background: var(--purple-lt); color: var(--purple-dk); }
 
 /* ── Buttons ──────────────────────────────────── */
 .abe-btn {
@@ -480,12 +492,12 @@
 }
 .abe-btn-primary { background: var(--primary); color: #fff; }
 .abe-btn-primary:hover { background: var(--primary-md); color: #fff; }
-.abe-btn-accent  { background: var(--accent); color: var(--primary); }
-.abe-btn-accent:hover { background: #d97706; color: #fff; }
+.abe-btn-accent  { background: var(--accent); color: #fff; }
+.abe-btn-accent:hover { background: var(--accent-dk); color: #fff; }
 .abe-btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--border); }
 .abe-btn-outline:hover { border-color: var(--primary); background: var(--surface); }
-.abe-btn-danger  { background: #fee2e2; color: #dc2626; }
-.abe-btn-danger:hover { background: #dc2626; color: #fff; }
+.abe-btn-danger  { background: var(--danger-lt); color: var(--danger); }
+.abe-btn-danger:hover { background: var(--danger); color: #fff; }
 .abe-btn-sm { padding: 5px 12px; font-size: .8rem; }
 .abe-btn-xs { padding: 3px 9px; font-size: .75rem; }
 
@@ -612,10 +624,10 @@
     font-weight: 800; 
     font-size: 1.8rem; 
 }
-.abe-earning-card.total  { background: linear-gradient(135deg,#1e1b4b,#312e81); color: #fff; }
-.abe-earning-card.pending{ background: linear-gradient(135deg,#92400e,#d97706); color: #fff; }
-.abe-earning-card.avail  { background: linear-gradient(135deg,#065f46,#10b981); color: #fff; }
-.abe-earning-card.orders { background: linear-gradient(135deg,#1e3a5f,#3b82f6); color: #fff; }
+.abe-earning-card.total  { background: linear-gradient(135deg,var(--primary),var(--primary-md)); color: #fff; }
+.abe-earning-card.pending{ background: linear-gradient(135deg,var(--accent-dk),var(--accent)); color: #fff; }
+.abe-earning-card.avail  { background: linear-gradient(135deg,var(--success-dk),var(--success)); color: #fff; }
+.abe-earning-card.orders { background: linear-gradient(135deg,var(--info-dk),var(--info)); color: #fff; }
 
 /* ── Order Timeline ───────────────────────────── */
 .abe-timeline { padding: 10px 0; }
@@ -878,12 +890,12 @@
 
     <!-- Flashdata -->
     <?php if ($this->session->flashdata('success')): ?>
-    <div style="background:#d1fae5;color:#065f46;padding:12px 18px;border-radius:10px;margin:16px 0;font-weight:600;">
+    <div style="background:var(--success-lt);color:var(--success-dk);padding:12px 18px;border-radius:10px;margin:16px 0;font-weight:600;">
         <i class="ri-checkbox-circle-line"></i> <?= $this->session->flashdata('success') ?>
     </div>
     <?php endif; ?>
     <?php if ($this->session->flashdata('error')): ?>
-    <div style="background:#fee2e2;color:#991b1b;padding:12px 18px;border-radius:10px;margin:16px 0;font-weight:600;">
+    <div style="background:var(--danger-lt);color:var(--danger-dk);padding:12px 18px;border-radius:10px;margin:16px 0;font-weight:600;">
         <i class="ri-error-warning-line"></i> <?= $this->session->flashdata('error') ?>
     </div>
     <?php endif; ?>
@@ -1027,65 +1039,65 @@
                 <!-- Stats Grid -->
                 <div class="abe-stats">
                     <div class="abe-stat" data-nav="tab-orders">
-                        <div class="abe-stat-icon" style="background:#ede9fe;">
-                            <i class="ri-shopping-basket-line" style="color:#7c3aed;"></i>
+                        <div class="abe-stat-icon" style="background:var(--purple-lt);">
+                            <i class="ri-shopping-basket-line" style="color:var(--purple);"></i>
                         </div>
                         <div class="abe-stat-value"><?= $stats['total_commandes'] ?></div>
                         <div class="abe-stat-label">Total commandes</div>
                     </div>
                     <div class="abe-stat" data-nav="tab-orders">
-                        <div class="abe-stat-icon" style="background:#fef3c7;">
-                            <i class="ri-time-line" style="color:#d97706;"></i>
+                        <div class="abe-stat-icon" style="background:var(--accent-lt);">
+                            <i class="ri-time-line" style="color:var(--accent);"></i>
                         </div>
                         <div class="abe-stat-value"><?= $stats['commandes_en_cours'] ?></div>
                         <div class="abe-stat-label">En cours</div>
                     </div>
                     <div class="abe-stat" data-nav="tab-orders">
-                        <div class="abe-stat-icon" style="background:#d1fae5;">
-                            <i class="ri-checkbox-circle-line" style="color:#059669;"></i>
+                        <div class="abe-stat-icon" style="background:var(--success-lt);">
+                            <i class="ri-checkbox-circle-line" style="color:var(--success);"></i>
                         </div>
                         <div class="abe-stat-value"><?= $stats['commandes_livre'] ?></div>
                         <div class="abe-stat-label">Livrées</div>
                     </div>
                     <div class="abe-stat" data-nav="tab-wishlist">
-                        <div class="abe-stat-icon" style="background:#fee2e2;">
-                            <i class="ri-heart-line" style="color:#dc2626;"></i>
+                        <div class="abe-stat-icon" style="background:var(--danger-lt);">
+                            <i class="ri-heart-line" style="color:var(--danger);"></i>
                         </div>
                         <div class="abe-stat-value"><?= $stats['wishlist_count'] ?></div>
                         <div class="abe-stat-label">Favoris</div>
                     </div>
                     <div class="abe-stat" data-nav="tab-addresses">
-                        <div class="abe-stat-icon" style="background:#dbeafe;">
-                            <i class="ri-map-pin-line" style="color:#2563eb;"></i>
+                        <div class="abe-stat-icon" style="background:var(--info-lt);">
+                            <i class="ri-map-pin-line" style="color:var(--info);"></i>
                         </div>
                         <div class="abe-stat-value"><?= $stats['addresses_count'] ?></div>
                         <div class="abe-stat-label">Adresses</div>
                     </div>
                     <div class="abe-stat">
-                        <div class="abe-stat-icon" style="background:#d1fae5;">
-                            <i class="ri-money-franc-circle-line" style="color:#059669;"></i>
+                        <div class="abe-stat-icon" style="background:var(--success-lt);">
+                            <i class="ri-money-franc-circle-line" style="color:var(--success);"></i>
                         </div>
                         <div class="abe-stat-value" style="font-size:1rem;"><?= number_format($stats['total_depense'], 0, ',', ' ') ?></div>
                         <div class="abe-stat-label">Dépensé (FBu)</div>
                     </div>
                     <?php if ($is_vendeur): ?>
                     <div class="abe-stat" data-nav="tab-seller-products">
-                        <div class="abe-stat-icon" style="background:#ede9fe;">
-                            <i class="ri-shopping-bag-line" style="color:#7c3aed;"></i>
+                        <div class="abe-stat-icon" style="background:var(--purple-lt);">
+                            <i class="ri-shopping-bag-line" style="color:var(--purple);"></i>
                         </div>
                         <div class="abe-stat-value"><?= $stats['total_produits'] ?? 0 ?></div>
                         <div class="abe-stat-label">Mes produits</div>
                     </div>
                     <div class="abe-stat" data-nav="tab-seller-orders">
-                        <div class="abe-stat-icon" style="background:#fef3c7;">
-                            <i class="ri-receipt-line" style="color:#d97706;"></i>
+                        <div class="abe-stat-icon" style="background:var(--accent-lt);">
+                            <i class="ri-receipt-line" style="color:var(--accent);"></i>
                         </div>
                         <div class="abe-stat-value"><?= $stats['commandes_recues'] ?? 0 ?></div>
                         <div class="abe-stat-label">Cmd. reçues</div>
                     </div>
                     <div class="abe-stat" data-nav="tab-earnings">
-                        <div class="abe-stat-icon" style="background:#d1fae5;">
-                            <i class="ri-coins-line" style="color:#059669;"></i>
+                        <div class="abe-stat-icon" style="background:var(--success-lt);">
+                            <i class="ri-coins-line" style="color:var(--success);"></i>
                         </div>
                         <div class="abe-stat-value" style="font-size:1rem;"><?= number_format($stats['total_gains'] ?? 0, 0, ',', ' ') ?></div>
                         <div class="abe-stat-label">Gains (FBu)</div>
@@ -1343,7 +1355,7 @@
                             <?php
                             $cat = $notif['categorie'];
                             $icon_map = ['commande'=>'ri-shopping-basket-line','paiement'=>'ri-bank-card-line','livraison'=>'ri-truck-line','securite'=>'ri-shield-line','systeme'=>'ri-settings-line'];
-                            $col_map = ['commande'=>'#7c3aed','paiement'=>'#059669','livraison'=>'#2563eb','securite'=>'#dc2626','systeme'=>'#6b7280'];
+                            $col_map = ['commande'=>'#7c3aed','paiement'=>'#10b981','livraison'=>'#3b82f6','securite'=>'#ef4444','systeme'=>'#6b7280'];
                             $icon = $icon_map[$cat] ?? 'ri-notification-3-line';
                             $col  = $col_map[$cat]  ?? '#6b7280';
                             ?>
@@ -1436,7 +1448,7 @@
                                             </button>
                                             <a href="<?= base_url('ProduitsVendeur/images/' . $p['slug_produit']) ?>"
                                                class="abe-btn abe-btn-outline abe-btn-xs" title="Gérer les images"
-                                               style="margin-right:4px;background:#f0f0f0;">
+                                                style="margin-right:4px;background:var(--surface);">
                                                 <i class="ri-image-line"></i>
                                                 <?php if (!empty($p['image_count']) && $p['image_count'] > 0): ?>
                                                     <span style="font-size:.7rem;background:var(--accent);color:#fff;border-radius:50%;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;margin-left:2px;"><?= $p['image_count'] ?></span>
@@ -1444,7 +1456,7 @@
                                             </a>
                                             <a href="<?= base_url('ProduitsVendeur/variantes/' . $p['slug_produit']) ?>"
                                                class="abe-btn abe-btn-outline abe-btn-xs" title="Gérer les variantes"
-                                               style="background:#f0f0f0;">
+                                               style="background:var(--surface);">
                                                 <i class="ri-stack-line"></i>
                                             </a>
                                         </td>
@@ -2021,6 +2033,7 @@
                     </button>
                 </div>
                 <div id="addVarianteForm" style="display:none;background:var(--surface);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;">
+                    <input type="hidden" id="var_id_edit" value="">
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
                         <div class="abe-form-group"><label>SKU</label><input type="text" id="var_sku" class="abe-input" placeholder="Auto-généré si vide"></div>
                         <div class="abe-form-group"><label>Prix (FBu)</label><input type="number" id="var_prix" class="abe-input" min="0"></div>
@@ -2170,6 +2183,12 @@ document.getElementById('sidebarToggle')?.addEventListener('click', function() {
         ? '<i class="ri-close-line"></i>'
         : '<i class="ri-menu-line"></i>';
 });
+document.getElementById('sidebarOverlay')?.addEventListener('click', function() {
+    const s = document.getElementById('abeSidebar');
+    if (s) s.classList.remove('open');
+    const btn = document.getElementById('sidebarToggle');
+    if (btn) btn.innerHTML = '<i class="ri-menu-line"></i>';
+});
 
 
 
@@ -2203,7 +2222,7 @@ if (hash && document.getElementById(hash)) {
 // ── Helpers ───────────────────────────────────────
 function showAlert(icon, title, text, cb) {
     if (typeof Swal !== 'undefined') {
-        Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#f59e0b', timer: icon==='success'?3000:null, showConfirmButton:true })
+        Swal.fire({ icon: icon, title: title, text: text, confirmButtonColor: '#ff9900', timer: icon==='success'?3000:null, showConfirmButton:true })
             .then(function() { if (cb) cb(); });
     } else {
         alert('[' + title + '] ' + text);
@@ -2399,29 +2418,29 @@ document.querySelectorAll('.view-order-btn').forEach(btn => {
             if (r.success) {
                 const c = r.data;
                 const articlesHtml = (c.articles && c.articles.length)
-                    ? c.articles.map(a => `<li style="padding:6px 0;border-bottom:1px solid #f3f4f6;">
+                    ? c.articles.map(a => `<li style="padding:6px 0;border-bottom:1px solid var(--border);">
                         <strong>${a.nom_produit}</strong> × ${a.quantite}
-                        <span style="float:right;color:#f59e0b;font-weight:700;">${parseFloat(a.prix_total).toLocaleString()} FBu</span>
+                        <span style="float:right;color:var(--accent);font-weight:700;">${parseFloat(a.prix_total).toLocaleString()} FBu</span>
                       </li>`).join('')
                     : '<li>Aucun article</li>';
                 const histHtml = (c.historique_statuts && c.historique_statuts.length)
-                    ? c.historique_statuts.slice(0,5).map(h => `<li style="font-size:.8rem;color:#6b7280;padding:3px 0;">${h.statut} — ${new Date(h.date_creation).toLocaleString()}</li>`).join('')
+                    ? c.historique_statuts.slice(0,5).map(h => `<li style="font-size:.8rem;color:var(--muted);padding:3px 0;">${h.statut} — ${new Date(h.date_creation).toLocaleString()}</li>`).join('')
                     : '';
                 Swal.fire({
                     title: `Commande #${c.numero_commande}`,
                     html: `<div style="text-align:left;font-size:.9rem;">
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-                            <div><p style="margin:0;color:#6b7280;font-size:.78rem;">Date</p><p style="margin:0;font-weight:600;">${new Date(c.date_creation).toLocaleDateString()}</p></div>
-                            <div><p style="margin:0;color:#6b7280;font-size:.78rem;">Statut</p><p style="margin:0;font-weight:600;">${c.statut_commande}</p></div>
-                            <div><p style="margin:0;color:#6b7280;font-size:.78rem;">Paiement</p><p style="margin:0;font-weight:600;">${c.mode_paiement||'N/A'}</p></div>
-                            <div><p style="margin:0;color:#6b7280;font-size:.78rem;">Total</p><p style="margin:0;font-weight:700;color:#f59e0b;">${parseFloat(c.montant_total).toLocaleString()} FBu</p></div>
+                            <div><p style="margin:0;color:var(--muted);font-size:.78rem;">Date</p><p style="margin:0;font-weight:600;">${new Date(c.date_creation).toLocaleDateString()}</p></div>
+                            <div><p style="margin:0;color:var(--muted);font-size:.78rem;">Statut</p><p style="margin:0;font-weight:600;">${c.statut_commande}</p></div>
+                            <div><p style="margin:0;color:var(--muted);font-size:.78rem;">Paiement</p><p style="margin:0;font-weight:600;">${c.mode_paiement||'N/A'}</p></div>
+                            <div><p style="margin:0;color:var(--muted);font-size:.78rem;">Total</p><p style="margin:0;font-weight:700;color:var(--accent);">${parseFloat(c.montant_total).toLocaleString()} FBu</p></div>
                         </div>
                         <hr style="margin:10px 0;">
                         <strong>Articles :</strong>
                         <ul style="list-style:none;padding:0;margin:8px 0;">${articlesHtml}</ul>
                         ${histHtml ? `<details style="margin-top:10px;"><summary style="cursor:pointer;font-size:.8rem;color:#6b7280;">Historique des statuts</summary><ul style="list-style:none;padding:0;margin:6px 0;">${histHtml}</ul></details>` : ''}
                     </div>`,
-                    confirmButtonColor: '#f59e0b', width: '480px'
+                    confirmButtonColor: '#ff9900', width: '480px'
                 });
             } else { showAlert('error', 'Erreur', r.message); }
         } catch { showAlert('error', 'Erreur', 'Erreur de chargement'); }
@@ -2572,8 +2591,8 @@ async function loadImages(productId) {
         grid.innerHTML = r.images.map(img => '<div style="position:relative;border-radius:8px;overflow:hidden;border:2px solid ' + (img.est_principale ? 'var(--accent)' : 'var(--border)') + ';">' +
             '<img src="' + BASE_URL + img.url_image + '" style="width:100%;height:120px;object-fit:cover;display:block;">' +
             '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);padding:6px;display:flex;justify-content:space-between;align-items:center;">' +
-            (img.est_principale ? '<span style="color:#f59e0b;font-size:.7rem;"><i class="ri-star-fill"></i> Principale</span>' : '<button onclick="setMainImage(' + img.id_image + ')" style="background:none;border:none;color:#fff;font-size:.7rem;cursor:pointer;"><i class="ri-star-line"></i> Principale</button>') +
-            '<button onclick="deleteImage(' + img.id_image + ')" style="background:none;border:none;color:#ef4444;font-size:.7rem;cursor:pointer;"><i class="ri-delete-bin-line"></i></button>' +
+            (img.est_principale ? '<span style="color:var(--accent);font-size:.7rem;"><i class="ri-star-fill"></i> Principale</span>' : '<button onclick="setMainImage(' + img.id_image + ')" style="background:none;border:none;color:#fff;font-size:.7rem;cursor:pointer;"><i class="ri-star-line"></i> Principale</button>') +
+            '<button onclick="deleteImage(' + img.id_image + ')" style="background:none;border:none;color:var(--danger);font-size:.7rem;cursor:pointer;"><i class="ri-delete-bin-line"></i></button>' +
             '</div></div>').join('');
     } catch { grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);grid-column:1/-1;">Erreur de chargement</div>'; }
 }
@@ -2663,7 +2682,26 @@ function showAddVarianteForm() {
     document.getElementById('var_attributs').value = '';
 }
 
+async function editVariante(varianteId) {
+    var form = document.getElementById('addVarianteForm');
+    form.style.display = 'block';
+    form.querySelector('h4').textContent = 'Modifier la variante';
+    try {
+        const resp = await fetch(BASE_URL + 'user_dashboard/ajax_get_variantes?product_id=' + currentVariantesProductId);
+        const data = await resp.json();
+        if (!data.success) { showAlert('error', 'Erreur', data.message); return; }
+        var v = data.variantes.find(x => x.id_variante == varianteId);
+        if (!v) { showAlert('error', 'Erreur', 'Variante introuvable'); return; }
+        document.getElementById('var_sku').value = v.sku || '';
+        document.getElementById('var_prix').value = v.prix || '';
+        document.getElementById('var_stock').value = v.quantite_actuelle || 0;
+        document.getElementById('var_attributs').value = v.attributs ? JSON.stringify(v.attributs) : '';
+        document.getElementById('var_id_edit').value = varianteId;
+    } catch { showAlert('error', 'Erreur', 'Erreur réseau'); }
+}
+
 async function saveVariante() {
+    var editId = document.getElementById('var_id_edit').value;
     var sku = document.getElementById('var_sku').value;
     var prix = document.getElementById('var_prix').value;
     var stock = document.getElementById('var_stock').value;
@@ -2673,14 +2711,16 @@ async function saveVariante() {
     
     var fd = new FormData();
     fd.append('product_id', currentVariantesProductId);
+    if (editId) fd.append('variante_id', editId);
     if (sku) fd.append('sku', sku);
     if (prix) fd.append('prix', prix);
     fd.append('quantite_actuelle', stock);
     fd.append('attributs', JSON.stringify(attributs));
     
     try {
-        const r = await apiPost('user_dashboard/ajax_add_variante', fd);
-        r.success ? (showAlert('success', 'Ajouté', r.message), loadVariantes(currentVariantesProductId)) : showAlert('error', 'Erreur', r.message);
+        var url = editId ? 'user_dashboard/ajax_edit_variante' : 'user_dashboard/ajax_add_variante';
+        const r = await apiPost(url, fd);
+        r.success ? (showAlert('success', editId ? 'Modifié' : 'Ajouté', r.message), loadVariantes(currentVariantesProductId), document.getElementById('var_id_edit').value = '') : showAlert('error', 'Erreur', r.message);
     } catch { showAlert('error', 'Erreur', 'Erreur réseau'); }
 }
 
